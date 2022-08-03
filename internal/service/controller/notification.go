@@ -20,7 +20,7 @@ func Notification(res http.ResponseWriter, req *http.Request) {
 
 func sendNotification(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
-	if !util.JsonMiddleware(res, req, &reqObj) {
+	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
