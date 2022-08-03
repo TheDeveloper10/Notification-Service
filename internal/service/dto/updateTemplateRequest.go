@@ -1,4 +1,4 @@
-package dtos
+package dto
 
 type UpdateTemplateRequest struct {
 	AbstractRequest

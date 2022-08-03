@@ -1,15 +1,15 @@
-package controllers
+package controller
 
 import (
 	"net/http"
 
-	"notification-service.com/packages/internal/service/dtos"
-	"notification-service.com/packages/internal/service/utils"
-	"notification-service.com/packages/internal/service/repositories"
+	"notification-service.com/packages/internal/service/dto"
+	"notification-service.com/packages/internal/service/util"
+	"notification-service.com/packages/internal/service/repository"
 )
 
 func Template(res http.ResponseWriter, req *http.Request) {
-	brw := &utils.BetterResponseWriter { RW: &res }
+	brw := &util.BetterResponseWriter { RW: &res }
 
 	switch(req.Method) {
 		case "POST": {
@@ -27,13 +27,13 @@ func Template(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func createTemplate(res *utils.BetterResponseWriter, req *http.Request) {
-	reqObj := dtos.CreateTemplateRequest{}
-	if !utils.JsonMiddleware(res, req, &reqObj) {
+func createTemplate(res *util.BetterResponseWriter, req *http.Request) {
+	reqObj := dto.CreateTemplateRequest{}
+	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
 	}
 
-	result := repositories.InsertTemplate(&reqObj)
+	result := repository.InsertTemplate(&reqObj)
 	if result {
 		// Maybe return metadata such as id
 		res.Status(http.StatusOK).Text("Created successfully!")
@@ -42,13 +42,13 @@ func createTemplate(res *utils.BetterResponseWriter, req *http.Request) {
 	}
 }
 
-func getTemplate(res *utils.BetterResponseWriter, req *http.Request) {
-	reqObj := dtos.TemplateIdRequest{}
-	if !utils.JsonMiddleware(res, req, &reqObj) {
+func getTemplate(res *util.BetterResponseWriter, req *http.Request) {
+	reqObj := dto.TemplateIdRequest{}
+	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
 	}
 
-	record, statusCode := repositories.GetTemplate(&reqObj)
+	record, statusCode := repository.GetTemplate(&reqObj)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -60,13 +60,13 @@ func getTemplate(res *utils.BetterResponseWriter, req *http.Request) {
 	}
 }
 
-func updateTemplate(res *utils.BetterResponseWriter, req *http.Request) {
-	reqObj := dtos.UpdateTemplateRequest{}
-	if !utils.JsonMiddleware(res, req, &reqObj) {
+func updateTemplate(res *util.BetterResponseWriter, req *http.Request) {
+	reqObj := dto.UpdateTemplateRequest{}
+	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
 	}
 
-	status := repositories.UpdateTemplate(&reqObj)
+	status := repository.UpdateTemplate(&reqObj)
 	if status {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else {
@@ -74,13 +74,13 @@ func updateTemplate(res *utils.BetterResponseWriter, req *http.Request) {
 	}
 }
 
-func deleteTemplate(res *utils.BetterResponseWriter, req *http.Request) {
-	reqObj := dtos.TemplateIdRequest{}
-	if !utils.JsonMiddleware(res, req, &reqObj) {
+func deleteTemplate(res *util.BetterResponseWriter, req *http.Request) {
+	reqObj := dto.TemplateIdRequest{}
+	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
 	}
 
-	status := repositories.DeleteTemplate(&reqObj)
+	status := repository.DeleteTemplate(&reqObj)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {

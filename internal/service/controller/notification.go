@@ -1,16 +1,16 @@
-package controllers
+package controller
 
 import (
 	"net/http"
 	"strings"
 
-	"notification-service.com/packages/internal/service/dtos"
-	"notification-service.com/packages/internal/service/repositories"
-	"notification-service.com/packages/internal/service/utils"
+	"notification-service.com/packages/internal/service/dto"
+	"notification-service.com/packages/internal/service/repository"
+	"notification-service.com/packages/internal/service/util"
 )
 
 func Notification(res http.ResponseWriter, req *http.Request) {
-	brw := &utils.BetterResponseWriter { RW: &res }
+	brw := &util.BetterResponseWriter { RW: &res }
 	switch (req.Method) {
 		case "POST": {
 			sendNotification(brw, req)
@@ -18,13 +18,13 @@ func Notification(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func sendNotification(res *utils.BetterResponseWriter, req *http.Request) {
-	reqObj := dtos.SendNotificationRequest{}
-	if !utils.JsonMiddleware(res, req, &reqObj) {
+func sendNotification(res *util.BetterResponseWriter, req *http.Request) {
+	reqObj := dto.SendNotificationRequest{}
+	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
 	}
 
-	record, status := repositories.GetTemplate(&dtos.TemplateIdRequest{Id: reqObj.TemplateId})
+	record, status := repository.GetTemplate(&dto.TemplateIdRequest{Id: reqObj.TemplateId})
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again!")
 		return
@@ -39,5 +39,5 @@ func sendNotification(res *utils.BetterResponseWriter, req *http.Request) {
 		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
 	}
 	
-	repositories.InsertNotification(&reqObj, &record.Template)
+	repository.InsertNotification(&reqObj, &record.Template)
 }

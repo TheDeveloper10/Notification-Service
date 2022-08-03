@@ -1,11 +1,11 @@
-package repositories
+package repository
 
 import (
 	"notification-service.com/packages/internal/clients"
-	"notification-service.com/packages/internal/service/dtos"
+	"notification-service.com/packages/internal/service/dto"
 )
 
-func InsertNotification(snr *dtos.SendNotificationRequest, message *string) bool {
+func InsertNotification(snr *dto.SendNotificationRequest, message *string) bool {
 	client := clients.GetMysqlClient()
 
 	stmt, err1 := client.Prepare("insert into Notifications(Title, ContactType, ContactInfo, Message, UserId, AppId) values(?, ?, ?, ?, ?, ?)")
