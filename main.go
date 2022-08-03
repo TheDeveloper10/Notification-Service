@@ -18,6 +18,7 @@ func main() {
 	}
 
 	http.HandleFunc("/template", controllers.Template)
+	http.HandleFunc("/notification", controllers.Notification)
 	
 	log.Fatal(http.ListenAndServe(os.Getenv("server.addr"), nil))
 }
