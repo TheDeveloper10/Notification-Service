@@ -5,10 +5,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"notification-service.com/packages/internal/service/dto"
+	"notification-service.com/packages/internal/dto"
 )
 
-func JsonMiddleware(res *BetterResponseWriter, req *http.Request, out dto.AbstractRequest) bool {
+func JsonMiddleware(res *ResponseWriterWrapper, req *http.Request, out dto.AbstractRequest) bool {
 	if req.Header.Get("Content-Type") != "application/json" {
 		res.Status(http.StatusUnsupportedMediaType)
 		return false

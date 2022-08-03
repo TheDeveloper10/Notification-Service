@@ -3,13 +3,13 @@ package controller
 import (
 	"net/http"
 
-	"notification-service.com/packages/internal/service/dto"
-	"notification-service.com/packages/internal/service/util"
-	"notification-service.com/packages/internal/service/repository"
+	"notification-service.com/packages/internal/dto"
+	"notification-service.com/packages/internal/util"
+	"notification-service.com/packages/internal/repository"
 )
 
 func Template(res http.ResponseWriter, req *http.Request) {
-	brw := &util.BetterResponseWriter { RW: &res }
+	brw := &util.ResponseWriterWrapper { RW: &res }
 
 	switch(req.Method) {
 		case "POST": {
@@ -27,7 +27,7 @@ func Template(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func createTemplate(res *util.BetterResponseWriter, req *http.Request) {
+func createTemplate(res *util.ResponseWriterWrapper, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
@@ -42,7 +42,7 @@ func createTemplate(res *util.BetterResponseWriter, req *http.Request) {
 	}
 }
 
-func getTemplate(res *util.BetterResponseWriter, req *http.Request) {
+func getTemplate(res *util.ResponseWriterWrapper, req *http.Request) {
 	reqObj := dto.TemplateIdRequest{}
 	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
@@ -60,7 +60,7 @@ func getTemplate(res *util.BetterResponseWriter, req *http.Request) {
 	}
 }
 
-func updateTemplate(res *util.BetterResponseWriter, req *http.Request) {
+func updateTemplate(res *util.ResponseWriterWrapper, req *http.Request) {
 	reqObj := dto.UpdateTemplateRequest{}
 	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
@@ -74,7 +74,7 @@ func updateTemplate(res *util.BetterResponseWriter, req *http.Request) {
 	}
 }
 
-func deleteTemplate(res *util.BetterResponseWriter, req *http.Request) {
+func deleteTemplate(res *util.ResponseWriterWrapper, req *http.Request) {
 	reqObj := dto.TemplateIdRequest{}
 	if !util.JsonMiddleware(res, req, &reqObj) {
 		return

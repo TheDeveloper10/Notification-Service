@@ -2,7 +2,7 @@ package repository
 
 import (
 	"notification-service.com/packages/internal/clients"
-	"notification-service.com/packages/internal/service/dto"
+	"notification-service.com/packages/internal/dto"
 )
 
 func InsertNotification(snr *dto.SendNotificationRequest, message *string) bool {

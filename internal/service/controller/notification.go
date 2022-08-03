@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strings"
 
-	"notification-service.com/packages/internal/service/dto"
-	"notification-service.com/packages/internal/service/repository"
-	"notification-service.com/packages/internal/service/util"
+	"notification-service.com/packages/internal/dto"
+	"notification-service.com/packages/internal/repository"
+	"notification-service.com/packages/internal/util"
 )
 
 func Notification(res http.ResponseWriter, req *http.Request) {
-	brw := &util.BetterResponseWriter { RW: &res }
+	brw := &util.ResponseWriterWrapper { RW: &res }
 	switch (req.Method) {
 		case "POST": {
 			sendNotification(brw, req)
@@ -18,7 +18,7 @@ func Notification(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func sendNotification(res *util.BetterResponseWriter, req *http.Request) {
+func sendNotification(res *util.ResponseWriterWrapper, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
 	if !util.JsonMiddleware(res, req, &reqObj) {
 		return
