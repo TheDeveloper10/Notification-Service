@@ -1,3 +1,5 @@
+server:
+  addr: :8080
 database:
   driver: mysql
   username: admin

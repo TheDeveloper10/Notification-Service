@@ -9,6 +9,9 @@ import (
 )
 
 type config struct {
+	Server struct {
+		Addr string
+	}
 	Database struct {
 		Driver string 
 		Username string 
@@ -35,8 +38,10 @@ func EnvLoader(fileName string) bool {
 
 	os.Setenv("db.driver", out.Database.Driver)
 	conn := fmt.Sprintf("%s:%s@tcp(%s)/%s", out.Database.Username, out.Database.Password, out.Database.Host, out.Database.Name)
-	os.Setenv("db.connection", conn)
+	os.Setenv("db.conn", conn)
 	os.Setenv("db.pool_size", out.Database.PoolSize)
+
+	os.Setenv("server.addr", out.Server.Addr)
 
 	return true
 }
