@@ -2,7 +2,6 @@ package util
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
 	"notification-service.com/packages/internal/dto"
@@ -14,14 +13,7 @@ func JsonMiddleware(res IResponseWriter, req *http.Request, out dto.AbstractRequ
 		return false
 	}
 
-	bodyBytes, err := ioutil.ReadAll(req.Body)
-	defer req.Body.Close()
-	if err != nil {
-		res.Status(http.StatusInternalServerError)
-		return false
-	}
-
-	err = json.Unmarshal(bodyBytes, &out)
+	err := json.NewDecoder(req.Body).Decode(&out)
 	if err != nil {
 		res.Status(http.StatusBadRequest)
 		return false
