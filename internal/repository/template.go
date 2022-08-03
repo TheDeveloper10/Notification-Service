@@ -5,7 +5,13 @@ import (
 	"notification-service.com/packages/internal/dto"
 )
 
-func InsertTemplate(req *dto.CreateTemplateRequest) bool {
+type template struct { }
+
+func GetTemplate() *template {
+	return &template{}
+}
+
+func (t *template) Insert(req *dto.CreateTemplateRequest) bool {
 	client := clients.GetMysqlClient()
 
 	stmt, err1 := client.Prepare("insert into Templates(ContactType, Template) values(?, ?)")
@@ -18,7 +24,7 @@ func InsertTemplate(req *dto.CreateTemplateRequest) bool {
 	return err2 == nil
 }
 
-func GetTemplate(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
+func (t *template) Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
 	client := clients.GetMysqlClient()
 
 	stmt, err1 := client.Prepare("select * from Templates where Id=?")
@@ -44,7 +50,7 @@ func GetTemplate(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
 	}
 }
 
-func UpdateTemplate(req *dto.UpdateTemplateRequest) (bool) {
+func (t *template) Update(req *dto.UpdateTemplateRequest) (bool) {
 	client := clients.GetMysqlClient()
 
 	stmt, err1 := client.Prepare("update Templates set Template=? where Id=?")
@@ -57,7 +63,7 @@ func UpdateTemplate(req *dto.UpdateTemplateRequest) (bool) {
 	return err2 == nil
 }
 
-func DeleteTemplate(req *dto.TemplateIdRequest) (bool) {
+func (t *template) Delete(req *dto.TemplateIdRequest) (bool) {
 	client := clients.GetMysqlClient()
 
 	stmt, err1 := client.Prepare("delete from Templates where Id=?")

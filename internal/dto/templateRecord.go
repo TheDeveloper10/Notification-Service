@@ -17,11 +17,11 @@ func (rec *TemplateRecord) ToReadable() (TemplateReadable) {
 
 	// make a repository for templates
 	switch (rec.ContactType) {
-	case 0:
-		contactType = "email"
 	case 1:
-		contactType = "sms"
+		contactType = "email"
 	case 2:
+		contactType = "sms"
+	case 3:
 		contactType = "push"
 	}
 

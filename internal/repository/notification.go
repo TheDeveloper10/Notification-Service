@@ -5,7 +5,13 @@ import (
 	"notification-service.com/packages/internal/dto"
 )
 
-func InsertNotification(snr *dto.SendNotificationRequest, message *string) bool {
+type notification struct { }
+
+func GetNotification() (*notification) {
+	return &notification{}
+}
+
+func (n *notification) Insert(snr *dto.SendNotificationRequest, message *string) bool {
 	client := clients.GetMysqlClient()
 
 	stmt, err1 := client.Prepare("insert into Notifications(Title, ContactType, ContactInfo, Message, UserId, AppId) values(?, ?, ?, ?, ?, ?)")

@@ -33,7 +33,7 @@ func (n *notification) send(res util.IResponseWriter, req *http.Request) {
 		return
 	}
 
-	record, status := repository.GetTemplate(&dto.TemplateIdRequest{Id: reqObj.TemplateId})
+	record, status := repository.GetTemplate().Get(&dto.TemplateIdRequest{Id: reqObj.TemplateId})
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again!")
 		return
@@ -48,5 +48,5 @@ func (n *notification) send(res util.IResponseWriter, req *http.Request) {
 		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
 	}
 	
-	repository.InsertNotification(&reqObj, &record.Template)
+	repository.GetNotification().Insert(&reqObj, &record.Template)
 }
