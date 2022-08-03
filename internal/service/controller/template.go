@@ -8,26 +8,34 @@ import (
 	"notification-service.com/packages/internal/repository"
 )
 
-func Template(res http.ResponseWriter, req *http.Request) {
-	brw := &util.ResponseWriterWrapper { RW: &res }
+type template struct {
+	util.Controller
+}
+
+func GetTemplate() *template {
+	return &template{}
+}
+
+func (t *template) Handle(res http.ResponseWriter, req *http.Request) {
+	brw := util.ConvertResponseWriter(&res)
 
 	switch(req.Method) {
 		case "POST": {
-			createTemplate(brw, req)
+			t.create(brw, req)
 		}
 		case "GET": {
-			getTemplate(brw, req)
+			t.get(brw, req)
 		}
 		case "PATCH": {
-			updateTemplate(brw, req)
+			t.update(brw, req)
 		}
 		case "DELETE": {
-			deleteTemplate(brw, req)
+			t.delete(brw, req)
 		}
 	}
 }
 
-func createTemplate(res util.IResponseWriter, req *http.Request) {
+func (t *template) create(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
@@ -42,7 +50,7 @@ func createTemplate(res util.IResponseWriter, req *http.Request) {
 	}
 }
 
-func getTemplate(res util.IResponseWriter, req *http.Request) {
+func (t *template) get(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.TemplateIdRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
@@ -60,7 +68,7 @@ func getTemplate(res util.IResponseWriter, req *http.Request) {
 	}
 }
 
-func updateTemplate(res util.IResponseWriter, req *http.Request) {
+func (t *template) update(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.UpdateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
@@ -74,7 +82,7 @@ func updateTemplate(res util.IResponseWriter, req *http.Request) {
 	}
 }
 
-func deleteTemplate(res util.IResponseWriter, req *http.Request) {
+func (t *template) delete(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.TemplateIdRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return

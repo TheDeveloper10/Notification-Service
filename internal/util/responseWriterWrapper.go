@@ -7,16 +7,16 @@ import (
 
 type ResponseWriterWrapper struct {
 	IResponseWriter
-	RW *http.ResponseWriter
+	rw *http.ResponseWriter
 }
 
 func (brw *ResponseWriterWrapper) Status(statusCode int) (IResponseWriter) {
-	(*brw.RW).WriteHeader(statusCode)
+	(*brw.rw).WriteHeader(statusCode)
 	return brw
 } 
 
 func (brw *ResponseWriterWrapper) Text(text string) (IResponseWriter) {
-	(*brw.RW).Write([]byte(text))
+	(*brw.rw).Write([]byte(text))
 	return brw
 }
 
@@ -29,6 +29,12 @@ func (brw *ResponseWriterWrapper) Json(data interface{}) (IResponseWriter) {
 }
 
 func (brw *ResponseWriterWrapper) Bytes(data []byte) (IResponseWriter) {
-	(*brw.RW).Write(data)
+	(*brw.rw).Write(data)
 	return brw
+}
+
+func ConvertResponseWriter(res *http.ResponseWriter) (IResponseWriter) {
+	return &ResponseWriterWrapper {
+		rw: res,
+	}
 }

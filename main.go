@@ -17,8 +17,8 @@ func main() {
 		log.Fatal("Failed to load configuration varaibles!")
 	}
 
-	http.HandleFunc("/template", controller.Template)
-	http.HandleFunc("/notification", controller.Notification)
+	http.HandleFunc("/template", controller.GetTemplate().Handle)
+	http.HandleFunc("/notification", controller.GetNotification().Handle)
 	
 	log.Fatal(http.ListenAndServe(os.Getenv("server.addr"), nil))
 }

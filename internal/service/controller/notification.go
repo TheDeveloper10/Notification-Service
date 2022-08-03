@@ -9,16 +9,25 @@ import (
 	"notification-service.com/packages/internal/util"
 )
 
-func Notification(res http.ResponseWriter, req *http.Request) {
-	brw := &util.ResponseWriterWrapper { RW: &res }
+type notification struct {
+	util.Controller
+}
+
+func GetNotification() *notification {
+	return &notification{}
+}
+
+func (n *notification) Handle(res http.ResponseWriter, req *http.Request) {
+	brw := util.ConvertResponseWriter(&res)
+
 	switch (req.Method) {
-		case "POST": {
-			sendNotification(brw, req)
+		case http.MethodPost: {
+			n.send(brw, req)
 		}
 	}
 }
 
-func sendNotification(res util.IResponseWriter, req *http.Request) {
+func (n *notification) send(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
