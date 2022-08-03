@@ -1,4 +1,4 @@
-package service
+package controllers
 
 import (
 	"net/http"
@@ -15,6 +15,9 @@ func Template(res http.ResponseWriter, req *http.Request) {
 		case "POST": {
 			createTemplate(brw, req)
 		}
+		case "DELETE": {
+			deleteTemplate(brw, req)
+		}
 	}
 }
 
@@ -26,8 +29,23 @@ func createTemplate(res *utils.BetterResponseWriter, req *http.Request) {
 
 	result := repositories.InsertTemplate(&reqObj)
 	if result {
-		res.Status(http.StatusOK)
+		// Maybe return metadata such as id
+		res.Status(http.StatusOK).Text("Created successfully!")
 	} else {
 		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
+	}
+}
+
+func deleteTemplate(res *utils.BetterResponseWriter, req *http.Request) {
+	reqObj := dtos.TemplateIdRequest{}
+	if !utils.JsonMiddleware(res, req, &reqObj) {
+		return
+	}
+
+	status := repositories.DeleteTemplate(&reqObj)
+	if status {
+		res.Status(http.StatusOK).Text("Deleted successfully!")
+	} else {
+		res.Status(http.StatusBadRequest).Text("Failed to delete it. Try again!")
 	}
 }

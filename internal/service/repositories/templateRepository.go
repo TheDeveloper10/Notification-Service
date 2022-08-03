@@ -17,3 +17,16 @@ func InsertTemplate(req *dtos.CreateTemplateRequest) bool {
 	_, err2 := stmt.Exec(req.ContactTypeId(), *req.Template)
 	return err2 == nil
 }
+
+func DeleteTemplate(req *dtos.TemplateIdRequest) (bool) {
+	client := clients.GetMysqlClient()
+
+	stmt, err1 := client.Prepare("delete from Templates where Id=?")
+	if err1 != nil {
+		return false
+	}
+	defer stmt.Close()
+
+	_, err2 := stmt.Exec(req.Id)
+	return err2 == nil
+}

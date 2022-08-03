@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"notification-service.com/packages/internal/clients"
-	"notification-service.com/packages/internal/service"
+	"notification-service.com/packages/internal/service/controllers"
 )
 
 
@@ -17,7 +17,7 @@ func main() {
 		log.Fatal("Failed to load configuration varaibles!")
 	}
 
-	http.HandleFunc("/template", service.Template)
+	http.HandleFunc("/template", controllers.Template)
 	
 	log.Fatal(http.ListenAndServe(os.Getenv("server.addr"), nil))
 }
