@@ -6,21 +6,21 @@ import (
 )
 
 type ResponseWriterWrapper struct {
-	IResponseWriter[ResponseWriterWrapper]
+	IResponseWriter
 	RW *http.ResponseWriter
 }
 
-func (brw *ResponseWriterWrapper) Status(statusCode int) (*ResponseWriterWrapper) {
+func (brw *ResponseWriterWrapper) Status(statusCode int) (IResponseWriter) {
 	(*brw.RW).WriteHeader(statusCode)
 	return brw
 } 
 
-func (brw *ResponseWriterWrapper) Text(text string) (*ResponseWriterWrapper) {
+func (brw *ResponseWriterWrapper) Text(text string) (IResponseWriter) {
 	(*brw.RW).Write([]byte(text))
 	return brw
 }
 
-func (brw *ResponseWriterWrapper) Json(data interface{}) (*ResponseWriterWrapper) {
+func (brw *ResponseWriterWrapper) Json(data interface{}) (IResponseWriter) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		panic(err)
@@ -28,7 +28,7 @@ func (brw *ResponseWriterWrapper) Json(data interface{}) (*ResponseWriterWrapper
 	return brw.Bytes(bytes)
 }
 
-func (brw *ResponseWriterWrapper) Bytes(data []byte) (*ResponseWriterWrapper) {
+func (brw *ResponseWriterWrapper) Bytes(data []byte) (IResponseWriter) {
 	(*brw.RW).Write(data)
 	return brw
 }

@@ -1,8 +1,8 @@
 package util
 
-type IResponseWriter[T any] interface {
-	Status(statusCode int) (*T)
-	Text(text string) (*T)
-	Json(data interface{}) (*T)
-	Bytes(data []byte) (*T)
+type IResponseWriter interface {
+	Status(statusCode int) (IResponseWriter)
+	Text(text string) (IResponseWriter)
+	Json(data interface{}) (IResponseWriter)
+	Bytes(data []byte) (IResponseWriter)
 }
