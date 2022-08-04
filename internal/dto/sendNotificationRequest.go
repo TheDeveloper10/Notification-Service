@@ -1,6 +1,9 @@
 package dto
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 type TemplatePlaceholder struct {
 	AbstractRequest
@@ -23,42 +26,42 @@ func (snr *SendNotificationRequest) ContactTypeId() int8 {
 	return convertStringContactTypeToInt(*snr.ContactType)
 }
 
-func (snr *SendNotificationRequest) Validate() (bool, string) {
+func (snr *SendNotificationRequest) Validate() (bool, error) {
 	if snr.TemplateId == nil {
-		return false, "'templateId' must be given!"
+		return false, errors.New("'templateId' must be given!")
 	} else if snr.UserId == nil || len(*snr.UserId) <= 0 {
-		return false, "'userId' must be given!"
+		return false, errors.New("'userId' must be given!")
 	} else if snr.AppId == nil || len(*snr.AppId) <= 0 {
-		return false, "'appId' must be given!"
+		return false, errors.New("'appId' must be given!")
 	} else if snr.ContactType == nil {
-		return false, "'contactType' must be given!"
+		return false, errors.New("'contactType' must be given!")
 	} else if snr.ContactInfo == nil {
-		return false, "'contactInfo' must be given!"
+		return false, errors.New("'contactInfo' must be given!")
 	} else if snr.Title == nil || len(*snr.Title) <= 0 {
-		return false, "'title' must be given!"	
+		return false, errors.New("'title' must be given!")	
 	} else if (*snr.TemplateId) <= 0 {
-		return false, "'templateId' must be greater than 0!"
+		return false, errors.New("'templateId' must be greater than 0!")
 	} else if snr.ContactTypeId() <= 0 {
-		return false, "'contactType' must be one of email/sms/push!"
+		return false, errors.New("'contactType' must be one of email/sms/push!")
 	}
 
 	for i := 0; i < len(snr.Placeholders); i++ {
-		status, message := snr.Placeholders[i].Validate()
+		status, err := snr.Placeholders[i].Validate()
 		if !status {
-			return false, message
+			return false, err
 		}
 	}
 
-	return true, ""
+	return true, nil
 }
 
-func (tp *TemplatePlaceholder) Validate() (bool, string) {
+func (tp *TemplatePlaceholder) Validate() (bool, error) {
 	if tp.Key == nil || len(*tp.Key) <= 0 {
-		return false, "'key' must be given!"
+		return false, errors.New("'key' must be given!")
 	} else if tp.Value == nil {
-		return false, "'value' must be given!"
+		return false, errors.New("'value' must be given!")
 	} else if strings.HasPrefix(*tp.Key, "@{") || strings.HasSuffix(*tp.Key, "}") {
-		return false, "'key' must not start with '@{' and must not end with '}'"
+		return false, errors.New("'key' must not start with '@{' and must not end with '}'")
 	}
-	return true, ""
+	return true, nil
 }

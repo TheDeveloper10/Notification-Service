@@ -19,9 +19,9 @@ func ConvertFromJson(res IResponseWriter, req *http.Request, out dto.AbstractReq
 		return false
 	}
 
-	status, message := out.Validate()
+	status, err := out.Validate()
 	if !status {
-		res.Status(http.StatusBadRequest).Text(message)
+		res.Status(http.StatusBadRequest).Text(err.Error())
 		return false
 	}
 

@@ -1,22 +1,24 @@
 package dto
 
+import "errors"
+
 type CreateTemplateRequest struct {
 	AbstractRequest
 	ContactType *string `json:"contactType"`
 	Template    *string `json:"template"`
 }
 
-func (ctr *CreateTemplateRequest) Validate() (bool, string) {
+func (ctr *CreateTemplateRequest) Validate() (bool, error) {
 	if ctr.ContactType == nil || ctr.Template == nil {
-		return false, "'contactType' must be given!"
+		return false, errors.New("'contactType' must be given!")
 	} else if ctr.Template == nil {
-		return false, "'template' muts be given!"	
+		return false, errors.New("'template' muts be given!")
 	} else if ctr.ContactTypeId() < 0 {
-		return false, "'contactType' must be one of email/sms/push!"
+		return false, errors.New("'contactType' must be one of email/sms/push!")
 	} else if len(*ctr.Template) <= 0 || len(*ctr.Template) > 2048 {
-		return false, "'template' must have a length greater than 0 and lesser than 2048!"
+		return false, errors.New("'template' must have a length greater than 0 and lesser than 2048!")
 	}
-	return true, ""
+	return true, nil
 }
 
 func (ctr *CreateTemplateRequest) ContactTypeId() int8 {
