@@ -14,7 +14,8 @@ type basicNotificationController struct {
 	notificationRepository repository.NotificationRepository
 }
 
-func NewNotificationController(templateRepository repository.TemplateRepository, notificationRepository repository.NotificationRepository) util.Controller {
+func NewNotificationController(templateRepository repository.TemplateRepository, 
+							   notificationRepository repository.NotificationRepository) Controller {
 	return &basicNotificationController{
 		templateRepository,
 		notificationRepository,
@@ -22,7 +23,7 @@ func NewNotificationController(templateRepository repository.TemplateRepository,
 }
 
 func (bnc *basicNotificationController) Handle(res http.ResponseWriter, req *http.Request) {
-	brw := util.ConvertResponseWriter(&res)
+	brw := util.WrapResponseWriter(&res)
 
 	switch (req.Method) {
 		case http.MethodPost: {
@@ -52,5 +53,10 @@ func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http
 		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
 	}
 	
-	bnc.notificationRepository.Insert(&reqObj, &record.Template)
+	status2 := bnc.notificationRepository.Insert(&reqObj, &record.Template)
+	if status2 {
+		res.Status(http.StatusCreated).Text("Notification created successfully!")
+	} else {
+		res.Status(http.StatusBadRequest).Text("Failed to create notification. Try again!")
+	}
 }

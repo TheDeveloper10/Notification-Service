@@ -12,14 +12,14 @@ type basicTemplateController struct {
 	repository repository.TemplateRepository
 }
 
-func NewTemplateController(repository repository.TemplateRepository) util.Controller {
+func NewTemplateController(repository repository.TemplateRepository) Controller {
 	return &basicTemplateController{
 		repository,
 	}
 }
 
 func (btc *basicTemplateController) Handle(res http.ResponseWriter, req *http.Request) {
-	brw := util.ConvertResponseWriter(&res)
+	brw := util.WrapResponseWriter(&res)
 
 	switch(req.Method) {
 		case "POST": {
@@ -46,7 +46,7 @@ func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.R
 	result := btc.repository.Insert(&reqObj)
 	if result {
 		// Maybe return metadata such as id
-		res.Status(http.StatusOK).Text("Created successfully!")
+		res.Status(http.StatusCreated).Text("Created successfully!")
 	} else {
 		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
 	}

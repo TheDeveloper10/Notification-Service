@@ -13,7 +13,7 @@ import (
 func main() {
 	status := helper.LoadConfig("config.yaml")
 	if !status {
-		log.Fatal("Failed to load configuration varaibles!")
+		log.Fatal("Failed to load configuration variables!")
 	}
 
 	clients.InitializeSQLClient()

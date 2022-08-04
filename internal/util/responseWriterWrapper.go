@@ -5,22 +5,22 @@ import (
 	"net/http"
 )
 
-type ResponseWriterWrapper struct {
+type responseWriterWrapper struct {
 	IResponseWriter
 	rw *http.ResponseWriter
 }
 
-func (brw *ResponseWriterWrapper) Status(statusCode int) (IResponseWriter) {
+func (brw *responseWriterWrapper) Status(statusCode int) (IResponseWriter) {
 	(*brw.rw).WriteHeader(statusCode)
 	return brw
 } 
 
-func (brw *ResponseWriterWrapper) Text(text string) (IResponseWriter) {
+func (brw *responseWriterWrapper) Text(text string) (IResponseWriter) {
 	(*brw.rw).Write([]byte(text))
 	return brw
 }
 
-func (brw *ResponseWriterWrapper) Json(data interface{}) (IResponseWriter) {
+func (brw *responseWriterWrapper) Json(data interface{}) (IResponseWriter) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		panic(err)
@@ -28,13 +28,13 @@ func (brw *ResponseWriterWrapper) Json(data interface{}) (IResponseWriter) {
 	return brw.Bytes(bytes)
 }
 
-func (brw *ResponseWriterWrapper) Bytes(data []byte) (IResponseWriter) {
+func (brw *responseWriterWrapper) Bytes(data []byte) (IResponseWriter) {
 	(*brw.rw).Write(data)
 	return brw
 }
 
-func ConvertResponseWriter(res *http.ResponseWriter) (IResponseWriter) {
-	return &ResponseWriterWrapper {
+func WrapResponseWriter(res *http.ResponseWriter) (IResponseWriter) {
+	return &responseWriterWrapper {
 		rw: res,
 	}
 }
