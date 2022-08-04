@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -23,7 +24,7 @@ func (brw *responseWriterWrapper) Text(text string) (IResponseWriter) {
 func (brw *responseWriterWrapper) Json(data interface{}) (IResponseWriter) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		panic(err)
+		log.Fatal(err.Error())
 	}
 	return brw.Bytes(bytes)
 }

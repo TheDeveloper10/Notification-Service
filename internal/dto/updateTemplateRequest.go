@@ -1,6 +1,8 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+)
 
 type UpdateTemplateRequest struct {
 	AbstractRequest

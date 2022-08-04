@@ -3,6 +3,7 @@ package clients
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -19,7 +20,7 @@ func InitializeSQLClient() {
 
 	db, err := sql.Open(dbConfig.Driver, conn)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	db.SetConnMaxIdleTime(5 * time.Second)
