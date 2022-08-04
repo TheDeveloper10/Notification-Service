@@ -9,7 +9,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func createClient() (*sql.DB) {
+func InitializeSQLClient() {
+	if SQLClient != nil {
+		return
+	}
+
 	db, err := sql.Open(os.Getenv("db.driver"), os.Getenv("db.conn"))
 	if err != nil {
 		panic(err.Error())
@@ -21,15 +25,7 @@ func createClient() (*sql.DB) {
 	db.SetMaxIdleConns(poolSize)
 	db.SetMaxOpenConns(poolSize)
 	
-	return db
+	SQLClient = db
 }
 
-var client *sql.DB = nil
-
-func GetMysqlClient() (*sql.DB) {
-	if client == nil {
-		client = createClient()
-	}
-	
-	return client
-}
+var SQLClient *sql.DB = nil

@@ -7,14 +7,12 @@ import (
 
 type template struct { }
 
-func GetTemplate() *template {
+func NewTemplateRepository() *template {
 	return &template{}
 }
 
 func (t *template) Insert(req *dto.CreateTemplateRequest) bool {
-	client := clients.GetMysqlClient()
-
-	stmt, err1 := client.Prepare("insert into Templates(ContactType, Template) values(?, ?)")
+	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template) values(?, ?)")
 	if err1 != nil {
 		return false
 	}
@@ -25,9 +23,7 @@ func (t *template) Insert(req *dto.CreateTemplateRequest) bool {
 }
 
 func (t *template) Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
-	client := clients.GetMysqlClient()
-
-	stmt, err1 := client.Prepare("select * from Templates where Id=?")
+	stmt, err1 := clients.SQLClient.Prepare("select * from Templates where Id=?")
 	if err1 != nil {
 		return nil, 1
 	}
@@ -51,9 +47,8 @@ func (t *template) Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
 }
 
 func (t *template) Update(req *dto.UpdateTemplateRequest) (bool) {
-	client := clients.GetMysqlClient()
 
-	stmt, err1 := client.Prepare("update Templates set Template=? where Id=?")
+	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=? where Id=?")
 	if err1 != nil {
 		return false
 	}
@@ -64,9 +59,7 @@ func (t *template) Update(req *dto.UpdateTemplateRequest) (bool) {
 }
 
 func (t *template) Delete(req *dto.TemplateIdRequest) (bool) {
-	client := clients.GetMysqlClient()
-
-	stmt, err1 := client.Prepare("delete from Templates where Id=?")
+	stmt, err1 := clients.SQLClient.Prepare("delete from Templates where Id=?")
 	if err1 != nil {
 		return false
 	}

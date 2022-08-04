@@ -12,12 +12,12 @@ import (
 
 
 func main() {
-	status := clients.EnvLoader("config.yaml")
+	status := clients.LoadConfig("config.yaml")
 	if !status {
 		log.Fatal("Failed to load configuration varaibles!")
 	}
 
-	http.HandleFunc("/template", controller.GetTemplate().Handle)
+	http.HandleFunc("/template", controller.NewTemplateRepository().Handle)
 	http.HandleFunc("/notification", controller.GetNotification().Handle)
 	
 	log.Fatal(http.ListenAndServe(os.Getenv("server.addr"), nil))

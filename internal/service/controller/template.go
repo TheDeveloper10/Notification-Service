@@ -12,7 +12,7 @@ type template struct {
 	util.Controller
 }
 
-func GetTemplate() *template {
+func NewTemplateRepository() *template {
 	return &template{}
 }
 
@@ -41,7 +41,7 @@ func (t *template) create(res util.IResponseWriter, req *http.Request) {
 		return
 	}
 
-	result := repository.GetTemplate().Insert(&reqObj)
+	result := repository.NewTemplateRepository().Insert(&reqObj)
 	if result {
 		// Maybe return metadata such as id
 		res.Status(http.StatusOK).Text("Created successfully!")
@@ -56,7 +56,7 @@ func (t *template) get(res util.IResponseWriter, req *http.Request) {
 		return
 	}
 
-	record, statusCode := repository.GetTemplate().Get(&reqObj)
+	record, statusCode := repository.NewTemplateRepository().Get(&reqObj)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -74,7 +74,7 @@ func (t *template) update(res util.IResponseWriter, req *http.Request) {
 		return
 	}
 
-	status := repository.GetTemplate().Update(&reqObj)
+	status := repository.NewTemplateRepository().Update(&reqObj)
 	if status {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else {
@@ -88,7 +88,7 @@ func (t *template) delete(res util.IResponseWriter, req *http.Request) {
 		return
 	}
 
-	status := repository.GetTemplate().Delete(&reqObj)
+	status := repository.NewTemplateRepository().Delete(&reqObj)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {

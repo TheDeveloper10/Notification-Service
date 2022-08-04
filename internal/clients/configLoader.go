@@ -22,7 +22,7 @@ type config struct {
 	}
 }
 
-func EnvLoader(fileName string) bool {
+func LoadConfig(fileName string) bool {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return false

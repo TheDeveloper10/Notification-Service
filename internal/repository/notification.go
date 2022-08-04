@@ -7,14 +7,12 @@ import (
 
 type notification struct { }
 
-func GetNotification() (*notification) {
+func NewNotificationRepository() *notification {
 	return &notification{}
 }
 
 func (n *notification) Insert(snr *dto.SendNotificationRequest, message *string) bool {
-	client := clients.GetMysqlClient()
-
-	stmt, err1 := client.Prepare("insert into Notifications(Title, ContactType, ContactInfo, Message, UserId, AppId) values(?, ?, ?, ?, ?, ?)")
+	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(Title, ContactType, ContactInfo, Message, UserId, AppId) values(?, ?, ?, ?, ?, ?)")
 	if err1 != nil {
 		return false
 	}
