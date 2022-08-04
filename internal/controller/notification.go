@@ -9,31 +9,35 @@ import (
 	"notification-service.com/packages/internal/util"
 )
 
-type notification struct {
-	util.Controller
+type basicNotificationController struct {
+	templateRepository     repository.TemplateRepository
+	notificationRepository repository.NotificationRepository
 }
 
-func GetNotification() *notification {
-	return &notification{}
+func NewNotificationController(templateRepository repository.TemplateRepository, notificationRepository repository.NotificationRepository) util.Controller {
+	return &basicNotificationController{
+		templateRepository,
+		notificationRepository,
+	}
 }
 
-func (n *notification) Handle(res http.ResponseWriter, req *http.Request) {
+func (bnc *basicNotificationController) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.ConvertResponseWriter(&res)
 
 	switch (req.Method) {
 		case http.MethodPost: {
-			n.send(brw, req)
+			bnc.send(brw, req)
 		}
 	}
 }
 
-func (n *notification) send(res util.IResponseWriter, req *http.Request) {
+func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	record, status := repository.NewTemplateRepository().Get(&dto.TemplateIdRequest{Id: reqObj.TemplateId})
+	record, status := bnc.templateRepository.Get(&dto.TemplateIdRequest{Id: reqObj.TemplateId})
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again!")
 		return
@@ -48,5 +52,5 @@ func (n *notification) send(res util.IResponseWriter, req *http.Request) {
 		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
 	}
 	
-	repository.NewNotificationRepository().Insert(&reqObj, &record.Template)
+	bnc.notificationRepository.Insert(&reqObj, &record.Template)
 }

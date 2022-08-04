@@ -8,40 +8,42 @@ import (
 	"notification-service.com/packages/internal/repository"
 )
 
-type template struct {
-	util.Controller
+type basicTemplateController struct {
+	repository repository.TemplateRepository
 }
 
-func NewTemplateRepository() *template {
-	return &template{}
+func NewTemplateController(repository repository.TemplateRepository) util.Controller {
+	return &basicTemplateController{
+		repository,
+	}
 }
 
-func (t *template) Handle(res http.ResponseWriter, req *http.Request) {
+func (btc *basicTemplateController) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.ConvertResponseWriter(&res)
 
 	switch(req.Method) {
 		case "POST": {
-			t.create(brw, req)
+			btc.create(brw, req)
 		}
 		case "GET": {
-			t.get(brw, req)
+			btc.get(brw, req)
 		}
 		case "PATCH": {
-			t.update(brw, req)
+			btc.update(brw, req)
 		}
 		case "DELETE": {
-			t.delete(brw, req)
+			btc.delete(brw, req)
 		}
 	}
 }
 
-func (t *template) create(res util.IResponseWriter, req *http.Request) {
+func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	result := repository.NewTemplateRepository().Insert(&reqObj)
+	result := btc.repository.Insert(&reqObj)
 	if result {
 		// Maybe return metadata such as id
 		res.Status(http.StatusOK).Text("Created successfully!")
@@ -50,13 +52,13 @@ func (t *template) create(res util.IResponseWriter, req *http.Request) {
 	}
 }
 
-func (t *template) get(res util.IResponseWriter, req *http.Request) {
+func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.TemplateIdRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	record, statusCode := repository.NewTemplateRepository().Get(&reqObj)
+	record, statusCode := btc.repository.Get(&reqObj)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -68,13 +70,13 @@ func (t *template) get(res util.IResponseWriter, req *http.Request) {
 	}
 }
 
-func (t *template) update(res util.IResponseWriter, req *http.Request) {
+func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.UpdateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	status := repository.NewTemplateRepository().Update(&reqObj)
+	status := btc.repository.Update(&reqObj)
 	if status {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else {
@@ -82,13 +84,13 @@ func (t *template) update(res util.IResponseWriter, req *http.Request) {
 	}
 }
 
-func (t *template) delete(res util.IResponseWriter, req *http.Request) {
+func (btc *basicTemplateController) delete(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.TemplateIdRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	status := repository.NewTemplateRepository().Delete(&reqObj)
+	status := btc.repository.Delete(&reqObj)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {
