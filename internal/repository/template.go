@@ -8,7 +8,7 @@ import (
 type TemplateRepository interface {
 	Insert(req *dto.CreateTemplateRequest) bool
 	Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int)
-	Update(req *dto.UpdateTemplateRequest) bool
+	Update(req *dto.UpdateTemplateRequest) int
 	Delete(req *dto.TemplateIdRequest) bool
 }
 
@@ -25,7 +25,7 @@ func (btr *basicTemplateRepository) Insert(req *dto.CreateTemplateRequest) bool 
 	}
 	defer stmt.Close()
 
-	_, err2 := stmt.Exec(req.ContactTypeId(), *req.Template)
+	_, err2 := stmt.Exec(*req.ContactType, *req.Template)
 	return err2 == nil
 }
 
@@ -53,16 +53,27 @@ func (btr *basicTemplateRepository) Get(req *dto.TemplateIdRequest) (*dto.Templa
 	}
 }
 
-func (btr *basicTemplateRepository) Update(req *dto.UpdateTemplateRequest) bool {
+func (btr *basicTemplateRepository) Update(req *dto.UpdateTemplateRequest) int {
 
 	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=? where Id=?")
 	if err1 != nil {
-		return false
+		return 1
 	}
 	defer stmt.Close()
 
-	_, err2 := stmt.Exec(req.Template, req.Id)
-	return err2 == nil
+	res, err2 := stmt.Exec(req.Template, req.Id)
+	if err2 != nil {
+		return 1
+	}
+	affectedRows, err3 := res.RowsAffected() 
+	if err3 != nil {
+		return 1
+	}
+	if affectedRows <= 0 {
+		return 2
+	}
+
+	return 0
 }
 
 func (btr *basicTemplateRepository) Delete(req *dto.TemplateIdRequest) bool {

@@ -22,6 +22,6 @@ func (bnr *basicNotificationRepository) Insert(snr *dto.SendNotificationRequest,
 	}
 	defer stmt.Close()
 
-	_, err2 := stmt.Exec(*snr.Title, snr.ContactTypeId(), *snr.ContactInfo, *message, *snr.UserId, *snr.AppId)
+	_, err2 := stmt.Exec(*snr.Title, *snr.ContactType, *snr.ContactInfo, *message, *snr.UserId, *snr.AppId)
 	return err2 == nil
 }

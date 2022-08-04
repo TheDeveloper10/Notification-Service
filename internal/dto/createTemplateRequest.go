@@ -13,7 +13,7 @@ func (ctr *CreateTemplateRequest) Validate() []error {
 
 	if ctr.ContactType == nil {
 		errorsSlice = append(errorsSlice, errors.New("'contactType' must be given!"))
-	} else if ctr.ContactTypeId() < 0 {
+	} else if !validateContactType(ctr.ContactType) {
 		errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push!"))
 	}
 	
@@ -24,21 +24,4 @@ func (ctr *CreateTemplateRequest) Validate() []error {
 	}
 
 	return errorsSlice
-}
-
-func (ctr *CreateTemplateRequest) ContactTypeId() int8 {
-	return convertStringContactTypeToInt(*ctr.ContactType)
-}
-
-func convertStringContactTypeToInt(contactType string) int8 {
-	switch(contactType) {
-	case "email":
-		return 1
-	case "sms":
-		return 2
-	case "push":
-		return 3
-	default:
-		return -1
-	}
 }

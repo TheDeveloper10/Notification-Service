@@ -19,10 +19,6 @@ type SendNotificationRequest struct {
 	Placeholders []TemplatePlaceholder `json:"placeholders"`
 }
 
-func (snr *SendNotificationRequest) ContactTypeId() int8 {
-	return convertStringContactTypeToInt(*snr.ContactType)
-}
-
 func (snr *SendNotificationRequest) Validate() []error {
 	var errorsSlice []error
 
@@ -42,7 +38,7 @@ func (snr *SendNotificationRequest) Validate() []error {
 	
 	if snr.ContactType == nil {
 		errorsSlice = append(errorsSlice, errors.New("'contactType' must be given!"))
-	} else if snr.ContactTypeId() <= 0 {
+	} else if !validateContactType(snr.ContactType) {
 		errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push!"))
 	}
 

@@ -66,7 +66,7 @@ func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Requ
 		res.Status(http.StatusNotFound).Text("Couldn't find the template you were looking for!")
 		return
 	} else {
-		res.Status(http.StatusOK).Json(record.ToReadable())
+		res.Status(http.StatusOK).Json(record)
 	}
 }
 
@@ -77,10 +77,12 @@ func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.R
 	}
 
 	status := btc.repository.Update(&reqObj)
-	if status {
+	if status == 0 {
 		res.Status(http.StatusOK).Text("Updated successfully!")
-	} else {
+	} else if status == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to update it. Try again!")
+	} else if status == 2 { 
+		res.Status(http.StatusBadRequest).Text("Failed to find template to update. Try with another one!")
 	}
 }
 
