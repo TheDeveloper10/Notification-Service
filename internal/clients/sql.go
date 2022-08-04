@@ -2,11 +2,11 @@ package clients
 
 import (
 	"database/sql"
-	"os"
-	"strconv"
+	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"notification-service.com/packages/internal/helper"
 )
 
 func InitializeSQLClient() {
@@ -14,16 +14,18 @@ func InitializeSQLClient() {
 		return
 	}
 
-	db, err := sql.Open(os.Getenv("db.driver"), os.Getenv("db.conn"))
+	dbConfig := &helper.Config.Database
+	conn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Name)
+
+	db, err := sql.Open(dbConfig.Driver, conn)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	poolSize, _ := strconv.Atoi(os.Getenv("db.pool_size"))
 	db.SetConnMaxIdleTime(5 * time.Second)
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(poolSize)
-	db.SetMaxOpenConns(poolSize)
+	db.SetMaxIdleConns(dbConfig.PoolSize)
+	db.SetMaxOpenConns(dbConfig.PoolSize)
 	
 	SQLClient = db
 }

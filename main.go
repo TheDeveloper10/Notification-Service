@@ -3,13 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
-	"notification-service.com/packages/internal/helper"
+	"notification-service.com/packages/internal/clients"
 	"notification-service.com/packages/internal/controller"
+	"notification-service.com/packages/internal/helper"
 )
-
-
 
 func main() {
 	status := helper.LoadConfig("config.yaml")
@@ -17,8 +15,10 @@ func main() {
 		log.Fatal("Failed to load configuration varaibles!")
 	}
 
+	clients.InitializeSQLClient()
+
 	http.HandleFunc("/template", controller.NewTemplateRepository().Handle)
 	http.HandleFunc("/notification", controller.GetNotification().Handle)
 	
-	log.Fatal(http.ListenAndServe(os.Getenv("server.addr"), nil))
+	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, nil))
 }
