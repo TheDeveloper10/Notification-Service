@@ -5,14 +5,14 @@ import (
 	"net/http"
 	"os"
 
-	"notification-service.com/packages/internal/clients"
-	"notification-service.com/packages/internal/service/controller"
+	"notification-service.com/packages/internal/helper"
+	"notification-service.com/packages/internal/controller"
 )
 
 
 
 func main() {
-	status := clients.LoadConfig("config.yaml")
+	status := helper.LoadConfig("config.yaml")
 	if !status {
 		log.Fatal("Failed to load configuration varaibles!")
 	}

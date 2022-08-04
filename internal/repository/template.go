@@ -5,13 +5,20 @@ import (
 	"notification-service.com/packages/internal/dto"
 )
 
-type template struct { }
-
-func NewTemplateRepository() *template {
-	return &template{}
+type TemplateRepository interface {
+	Insert(req *dto.CreateTemplateRequest) bool
+	Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int)
+	Update(req *dto.UpdateTemplateRequest) bool
+	Delete(req *dto.TemplateIdRequest) bool
 }
 
-func (t *template) Insert(req *dto.CreateTemplateRequest) bool {
+type basicTemplateRepository struct { }
+
+func NewTemplateRepository() TemplateRepository {
+	return &basicTemplateRepository{}
+}
+
+func (btr *basicTemplateRepository) Insert(req *dto.CreateTemplateRequest) bool {
 	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template) values(?, ?)")
 	if err1 != nil {
 		return false
@@ -22,7 +29,7 @@ func (t *template) Insert(req *dto.CreateTemplateRequest) bool {
 	return err2 == nil
 }
 
-func (t *template) Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
+func (btr *basicTemplateRepository) Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
 	stmt, err1 := clients.SQLClient.Prepare("select * from Templates where Id=?")
 	if err1 != nil {
 		return nil, 1
@@ -46,7 +53,7 @@ func (t *template) Get(req *dto.TemplateIdRequest) (*dto.TemplateRecord, int) {
 	}
 }
 
-func (t *template) Update(req *dto.UpdateTemplateRequest) (bool) {
+func (btr *basicTemplateRepository) Update(req *dto.UpdateTemplateRequest) bool {
 
 	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=? where Id=?")
 	if err1 != nil {
@@ -58,7 +65,7 @@ func (t *template) Update(req *dto.UpdateTemplateRequest) (bool) {
 	return err2 == nil
 }
 
-func (t *template) Delete(req *dto.TemplateIdRequest) (bool) {
+func (btr *basicTemplateRepository) Delete(req *dto.TemplateIdRequest) bool {
 	stmt, err1 := clients.SQLClient.Prepare("delete from Templates where Id=?")
 	if err1 != nil {
 		return false
