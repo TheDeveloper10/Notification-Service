@@ -1,9 +1,6 @@
 package dto
 
-import (
-	"errors"
-	"strings"
-)
+import "errors"
 
 type TemplatePlaceholder struct {
 	AbstractRequest
@@ -26,42 +23,57 @@ func (snr *SendNotificationRequest) ContactTypeId() int8 {
 	return convertStringContactTypeToInt(*snr.ContactType)
 }
 
-func (snr *SendNotificationRequest) Validate() (bool, error) {
+func (snr *SendNotificationRequest) Validate() []error {
+	var errorsSlice []error
+
 	if snr.TemplateId == nil {
-		return false, errors.New("'templateId' must be given!")
-	} else if snr.UserId == nil || len(*snr.UserId) <= 0 {
-		return false, errors.New("'userId' must be given!")
-	} else if snr.AppId == nil || len(*snr.AppId) <= 0 {
-		return false, errors.New("'appId' must be given!")
-	} else if snr.ContactType == nil {
-		return false, errors.New("'contactType' must be given!")
-	} else if snr.ContactInfo == nil {
-		return false, errors.New("'contactInfo' must be given!")
-	} else if snr.Title == nil || len(*snr.Title) <= 0 {
-		return false, errors.New("'title' must be given!")	
+		errorsSlice = append(errorsSlice, errors.New("'templateId' must be given!"))
 	} else if (*snr.TemplateId) <= 0 {
-		return false, errors.New("'templateId' must be greater than 0!")
+		errorsSlice = append(errorsSlice, errors.New("'templateId' must be greater than 0!"))
+	}
+	
+	if snr.UserId == nil || len(*snr.UserId) <= 0 {
+		errorsSlice = append(errorsSlice, errors.New("'userId' must be given!"))
+	} 
+	
+	if snr.AppId == nil || len(*snr.AppId) <= 0 {
+		errorsSlice = append(errorsSlice, errors.New("'appId' must be given!"))
+	} 
+	
+	if snr.ContactType == nil {
+		errorsSlice = append(errorsSlice, errors.New("'contactType' must be given!"))
 	} else if snr.ContactTypeId() <= 0 {
-		return false, errors.New("'contactType' must be one of email/sms/push!")
+		errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push!"))
 	}
 
+	if snr.ContactInfo == nil || len(*snr.ContactInfo) <= 0 {
+		errorsSlice = append(errorsSlice, errors.New("'contactInfo' must be given!"))
+	}
+	if snr.Title == nil || len(*snr.Title) <= 0 {
+		errorsSlice = append(errorsSlice, errors.New("'title' must be given!"))
+	}
+	
 	for i := 0; i < len(snr.Placeholders); i++ {
-		status, err := snr.Placeholders[i].Validate()
-		if !status {
-			return false, err
+		errors := snr.Placeholders[i].Validate()
+		if len(errors) > 0 {
+			errorsSlice = append(errorsSlice, errors...)
+			return errorsSlice
 		}
 	}
 
-	return true, nil
+	return errorsSlice
 }
 
-func (tp *TemplatePlaceholder) Validate() (bool, error) {
+func (tp *TemplatePlaceholder) Validate() []error {
+	var errorsSlice []error
+	
 	if tp.Key == nil || len(*tp.Key) <= 0 {
-		return false, errors.New("'key' must be given!")
-	} else if tp.Value == nil {
-		return false, errors.New("'value' must be given!")
-	} else if strings.HasPrefix(*tp.Key, "@{") || strings.HasSuffix(*tp.Key, "}") {
-		return false, errors.New("'key' must not start with '@{' and must not end with '}'")
+		errorsSlice = append(errorsSlice, errors.New("'key' on each placeholder must be given!"))
 	}
-	return true, nil
+
+	if tp.Value == nil {
+		errorsSlice = append(errorsSlice, errors.New("'value' on each placeholder must be given!"))
+	}
+
+	return errorsSlice
 }

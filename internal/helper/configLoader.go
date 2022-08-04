@@ -2,6 +2,7 @@ package helper
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -23,19 +24,20 @@ type config struct {
 
 var Config config
 
-func LoadConfig(fileName string) bool {
+func LoadConfig(fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
-		return false
+		log.Fatal(err.Error())
 	}
 
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		return false
+		log.Fatal(err.Error())
 	}
 
 	Config = config{}
-	yaml.Unmarshal(data, &Config)
-
-	return true
+	err = yaml.Unmarshal(data, &Config)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }

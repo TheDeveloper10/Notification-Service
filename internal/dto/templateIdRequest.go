@@ -7,11 +7,14 @@ type TemplateIdRequest struct {
 	Id *int `json:"id"`
 }
 
-func (ctr *TemplateIdRequest) Validate() (bool, error) {
+func (ctr *TemplateIdRequest) Validate() []error {
+	var errorsSlice []error
+
 	if ctr.Id == nil {
-		return false, errors.New("'id' must be given!")
+		errorsSlice = append(errorsSlice, errors.New("'id' must be given!"))
 	} else if (*ctr.Id) <= 0 {
-		return false, errors.New("'id' must be greater than 0")
+		errorsSlice = append(errorsSlice, errors.New("'id' must be greater than 0!"))
 	}
-	return true, nil
+	
+	return errorsSlice
 }

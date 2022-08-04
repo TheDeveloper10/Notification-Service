@@ -11,11 +11,7 @@ import (
 )
 
 func main() {
-	status := helper.LoadConfig("config.yaml")
-	if !status {
-		log.Fatal("Failed to load configuration variables!")
-	}
-
+	helper.LoadConfig("config.yaml")
 	clients.InitializeSQLClient()
 
 	templateRepository := repository.NewTemplateRepository()
