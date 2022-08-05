@@ -2,8 +2,8 @@ package util
 
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+	"notification-service.com/packages/internal/helper"
 )
 
 type responseWriterWrapper struct {
@@ -18,8 +18,7 @@ func (brw *responseWriterWrapper) Status(statusCode int) IResponseWriter {
 
 func (brw *responseWriterWrapper) Text(text string) IResponseWriter {
 	_, err := (*brw.rw).Write([]byte(text))
-	if err != nil {
-		log.Error(err.Error())
+	if helper.IsError(err) {
 		return brw
 	}
 	return brw
@@ -27,8 +26,7 @@ func (brw *responseWriterWrapper) Text(text string) IResponseWriter {
 
 func (brw *responseWriterWrapper) Json(data interface{}) IResponseWriter {
 	bytes, err := json.Marshal(data)
-	if err != nil {
-		log.Error(err.Error())
+	if helper.IsError(err) {
 		return brw
 	}
 	return brw.Bytes(bytes)
@@ -36,8 +34,7 @@ func (brw *responseWriterWrapper) Json(data interface{}) IResponseWriter {
 
 func (brw *responseWriterWrapper) Bytes(data []byte) IResponseWriter {
 	_, err := (*brw.rw).Write(data)
-	if err != nil {
-		log.Error(err.Error())
+	if helper.IsError(err) {
 		return brw
 	}
 	return brw

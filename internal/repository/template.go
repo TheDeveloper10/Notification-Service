@@ -25,20 +25,17 @@ func NewTemplateRepository() TemplateRepository {
 
 func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) bool {
 	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
-	if err1 != nil {
-		log.Error(err1.Error())
+	if helper.IsError(err1) {
 		return false
 	}
 	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.ContactType, entity.Template, entity.Language, entity.Type)
-	if err2 != nil {
-		log.Error(err2.Error())
+	if helper.IsError(err2) {
 		return false
 	}
 	id, err3 := res.LastInsertId()
-	if err3 != nil {
-		log.Error(err3.Error())
+	if helper.IsError(err3) {
 		return false
 	}
 	log.Info("Inserted template with id " + strconv.FormatInt(id, 10))
@@ -47,23 +44,21 @@ func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) bool {
 
 func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 	stmt, err1 := clients.SQLClient.Prepare("select * from Templates where Id=?")
-	if err1 != nil {
-		log.Error(err1.Error())
+	if helper.IsError(err1) {
 		return nil, 1
 	}
 	defer helper.HandledClose(stmt)
 
 	rows, err2 := stmt.Query(id)
-	if err2 != nil {
-		log.Error(err2.Error())
+	if helper.IsError(err2) {
 		return nil, 1
 	}
 	defer helper.HandledClose(rows)
 
 	if rows.Next() {
 		record := entity.TemplateEntity{}
-		if err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template, &record.Language, &record.Type); err3 != nil {
-			log.Error(err3.Error())
+		err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template, &record.Language, &record.Type)
+		if helper.IsError(err3) {
 			return nil, 2
 		}
 		log.Info("Fetched template with id " + strconv.Itoa(id))
@@ -76,22 +71,20 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 
 func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?")
-	if err1 != nil {
-		log.Error(err1.Error())
+	if helper.IsError(err1) {
 		return 1
 	}
 	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.Template, entity.ContactType, entity.Language, entity.Type, entity.Id)
-	if err2 != nil {
-		log.Error(err2.Error())
+	if helper.IsError(err2) {
 		return 1
 	}
 	affectedRows, err3 := res.RowsAffected() 
-	if err3 != nil {
-		log.Error(err3.Error())
+	if helper.IsError(err3) {
 		return 1
 	}
+
 	// TODO: it's zero also when template is found but the value you set is the same** FIX IT
 	if affectedRows <= 0 {
 		log.Warn("No template was found with id " + strconv.Itoa(entity.Id))
@@ -104,15 +97,13 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 
 func (btr *basicTemplateRepository) Delete(id int) bool {
 	stmt, err1 := clients.SQLClient.Prepare("delete from Templates where Id=?")
-	if err1 != nil {
-		log.Error(err1.Error())
+	if helper.IsError(err1) {
 		return false
 	}
 	defer helper.HandledClose(stmt)
 
 	_, err2 := stmt.Exec(id)
-	if err2 != nil {
-		log.Error(err2.Error())
+	if helper.IsError(err2) {
 		return false
 	}
 	log.Info("Deleted template with id " + strconv.Itoa(id))

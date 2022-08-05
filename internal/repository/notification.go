@@ -22,21 +22,18 @@ func NewNotificationRepository() NotificationRepository {
 
 func (bnr *basicNotificationRepository) Insert(entity *entity.NotificationEntity) bool {
 	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(TemplateId, UserId, AppId, ContactType, ContactInfo, Title, Message) values(?, ?, ?, ?, ?, ?, ?)")
-	if err1 != nil {
-		log.Error(err1.Error())
+	if helper.IsError(err1) {
 		return false
 	}
 	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.TemplateID, entity.UserID, entity.AppID, entity.ContactType, entity.ContactInfo, entity.Title, entity.Message)
-	if err2 != nil {
-		log.Error(err2.Error())
+	if helper.IsError(err2) {
 		return false
 	}
 
 	id, err3 := res.LastInsertId()
-	if err3 != nil {
-		log.Error(err3.Error())
+	if helper.IsError(err3) {
 		return false
 	}
 

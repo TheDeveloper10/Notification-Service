@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"net/http"
+	"notification-service.com/packages/internal/helper"
 
 	log "github.com/sirupsen/logrus"
 
@@ -17,8 +18,7 @@ func ConvertFromJson(res IResponseWriter, req *http.Request, out dto.AbstractReq
 	}
 
 	err := json.NewDecoder(req.Body).Decode(&out)
-	if err != nil {
-		log.Error(err.Error())
+	if helper.IsError(err) {
 		res.Status(http.StatusBadRequest)
 		return false
 	}
