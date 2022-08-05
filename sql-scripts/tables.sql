@@ -13,5 +13,7 @@ CREATE TABLE `Notifications`(
 CREATE TABLE `Templates`(
     `Id`          INTEGER       PRIMARY KEY AUTO_INCREMENT,
     `ContactType` VARCHAR(8)    NOT NULL,
-	`Template`    VARCHAR(2048) NOT NULL
+	`Template`    VARCHAR(2048) NOT NULL,
+	`Language`    VARCHAR(3)    NOT NULL,
+	`Type`        VARCHAR(8)    NOT NULL
 );

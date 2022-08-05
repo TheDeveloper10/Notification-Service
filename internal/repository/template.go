@@ -23,14 +23,14 @@ func NewTemplateRepository() TemplateRepository {
 }
 
 func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) bool {
-	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template) values(?, ?)")
+	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
 	if err1 != nil {
 		log.Error(err1.Error())
 		return false
 	}
 	defer stmt.Close()
 
-	res, err2 := stmt.Exec(entity.ContactType, entity.Template)
+	res, err2 := stmt.Exec(entity.ContactType, entity.Template, entity.Language, entity.Type)
 	if err2 != nil {
 		log.Error(err2.Error())
 		return false
@@ -61,7 +61,7 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 
 	if rows.Next() {
 		record := entity.TemplateEntity{}
-		if err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template); err3 != nil {
+		if err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template, &record.Language, &record.Type); err3 != nil {
 			log.Error(err3.Error())
 			return nil, 2
 		}
@@ -74,14 +74,14 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 }
 
 func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
-	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=?, ContactType=? where Id=?")
+	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?")
 	if err1 != nil {
 		log.Error(err1.Error())
 		return 1
 	}
 	defer stmt.Close()
 
-	res, err2 := stmt.Exec(entity.Template, entity.ContactType, entity.Id)
+	res, err2 := stmt.Exec(entity.Template, entity.ContactType, entity.Language, entity.Type, entity.Id)
 	if err2 != nil {
 		log.Error(err2.Error())
 		return 1

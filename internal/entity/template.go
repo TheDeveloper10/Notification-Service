@@ -6,9 +6,11 @@ import (
 )
 
 type TemplateEntity struct {
-	Id 			int
-	ContactType string
-	Template 	string
+	Id 			int    `json:"id"`
+	ContactType string `json:"contactType"`
+	Template 	string `json:"template"`
+	Language    string `json:"language"`
+	Type        string `json:"type"`
 }
 
 func (te *TemplateEntity) GetPlaceholders() string {

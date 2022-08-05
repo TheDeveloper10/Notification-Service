@@ -27,7 +27,7 @@ func ConvertFromJson(res IResponseWriter, req *http.Request, out dto.AbstractReq
 	if len(errors) > 0 {
 		errorMessage := ""
 		for _, v := range errors {
-			errorMessage += v.Error() + "\n"
+			errorMessage += v.Error() + "; "
 		}
 		log.Error(errorMessage)
 		res.Status(http.StatusBadRequest).Text(errorMessage)

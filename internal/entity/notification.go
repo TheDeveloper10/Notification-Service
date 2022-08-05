@@ -1,13 +1,13 @@
 package entity
 
 type NotificationEntity struct {
-	Id 			int
-	TemplateID  int
-	UserID  	string
-	AppID   	string
-	ContactType string
-	ContactInfo string
-	Title		string
-	Message 	string
-	SentTime   	int
+	Id 			int	   `json:"id"`
+	TemplateID  int    `json:"templateId"`
+	UserID  	string `json:"userId"`
+	AppID   	string `json:"appId"`
+	ContactType string `json:"contactType"`
+	ContactInfo string `json:"contactInfo"`
+	Title		string `json:"title"`
+	Message 	string `json:"message"`
+	SentTime   	int    `json:"sentTime"`
 }

@@ -42,7 +42,7 @@ func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http
 
 	record, status := bnc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
-		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again!")
+		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again")
 		return
 	} else if status == 2 {
 		res.Status(http.StatusNotFound).Text("Template was not found!")
