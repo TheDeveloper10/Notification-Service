@@ -1,9 +1,13 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+
+	"notification-service.com/packages/internal/entity"
+)
 
 type CreateTemplateRequest struct {
-	AbstractRequest
+	AbstractRequestEntity[entity.TemplateEntity]
 	ContactType *string `json:"contactType"`
 	Template    *string `json:"template"`
 }
@@ -24,6 +28,13 @@ func (ctr *CreateTemplateRequest) Validate() []error {
 	}
 
 	return errorsSlice
+}
+
+func (ctr *CreateTemplateRequest) ToEntity() *entity.TemplateEntity {
+	return &entity.TemplateEntity{
+		ContactType: *ctr.ContactType,
+		Template:	 *ctr.Template,
+	}
 }
 
 func validateContactType(contactType *string) bool {

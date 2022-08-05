@@ -1,11 +1,27 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+)
 
 type TemplatePlaceholder struct {
 	AbstractRequest
 	Key   *string `json:"key"`
 	Value *string `json:"val"`
+}
+
+func (tp *TemplatePlaceholder) Validate() []error {
+	var errorsSlice []error
+	
+	if tp.Key == nil || len(*tp.Key) <= 0 {
+		errorsSlice = append(errorsSlice, errors.New("'key' on each placeholder must be given!"))
+	}
+
+	if tp.Value == nil {
+		errorsSlice = append(errorsSlice, errors.New("'value' on each placeholder must be given!"))
+	}
+
+	return errorsSlice
 }
 
 type SendNotificationRequest struct {
@@ -55,20 +71,6 @@ func (snr *SendNotificationRequest) Validate() []error {
 			errorsSlice = append(errorsSlice, errors...)
 			return errorsSlice
 		}
-	}
-
-	return errorsSlice
-}
-
-func (tp *TemplatePlaceholder) Validate() []error {
-	var errorsSlice []error
-	
-	if tp.Key == nil || len(*tp.Key) <= 0 {
-		errorsSlice = append(errorsSlice, errors.New("'key' on each placeholder must be given!"))
-	}
-
-	if tp.Value == nil {
-		errorsSlice = append(errorsSlice, errors.New("'value' on each placeholder must be given!"))
 	}
 
 	return errorsSlice

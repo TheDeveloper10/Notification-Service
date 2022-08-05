@@ -91,8 +91,9 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 		log.Error(err3.Error())
 		return 1
 	}
+	// TODO: it's zero also when template is found but the value you set is the same** FIX IT
 	if affectedRows <= 0 {
-		log.Warn("No template was found!")
+		log.Warn("No template was found with id " + strconv.Itoa(entity.Id))
 		return 2
 	}
 

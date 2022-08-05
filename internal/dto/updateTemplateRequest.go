@@ -2,10 +2,12 @@ package dto
 
 import (
 	"errors"
+
+	"notification-service.com/packages/internal/entity"
 )
 
 type UpdateTemplateRequest struct {
-	AbstractRequest
+	AbstractRequestEntity[entity.TemplateEntity]
 	Id 		    *int `json:"id"`
 	ContactType *string `json:"contactType"`
 	Template    *string `json:"template"`
@@ -33,4 +35,12 @@ func (utr *UpdateTemplateRequest) Validate() []error {
 	}
 
 	return errorsSlice
+}
+
+func (utr *UpdateTemplateRequest) ToEntity() *entity.TemplateEntity {
+	return &entity.TemplateEntity{
+		Id: 		 *utr.Id,
+		ContactType: *utr.ContactType,
+		Template: 	 *utr.Template,
+	}
 }

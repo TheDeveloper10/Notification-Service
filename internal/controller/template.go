@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"notification-service.com/packages/internal/dto"
-	"notification-service.com/packages/internal/entity"
 	"notification-service.com/packages/internal/repository"
 	"notification-service.com/packages/internal/util"
 )
@@ -44,12 +43,7 @@ func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	templateEntity := entity.TemplateEntity{
-		ContactType: *reqObj.ContactType,
-		Template: *reqObj.Template,
-	}
-
-	result := btc.repository.Insert(&templateEntity)
+	result := btc.repository.Insert(reqObj.ToEntity())
 	if result {
 		// Maybe return metadata such as id
 		res.Status(http.StatusCreated).Text("Created successfully!")
@@ -82,13 +76,7 @@ func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	templateEntity := entity.TemplateEntity{
-		Id: *reqObj.Id,
-		ContactType: *reqObj.ContactType,
-		Template: *reqObj.Template,
-	}
-
-	status := btc.repository.Update(&templateEntity)
+	status := btc.repository.Update(reqObj.ToEntity())
 	if status == 0 {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else if status == 1 {
