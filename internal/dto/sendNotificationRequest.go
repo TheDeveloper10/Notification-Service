@@ -10,9 +10,9 @@ type TemplatePlaceholder struct {
 
 type SendNotificationRequest struct {
 	AbstractRequest
-	TemplateId   *int                  `json:"templateId"`
-	UserId       *string               `json:"userId"`
-	AppId        *string               `json:"appId"`
+	TemplateID   *int                  `json:"templateId"`
+	UserID       *string               `json:"userId"`
+	AppID        *string               `json:"appId"`
 	ContactType  *string               `json:"contactType"`
 	ContactInfo  *string               `json:"contactInfo"`
 	Title        *string               `json:"title"`
@@ -22,17 +22,17 @@ type SendNotificationRequest struct {
 func (snr *SendNotificationRequest) Validate() []error {
 	var errorsSlice []error
 
-	if snr.TemplateId == nil {
+	if snr.TemplateID == nil {
 		errorsSlice = append(errorsSlice, errors.New("'templateId' must be given!"))
-	} else if (*snr.TemplateId) <= 0 {
+	} else if (*snr.TemplateID) <= 0 {
 		errorsSlice = append(errorsSlice, errors.New("'templateId' must be greater than 0!"))
 	}
 	
-	if snr.UserId == nil || len(*snr.UserId) <= 0 {
+	if snr.UserID == nil || len(*snr.UserID) <= 0 {
 		errorsSlice = append(errorsSlice, errors.New("'userId' must be given!"))
 	} 
 	
-	if snr.AppId == nil || len(*snr.AppId) <= 0 {
+	if snr.AppID == nil || len(*snr.AppID) <= 0 {
 		errorsSlice = append(errorsSlice, errors.New("'appId' must be given!"))
 	} 
 	

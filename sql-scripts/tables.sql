@@ -1,11 +1,12 @@
 CREATE TABLE `Notifications`(
     `Id`          INTEGER       PRIMARY KEY AUTO_INCREMENT,
-    `Title`       VARCHAR(128)  NOT NULL,
-    `ContactType` VARCHAR(8)    NOT NULL,
-    `ContactInfo` VARCHAR(128)  NOT NULL,
-    `Message`     VARCHAR(2048) NOT NULL,
+    `TemplateId`  INTEGER       NOT NULL,
     `UserId`      VARCHAR(64)   NOT NULL,
     `AppId`       VARCHAR(64)   NOT NULL,
+    `ContactType` VARCHAR(8)    NOT NULL,
+    `ContactInfo` VARCHAR(128)  NOT NULL,
+    `Title`       VARCHAR(128)  NOT NULL,
+    `Message`     VARCHAR(2048) NOT NULL,
     `SentTime`    INTEGER       NOT NULL DEFAULT(UNIX_TIMESTAMP())
 );
 

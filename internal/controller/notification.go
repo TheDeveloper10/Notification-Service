@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"notification-service.com/packages/internal/dto"
+	"notification-service.com/packages/internal/entity"
 	"notification-service.com/packages/internal/repository"
 	"notification-service.com/packages/internal/util"
 )
@@ -38,7 +39,7 @@ func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http
 		return
 	}
 
-	record, status := bnc.templateRepository.Get(&dto.TemplateIdRequest{Id: reqObj.TemplateId})
+	record, status := bnc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again!")
 		return
@@ -52,8 +53,18 @@ func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http
 		key := "@{" + (*placeholder.Key) + "}"
 		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
 	}
+
+	notificationEntity := entity.NotificationEntity {
+		TemplateID: *reqObj.TemplateID,
+		UserID: *reqObj.UserID,
+		AppID: *reqObj.AppID,
+		ContactType: *reqObj.ContactType,
+		ContactInfo: *reqObj.ContactInfo,
+		Title: *reqObj.Title,
+		Message: record.Template,
+	}
 	
-	status2 := bnc.notificationRepository.Insert(&reqObj, &record.Template)
+	status2 := bnc.notificationRepository.Insert(&notificationEntity)
 	if status2 {
 		res.Status(http.StatusCreated).Text("Notification created successfully!")
 	} else {

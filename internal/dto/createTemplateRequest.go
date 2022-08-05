@@ -25,3 +25,7 @@ func (ctr *CreateTemplateRequest) Validate() []error {
 
 	return errorsSlice
 }
+
+func validateContactType(contactType *string) bool {
+	return *contactType == "email" || *contactType == "sms" || *contactType == "push"
+}

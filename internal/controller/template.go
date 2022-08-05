@@ -4,8 +4,9 @@ import (
 	"net/http"
 
 	"notification-service.com/packages/internal/dto"
-	"notification-service.com/packages/internal/util"
+	"notification-service.com/packages/internal/entity"
 	"notification-service.com/packages/internal/repository"
+	"notification-service.com/packages/internal/util"
 )
 
 type basicTemplateController struct {
@@ -43,7 +44,12 @@ func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	result := btc.repository.Insert(&reqObj)
+	templateEntity := entity.TemplateEntity{
+		ContactType: *reqObj.ContactType,
+		Template: *reqObj.Template,
+	}
+
+	result := btc.repository.Insert(&templateEntity)
 	if result {
 		// Maybe return metadata such as id
 		res.Status(http.StatusCreated).Text("Created successfully!")
@@ -58,7 +64,7 @@ func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Requ
 		return
 	}
 
-	record, statusCode := btc.repository.Get(&reqObj)
+	record, statusCode := btc.repository.Get(*reqObj.Id)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -76,7 +82,13 @@ func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	status := btc.repository.Update(&reqObj)
+	templateEntity := entity.TemplateEntity{
+		Id: *reqObj.Id,
+		ContactType: *reqObj.ContactType,
+		Template: *reqObj.Template,
+	}
+
+	status := btc.repository.Update(&templateEntity)
 	if status == 0 {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else if status == 1 {
@@ -92,7 +104,7 @@ func (btc *basicTemplateController) delete(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	status := btc.repository.Delete(&reqObj)
+	status := btc.repository.Delete(*reqObj.Id)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {

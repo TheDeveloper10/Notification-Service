@@ -6,8 +6,9 @@ import (
 
 type UpdateTemplateRequest struct {
 	AbstractRequest
-	Id 		 *int `json:"id"`
-	Template *string `json:"template"`
+	Id 		    *int `json:"id"`
+	ContactType *string `json:"contactType"`
+	Template    *string `json:"template"`
 }
 
 func (utr *UpdateTemplateRequest) Validate() []error {
@@ -17,6 +18,12 @@ func (utr *UpdateTemplateRequest) Validate() []error {
 		errorsSlice = append(errorsSlice, errors.New("'id' must be given!"))
 	} else if (*utr.Id) <= 0 {
 		errorsSlice = append(errorsSlice, errors.New("'id' must be greater than 0"))
+	}
+
+	if utr.ContactType == nil {
+		errorsSlice = append(errorsSlice, errors.New("'contactType' must be given!"))
+	} else if !validateContactType(utr.ContactType) {
+		errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push!"))
 	}
 	
 	if utr.Template == nil {
