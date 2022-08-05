@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"notification-service.com/packages/internal/helper"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -25,7 +26,7 @@ func (bnr *basicNotificationRepository) Insert(entity *entity.NotificationEntity
 		log.Error(err1.Error())
 		return false
 	}
-	defer stmt.Close()
+	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.TemplateID, entity.UserID, entity.AppID, entity.ContactType, entity.ContactInfo, entity.Title, entity.Message)
 	if err2 != nil {

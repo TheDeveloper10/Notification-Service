@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"notification-service.com/packages/internal/helper"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) bool {
 		log.Error(err1.Error())
 		return false
 	}
-	defer stmt.Close()
+	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.ContactType, entity.Template, entity.Language, entity.Type)
 	if err2 != nil {
@@ -50,14 +51,14 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 		log.Error(err1.Error())
 		return nil, 1
 	}
-	defer stmt.Close()
+	defer helper.HandledClose(stmt)
 
 	rows, err2 := stmt.Query(id)
 	if err2 != nil {
 		log.Error(err2.Error())
 		return nil, 1
 	}
-	defer rows.Close()
+	defer helper.HandledClose(rows)
 
 	if rows.Next() {
 		record := entity.TemplateEntity{}
@@ -79,7 +80,7 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 		log.Error(err1.Error())
 		return 1
 	}
-	defer stmt.Close()
+	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.Template, entity.ContactType, entity.Language, entity.Type, entity.Id)
 	if err2 != nil {
@@ -107,7 +108,7 @@ func (btr *basicTemplateRepository) Delete(id int) bool {
 		log.Error(err1.Error())
 		return false
 	}
-	defer stmt.Close()
+	defer helper.HandledClose(stmt)
 
 	_, err2 := stmt.Exec(id)
 	if err2 != nil {

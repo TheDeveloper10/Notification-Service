@@ -66,9 +66,9 @@ func (snr *SendNotificationRequest) Validate() []error {
 	}
 	
 	for i := 0; i < len(snr.Placeholders); i++ {
-		errors := snr.Placeholders[i].Validate()
-		if len(errors) > 0 {
-			errorsSlice = append(errorsSlice, errors...)
+		errs := snr.Placeholders[i].Validate()
+		if len(errs) > 0 {
+			errorsSlice = append(errorsSlice, errs...)
 			return errorsSlice
 		}
 	}
