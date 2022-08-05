@@ -21,7 +21,7 @@ func NewTemplateController(repository repository.TemplateRepository) Controller 
 func (btc *basicTemplateController) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
-	switch(req.Method) {
+	switch req.Method {
 		case "POST": {
 			btc.create(brw, req)
 		}
@@ -58,7 +58,7 @@ func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Requ
 		return
 	}
 
-	record, statusCode := btc.repository.Get(*reqObj.Id)
+	record, statusCode := btc.repository.Get(*reqObj.ToEntity())
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -92,7 +92,7 @@ func (btc *basicTemplateController) delete(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	status := btc.repository.Delete(*reqObj.Id)
+	status := btc.repository.Delete(*reqObj.ToEntity())
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {

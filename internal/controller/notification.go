@@ -1,6 +1,7 @@
 package controller
 
 import (
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 
@@ -26,7 +27,7 @@ func NewNotificationController(templateRepository repository.TemplateRepository,
 func (bnc *basicNotificationController) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
-	switch (req.Method) {
+	switch req.Method {
 		case http.MethodPost: {
 			bnc.send(brw, req)
 		}
@@ -52,6 +53,13 @@ func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http
 		placeholder := &(reqObj.Placeholders[i])
 		key := "@{" + (*placeholder.Key) + "}"
 		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
+	}
+
+	unfilledPlaceholders := record.GetPlaceholders()
+	if len(unfilledPlaceholders) > 0 {
+		log.Error("Unfilled placeholders: ", unfilledPlaceholders)
+		res.Status(http.StatusUnprocessableEntity).Text("Unfilled placeholders: " + unfilledPlaceholders)
+		return
 	}
 
 	notificationEntity := entity.NotificationEntity {
