@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"notification-service.com/packages/internal/clients"
-	"notification-service.com/packages/internal/controller"
-	"notification-service.com/packages/internal/helper"
-	"notification-service.com/packages/internal/repository"
+	"notification-service/internal/clients"
+	"notification-service/internal/controller"
+	"notification-service/internal/helper"
+	"notification-service/internal/repository"
 )
 
 func main() {
@@ -17,6 +17,7 @@ func main() {
 	templateRepository := repository.NewTemplateRepository()
 	notificationRepository := repository.NewNotificationRepository()
 
+	http.HandleFunc("/test", controller.NewTestController().Handle)
 	http.HandleFunc("/template", controller.NewTemplateController(templateRepository).Handle)
 	http.HandleFunc("/notification", controller.NewNotificationController(templateRepository, notificationRepository).Handle)
 	

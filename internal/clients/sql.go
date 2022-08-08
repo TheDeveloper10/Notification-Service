@@ -7,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"notification-service.com/packages/internal/helper"
+	"notification-service/internal/helper"
 )
 
 func InitializeSQLClient() {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"notification-service.com/packages/internal/entity"
+	"notification-service/internal/entity"
 )
 
 type CreateTemplateRequest struct {

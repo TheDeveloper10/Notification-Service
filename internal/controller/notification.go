@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	"notification-service.com/packages/internal/dto"
-	"notification-service.com/packages/internal/entity"
-	"notification-service.com/packages/internal/repository"
-	"notification-service.com/packages/internal/util"
+	"notification-service/internal/dto"
+	"notification-service/internal/entity"
+	"notification-service/internal/repository"
+	"notification-service/internal/util"
 )
 
 type basicNotificationController struct {

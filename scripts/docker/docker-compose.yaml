@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+  database:
+    image: "mysql"
+    container_name: "ns-database"
+    environment:
+      - MYSQL_ROOT_PASSWORD=RootestPasswordEver1234
+    volumes:
+      - ../sql/:/docker-entrypoint-initdb.d/
+  backend:
+    image: "golang:1.18.5-bullseye"
+    container_name: "ns-backend"
+    ports:
+      - "80:80"
+    volumes:
+      - ../../:/app
+    working_dir: /app
+    command: bash ./scripts/build/build-and-run.sh
+    depends_on:
+      - database

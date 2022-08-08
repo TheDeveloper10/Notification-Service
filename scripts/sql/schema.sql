@@ -1,4 +1,8 @@
-CREATE TABLE `Notifications`(
+CREATE DATABASE IF NOT EXISTS TestDatabase;
+
+USE TestDatabase;
+
+CREATE TABLE IF NOT EXISTS `Notifications`(
     `Id`          INTEGER       PRIMARY KEY AUTO_INCREMENT,
     `TemplateId`  INTEGER       NOT NULL,
     `UserId`      VARCHAR(64)   NOT NULL,
@@ -10,7 +14,7 @@ CREATE TABLE `Notifications`(
     `SentTime`    INTEGER       NOT NULL DEFAULT(UNIX_TIMESTAMP())
 );
 
-CREATE TABLE `Templates`(
+CREATE TABLE IF NOT EXISTS `Templates`(
     `Id`          INTEGER       PRIMARY KEY AUTO_INCREMENT,
     `ContactType` VARCHAR(8)    NOT NULL,
 	`Template`    VARCHAR(2048) NOT NULL,

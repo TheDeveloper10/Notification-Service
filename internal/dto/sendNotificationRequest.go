@@ -18,7 +18,7 @@ func (tp *TemplatePlaceholder) Validate() []error {
 	}
 
 	if tp.Value == nil {
-		errorsSlice = append(errorsSlice, errors.New("'value' on each placeholder must be given"))
+		errorsSlice = append(errorsSlice, errors.New("'val' on each placeholder must be given"))
 	}
 
 	return errorsSlice

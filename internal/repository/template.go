@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"notification-service.com/packages/internal/helper"
+	"notification-service/internal/helper"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 
-	"notification-service.com/packages/internal/clients"
-	"notification-service.com/packages/internal/entity"
+	"notification-service/internal/clients"
+	"notification-service/internal/entity"
 )
 
 type TemplateRepository interface {

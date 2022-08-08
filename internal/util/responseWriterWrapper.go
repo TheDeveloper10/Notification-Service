@@ -3,7 +3,7 @@ package util
 import (
 	"encoding/json"
 	"net/http"
-	"notification-service.com/packages/internal/helper"
+	"notification-service/internal/helper"
 )
 
 type responseWriterWrapper struct {

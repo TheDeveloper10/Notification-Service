@@ -1,9 +1,9 @@
 server:
-  addr: :8080
+  addr: :80
 database:
   driver: mysql
-  username: admin
-  password: 1234
-  host: 127.0.0.1:3306
-  name: MyDatabase
+  username: root
+  password: RootestPasswordEver1234
+  host: ns-database:3306
+  name: TestDatabase
   pool_size: 5

@@ -3,7 +3,7 @@ package dto
 import (
 	"errors"
 
-	"notification-service.com/packages/internal/entity"
+	"notification-service/internal/entity"
 )
 
 type UpdateTemplateRequest struct {

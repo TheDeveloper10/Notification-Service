@@ -3,9 +3,9 @@ package controller
 import (
 	"net/http"
 
-	"notification-service.com/packages/internal/dto"
-	"notification-service.com/packages/internal/repository"
-	"notification-service.com/packages/internal/util"
+	"notification-service/internal/dto"
+	"notification-service/internal/repository"
+	"notification-service/internal/util"
 )
 
 type basicTemplateController struct {
