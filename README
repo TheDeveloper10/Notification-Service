@@ -1,0 +1,13 @@
+# Requirements
+If you want to run the application standalone you will need
+- golang
+
+If you want to run the full package you will need
+- docker
+
+# How to start?
+```
+$ git clone https://github.com/TheDeveloper10/Notification-Service
+$ cd Notification-Service/scripts/docker
+$ sudo docker compose up
+```
