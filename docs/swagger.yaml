@@ -32,7 +32,6 @@ paths:
           description: Invalid request body
         '415':
           description: Unsupported Content-Type
-  /templates/{templateId}:
     get:
       tags:
         - template
@@ -115,7 +114,7 @@ paths:
 parameters:
   TemplateId:
     name: templateId
-    in: path
+    in: query
     description: ID of a template to operate on
     required: true
     schema:
