@@ -1,4 +1,5 @@
 1. Swagger API
 2. README
 3. Use REST API specification (plural, ids in urls and put instead of patch)
-4. RabbitMQ
+4, Rename controllers to plural
+5. RabbitMQ

@@ -5,8 +5,8 @@ USE TestDatabase;
 CREATE TABLE IF NOT EXISTS `Notifications`(
     `Id`          INTEGER       PRIMARY KEY AUTO_INCREMENT,
     `TemplateId`  INTEGER       NOT NULL,
-    `UserId`      VARCHAR(64)   NOT NULL,
-    `AppId`       VARCHAR(64)   NOT NULL,
+    `UserId`      VARCHAR(32)   NOT NULL,
+    `AppId`       VARCHAR(16)   NOT NULL,
     `ContactType` VARCHAR(8)    NOT NULL,
     `ContactInfo` VARCHAR(128)  NOT NULL,
     `Title`       VARCHAR(128)  NOT NULL,

@@ -11,7 +11,7 @@ import (
 )
 
 type TemplateRepository interface {
-	Insert(entity *entity.TemplateEntity) bool
+	Insert(entity *entity.TemplateEntity) int64
 	Get(id int) 						  (*entity.TemplateEntity, int)
 	Update(entity *entity.TemplateEntity) int
 	Delete(id int) 						  bool
@@ -23,23 +23,23 @@ func NewTemplateRepository() TemplateRepository {
 	return &basicTemplateRepository{}
 }
 
-func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) bool {
+func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int64 {
 	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
 	if helper.IsError(err1) {
-		return false
+		return -1
 	}
 	defer helper.HandledClose(stmt)
 
 	res, err2 := stmt.Exec(entity.ContactType, entity.Template, entity.Language, entity.Type)
 	if helper.IsError(err2) {
-		return false
+		return -1
 	}
 	id, err3 := res.LastInsertId()
 	if helper.IsError(err3) {
-		return false
+		return -1
 	}
 	log.Info("Inserted template with id " + strconv.FormatInt(id, 10))
-	return true
+	return id
 }
 
 func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {

@@ -22,17 +22,20 @@ func (btc *basicTemplateController) Handle(res http.ResponseWriter, req *http.Re
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
-		case "POST": {
+		case http.MethodPost: {
 			btc.create(brw, req)
 		}
-		case "GET": {
+		case http.MethodGet: {
 			btc.get(brw, req)
 		}
-		case "PATCH": {
+		case http.MethodPut: {
 			btc.update(brw, req)
 		}
-		case "DELETE": {
+		case http.MethodDelete: {
 			btc.delete(brw, req)
+		}
+		default: {
+			brw.Status(http.StatusMethodNotAllowed)
 		}
 	}
 }
@@ -43,12 +46,16 @@ func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	result := btc.repository.Insert(reqObj.ToEntity())
-	if result {
-		// Maybe return metadata such as id
-		res.Status(http.StatusCreated).Text("Created successfully!")
-	} else {
+	entity := reqObj.ToEntity()
+	id := btc.repository.Insert(entity)
+	if id == -1 {
 		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
+	} else {
+		metadata := dto.TemplateMetadata{
+			Id: id,
+			Placeholders: entity.GetPlaceholders(),
+		}
+		res.Status(http.StatusCreated).Json(metadata)
 	}
 }
 

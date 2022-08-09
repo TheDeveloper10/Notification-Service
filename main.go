@@ -18,8 +18,8 @@ func main() {
 	notificationRepository := repository.NewNotificationRepository()
 
 	http.HandleFunc("/test", controller.NewTestController().Handle)
-	http.HandleFunc("/template", controller.NewTemplateController(templateRepository).Handle)
-	http.HandleFunc("/notification", controller.NewNotificationController(templateRepository, notificationRepository).Handle)
+	http.HandleFunc("/templates", controller.NewTemplateController(templateRepository).Handle)
+	http.HandleFunc("/notifications", controller.NewNotificationController(templateRepository, notificationRepository).Handle)
 	
 	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, nil))
 }

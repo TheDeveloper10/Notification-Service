@@ -31,6 +31,9 @@ func (bnc *basicNotificationController) Handle(res http.ResponseWriter, req *htt
 		case http.MethodPost: {
 			bnc.send(brw, req)
 		}
+		default: {
+			brw.Status(http.StatusMethodNotAllowed)
+		}
 	}
 }
 

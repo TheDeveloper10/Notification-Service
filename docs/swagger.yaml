@@ -9,7 +9,7 @@ tags:
   - name: notification
     description: Operations related to notifications
 paths:
-  /template:
+  /templates:
     post:
       tags:
         - template
@@ -19,22 +19,121 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTemplate'
+              $ref: '#/components/schemas/WriteTemplateRequest'
         required: true
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: Successfully created a new template
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TemplateMetadata'
         '400':
-          description: \'type\' must be at max 8 characters long
+          description: Invalid request body
         '415':
           description: Unsupported Content-Type
+  /templates/{templateId}:
+    get:
+      tags:
+        - template
+      operationId: getTemplate
+      summary: Get an existing template
+      parameters:
+        - $ref: '#/parameters/TemplateId'
+      responses:
+        '200':
+          description: Successfully fetched the template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateEntity'
+        '400':
+          description: Invalid request body
+        '404':
+          description: Template not found
+        '415':
+          description: Unsupported Content-Type
+    put:
+      tags:
+        - template
+      operationId: updateTemplate
+      summary: Update an existing template
+      parameters:
+        - $ref: '#/parameters/TemplateId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteTemplateRequest'
+      responses:
+        '200':
+          description: Successfully updated the template
+        '400':
+          description: Invalid request body
+        '404':
+          description: Template not found
+        '415':
+          description: Unsupported Content-Type
+    delete:
+      tags:
+        - template
+      operationId: deleteTemplate
+      summary: Delete an existing template
+      parameters:
+        - $ref: '#/parameters/TemplateId'
+      responses:
+        '200':
+          description: Successfully deleted the template
+        '400':
+          description: Invalid request body
+        '404':
+          description: Template not found
+        '415':
+          description: Unsupported Content-Type
+  /notifications:
+    post:
+      tags:
+        - notification
+      operationId: sendNotification
+      summary: Send a notification with a given template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendNotificationRequest'
+      responses:
+        '200':
+          description: Successfully sent notification
+        '400':
+          description: Invalid request body
+        '404':
+          description: Template not found
+        '415':
+          description: Unsupported Content-Type
+
+
+parameters:
+  TemplateId:
+    name: templateId
+    in: path
+    description: ID of a template to operate on
+    required: true
+    schema:
+      type: integer
+      format: int64
+
 components:
   schemas:
-    CreateTemplate:
+    TemplateEntity:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/WriteTemplateRequest'
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 82
+    WriteTemplateRequest:
       type: object
       properties:
         contactType:
@@ -73,11 +172,55 @@ components:
           format: int64
           example: 582
         placeholders:
+          type: string
+          format: string
+          example: "secondName, welcomeReward"
+    SendNotificationRequest:
+      type: object
+      properties:
+        templateId:
+          type: integer
+          format: int64
+          example: 57
+        userId:
+          type: string
+          format: string
+          example: "b4de9521-a543-475e-8e0d-45b6a3605b53"
+          maxLength: 32
+        appId:
+          type: string
+          format: string
+          example: "special_app"
+          maxLength: 16
+        contactType:
+          type: string
+          format: string
+          example: "email"
+          enum:
+            - email
+            - push
+            - sms
+        contactInfo:
+          type: string
+          format: string
+          example: "john@example.com"
+          maxLength: 128
+        title:
+          type: string
+          format: string
+          example: "Welcome to our app!"
+        placeholders:
           type: array
           items:
-            type: string
-            format: string
-            example: "firstName"
-          example:
-            - "secondName"
-            - "welcomeReward"
+            $ref: '#/components/schemas/TemplatePlaceholder'
+    TemplatePlaceholder:
+      type: object
+      properties:
+        key:
+          type: string
+          format: string
+          example: firstName
+        val:
+          type: string
+          format: string
+          example: John
