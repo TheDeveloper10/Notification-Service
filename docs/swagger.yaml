@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: Notification Service
+  description: This is a Notification Service you can use to notify your users across different platforms (email, sms, push)
+  version: 1.0.11
+tags:
+  - name: template
+    description: Operations related to templates
+  - name: notification
+    description: Operations related to notifications
+paths:
+  /template:
+    post:
+      tags:
+        - template
+      summary: Create a new template
+      operationId: createTemplate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplate'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateMetadata'
+        '400':
+          description: \'type\' must be at max 8 characters long
+        '415':
+          description: Unsupported Content-Type
+components:
+  schemas:
+    CreateTemplate:
+      type: object
+      properties:
+        contactType:
+          type: string
+          format: string
+          example: "email"
+          enum:
+            - email
+            - push
+            - sms
+        template:
+          type: string
+          format: string
+          example: "Hello, @{secondName}. We are happy you joined us. Claim your welcome reward at @{welcomeReward}."
+        language:
+          type: string
+          format: string
+          example: "EN"
+          enum:
+            - BG
+            - EN
+            - DE
+            - ES
+            - DA
+            - CS
+        type:
+          type: string
+          format: string
+          maxLength: 8
+          example: "register"
+    TemplateMetadata:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 582
+        placeholders:
+          type: array
+          items:
+            type: string
+            format: string
+            example: "firstName"
+          example:
+            - "secondName"
+            - "welcomeReward"
