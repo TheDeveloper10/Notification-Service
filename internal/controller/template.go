@@ -2,10 +2,10 @@ package controller
 
 import (
 	"net/http"
-
 	"notification-service/internal/dto"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
+	"strconv"
 )
 
 type basicTemplateController struct {
@@ -60,12 +60,12 @@ func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.R
 }
 
 func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Request) {
-	reqObj := dto.TemplateIdRequest{}
-	if !util.ConvertFromJson(res, req, &reqObj) {
+	id := queryIdParameter(res, req)
+	if id == nil {
 		return
 	}
 
-	record, statusCode := btc.repository.Get(*reqObj.ToEntity())
+	record, statusCode := btc.repository.Get(*(id.ToEntity()))
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -78,7 +78,12 @@ func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Requ
 }
 
 func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.Request) {
-	reqObj := dto.UpdateTemplateRequest{}
+	id := queryIdParameter(res, req)
+	if id == nil {
+		return
+	}
+
+	reqObj := dto.UpdateTemplateRequest{ Id: id.Id }
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
@@ -94,15 +99,35 @@ func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.R
 }
 
 func (btc *basicTemplateController) delete(res util.IResponseWriter, req *http.Request) {
-	reqObj := dto.TemplateIdRequest{}
-	if !util.ConvertFromJson(res, req, &reqObj) {
+	id := queryIdParameter(res, req)
+	if id == nil {
 		return
 	}
 
-	status := btc.repository.Delete(*reqObj.ToEntity())
+	status := btc.repository.Delete(*(id.ToEntity()))
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {
 		res.Status(http.StatusBadRequest).Text("Failed to delete it. Try again!")
 	}
+}
+
+func queryIdParameter(res util.IResponseWriter, req *http.Request) *dto.TemplateIdRequest {
+	query := req.URL.Query()
+	idString := query.Get("id")
+	reqObj := dto.TemplateIdRequest{}
+	if idString != "" {
+		id, err := strconv.Atoi(idString)
+		if err != nil {
+			res.Status(http.StatusBadRequest).Text("'id' must be an integer")
+			return nil
+		}
+		reqObj.Id = &id
+	}
+	err := util.ValidateRequestAndCombineErrors(&reqObj)
+	if err != nil {
+		res.Status(http.StatusBadRequest).Text(err.Error())
+		return nil
+	}
+	return &reqObj
 }

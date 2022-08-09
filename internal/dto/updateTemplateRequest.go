@@ -9,7 +9,7 @@ import (
 type UpdateTemplateRequest struct {
 	AbstractRequestEntity[entity.TemplateEntity]
 	CreateTemplateRequest
-	Id 		    *int `json:"id"`
+	Id *int
 }
 
 func (utr *UpdateTemplateRequest) Validate() []error {
