@@ -8,31 +8,31 @@ import (
 	"strconv"
 )
 
-type basicTemplateController struct {
+type templateV1Controller struct {
 	repository repository.TemplateRepository
 }
 
-func NewTemplateController(repository repository.TemplateRepository) Controller {
-	return &basicTemplateController{
+func NewTemplateV1Controller(repository repository.TemplateRepository) Controller {
+	return &templateV1Controller{
 		repository,
 	}
 }
 
-func (btc *basicTemplateController) Handle(res http.ResponseWriter, req *http.Request) {
+func (tc *templateV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
 		case http.MethodPost: {
-			btc.create(brw, req)
+			tc.create(brw, req)
 		}
 		case http.MethodGet: {
-			btc.get(brw, req)
+			tc.get(brw, req)
 		}
 		case http.MethodPut: {
-			btc.update(brw, req)
+			tc.update(brw, req)
 		}
 		case http.MethodDelete: {
-			btc.delete(brw, req)
+			tc.delete(brw, req)
 		}
 		default: {
 			brw.Status(http.StatusMethodNotAllowed)
@@ -40,14 +40,14 @@ func (btc *basicTemplateController) Handle(res http.ResponseWriter, req *http.Re
 	}
 }
 
-func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.Request) {
+func (tc *templateV1Controller) create(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
 	entity := reqObj.ToEntity()
-	id := btc.repository.Insert(entity)
+	id := tc.repository.Insert(entity)
 	if id == -1 {
 		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
 	} else {
@@ -59,13 +59,13 @@ func (btc *basicTemplateController) create(res util.IResponseWriter, req *http.R
 	}
 }
 
-func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Request) {
+func (tc *templateV1Controller) get(res util.IResponseWriter, req *http.Request) {
 	id := queryIdParameter(res, req)
 	if id == nil {
 		return
 	}
 
-	record, statusCode := btc.repository.Get(*(id.ToEntity()))
+	record, statusCode := tc.repository.Get(*(id.ToEntity()))
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -77,7 +77,7 @@ func (btc *basicTemplateController) get(res util.IResponseWriter, req *http.Requ
 	}
 }
 
-func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.Request) {
+func (tc *templateV1Controller) update(res util.IResponseWriter, req *http.Request) {
 	id := queryIdParameter(res, req)
 	if id == nil {
 		return
@@ -88,7 +88,7 @@ func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.R
 		return
 	}
 
-	status := btc.repository.Update(reqObj.ToEntity())
+	status := tc.repository.Update(reqObj.ToEntity())
 	if status == 0 {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else if status == 1 {
@@ -98,13 +98,13 @@ func (btc *basicTemplateController) update(res util.IResponseWriter, req *http.R
 	}
 }
 
-func (btc *basicTemplateController) delete(res util.IResponseWriter, req *http.Request) {
+func (tc *templateV1Controller) delete(res util.IResponseWriter, req *http.Request) {
 	id := queryIdParameter(res, req)
 	if id == nil {
 		return
 	}
 
-	status := btc.repository.Delete(*(id.ToEntity()))
+	status := tc.repository.Delete(*(id.ToEntity()))
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {

@@ -9,7 +9,7 @@ tags:
   - name: notification
     description: Operations related to notifications
 paths:
-  /templates:
+  /v1/templates:
     post:
       tags:
         - template
@@ -89,7 +89,7 @@ paths:
           description: Template not found
         '415':
           description: Unsupported Content-Type
-  /notifications:
+  /v1/notifications:
     post:
       tags:
         - notification

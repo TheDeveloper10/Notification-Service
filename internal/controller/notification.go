@@ -11,25 +11,25 @@ import (
 	"notification-service/internal/util"
 )
 
-type basicNotificationController struct {
+type notificationV1Controller struct {
 	templateRepository     repository.TemplateRepository
 	notificationRepository repository.NotificationRepository
 }
 
-func NewNotificationController(templateRepository repository.TemplateRepository, 
+func NewNotificationV1Controller(templateRepository repository.TemplateRepository,
 							   notificationRepository repository.NotificationRepository) Controller {
-	return &basicNotificationController{
+	return &notificationV1Controller{
 		templateRepository,
 		notificationRepository,
 	}
 }
 
-func (bnc *basicNotificationController) Handle(res http.ResponseWriter, req *http.Request) {
+func (nc *notificationV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
 		case http.MethodPost: {
-			bnc.send(brw, req)
+			nc.send(brw, req)
 		}
 		default: {
 			brw.Status(http.StatusMethodNotAllowed)
@@ -37,13 +37,13 @@ func (bnc *basicNotificationController) Handle(res http.ResponseWriter, req *htt
 	}
 }
 
-func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http.Request) {
+func (nc *notificationV1Controller) send(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	record, status := bnc.templateRepository.Get(*reqObj.TemplateID)
+	record, status := nc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again")
 		return
@@ -75,7 +75,7 @@ func (bnc *basicNotificationController) send(res util.IResponseWriter, req *http
 		Message: record.Template,
 	}
 	
-	status2 := bnc.notificationRepository.Insert(&notificationEntity)
+	status2 := nc.notificationRepository.Insert(&notificationEntity)
 	if status2 {
 		res.Status(http.StatusCreated).Text("Notification created successfully!")
 	} else {

@@ -17,9 +17,9 @@ func main() {
 	templateRepository := repository.NewTemplateRepository()
 	notificationRepository := repository.NewNotificationRepository()
 
-	http.HandleFunc("/test", controller.NewTestController().Handle)
-	http.HandleFunc("/templates", controller.NewTemplateController(templateRepository).Handle)
-	http.HandleFunc("/notifications", controller.NewNotificationController(templateRepository, notificationRepository).Handle)
+	http.HandleFunc("/v1/test", controller.NewTestV1Controller().Handle)
+	http.HandleFunc("/v1/templates", controller.NewTemplateV1Controller(templateRepository).Handle)
+	http.HandleFunc("/v1/notifications", controller.NewNotificationV1Controller(templateRepository, notificationRepository).Handle)
 	
 	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, nil))
 }
