@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 
@@ -17,9 +18,16 @@ func main() {
 	templateRepository := repository.NewTemplateRepository()
 	notificationRepository := repository.NewNotificationRepository()
 
-	http.HandleFunc("/v1/test", controller.NewTestV1Controller().Handle)
-	http.HandleFunc("/v1/templates", controller.NewTemplateV1Controller(templateRepository).Handle)
-	http.HandleFunc("/v1/notifications", controller.NewNotificationV1Controller(templateRepository, notificationRepository).Handle)
-	
-	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, nil))
+	testV1Controller := controller.NewTestV1Controller()
+	templateV1Controller := controller.NewTemplateV1Controller(templateRepository)
+	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository)
+
+	r := mux.NewRouter()
+
+	r.HandleFunc("/v1/test", testV1Controller.Handle)
+	r.HandleFunc("/v1/templates", templateV1Controller.Handle)
+	r.HandleFunc("/v1/templates/{templateId:\\d+}", templateV1Controller.HandleSpecific)
+	r.HandleFunc("/v1/notifications", notificationV1Controller.Handle)
+
+	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, r))
 }

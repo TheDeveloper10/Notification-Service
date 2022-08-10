@@ -5,13 +5,17 @@ import (
 	"notification-service/internal/util"
 )
 
-type testV1Controller struct { }
-
-func NewTestV1Controller() Controller {
-	return &testV1Controller{}
+type TestV1Controller interface {
+	Handle (res http.ResponseWriter, req *http.Request)
 }
 
-func (tc *testV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
+type basicTestV1Controller struct { }
+
+func NewTestV1Controller() TestV1Controller {
+	return &basicTestV1Controller{}
+}
+
+func (tc *basicTestV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	brw.Status(200).Text("Request method: " + req.Method)

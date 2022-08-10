@@ -11,20 +11,24 @@ import (
 	"notification-service/internal/util"
 )
 
-type notificationV1Controller struct {
+type NotificationV1Controller interface {
+	Handle(res http.ResponseWriter, req *http.Request)
+}
+
+type basicNotificationV1Controller struct {
 	templateRepository     repository.TemplateRepository
 	notificationRepository repository.NotificationRepository
 }
 
 func NewNotificationV1Controller(templateRepository repository.TemplateRepository,
-							   notificationRepository repository.NotificationRepository) Controller {
-	return &notificationV1Controller{
+							   notificationRepository repository.NotificationRepository) NotificationV1Controller {
+	return &basicNotificationV1Controller{
 		templateRepository,
 		notificationRepository,
 	}
 }
 
-func (nc *notificationV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
+func (nc *basicNotificationV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
@@ -37,7 +41,7 @@ func (nc *notificationV1Controller) Handle(res http.ResponseWriter, req *http.Re
 	}
 }
 
-func (nc *notificationV1Controller) send(res util.IResponseWriter, req *http.Request) {
+func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return

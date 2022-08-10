@@ -32,13 +32,20 @@ paths:
           description: Invalid request body
         '415':
           description: Unsupported Content-Type
+  /v1/templates/{templateId}:
     get:
       tags:
         - template
       operationId: getTemplate
       summary: Get an existing template
       parameters:
-        - $ref: '#/parameters/TemplateId'
+        - name: templateId
+          in: path
+          description: ID of a template to operate on
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
           description: Successfully fetched the template
@@ -58,7 +65,13 @@ paths:
       operationId: updateTemplate
       summary: Update an existing template
       parameters:
-        - $ref: '#/parameters/TemplateId'
+        - name: templateId
+          in: path
+          description: ID of a template to operate on
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -79,7 +92,13 @@ paths:
       operationId: deleteTemplate
       summary: Delete an existing template
       parameters:
-        - $ref: '#/parameters/TemplateId'
+        - name: templateId
+          in: path
+          description: ID of a template to operate on
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
           description: Successfully deleted the template
@@ -109,17 +128,6 @@ paths:
           description: Template not found
         '415':
           description: Unsupported Content-Type
-
-
-parameters:
-  TemplateId:
-    name: templateId
-    in: query
-    description: ID of a template to operate on
-    required: true
-    schema:
-      type: integer
-      format: int64
 
 components:
   schemas:

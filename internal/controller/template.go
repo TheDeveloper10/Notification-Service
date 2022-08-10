@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/gorilla/mux"
 	"net/http"
 	"notification-service/internal/dto"
 	"notification-service/internal/repository"
@@ -8,31 +9,27 @@ import (
 	"strconv"
 )
 
-type templateV1Controller struct {
+type TemplateV1Controller interface {
+	Handle(res http.ResponseWriter, req *http.Request)
+	HandleSpecific(res http.ResponseWriter, req *http.Request)
+}
+
+type basicTemplateV1Controller struct {
 	repository repository.TemplateRepository
 }
 
-func NewTemplateV1Controller(repository repository.TemplateRepository) Controller {
-	return &templateV1Controller{
+func NewTemplateV1Controller(repository repository.TemplateRepository) TemplateV1Controller {
+	return &basicTemplateV1Controller{
 		repository,
 	}
 }
 
-func (tc *templateV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
+func (btc *basicTemplateV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
 		case http.MethodPost: {
-			tc.create(brw, req)
-		}
-		case http.MethodGet: {
-			tc.get(brw, req)
-		}
-		case http.MethodPut: {
-			tc.update(brw, req)
-		}
-		case http.MethodDelete: {
-			tc.delete(brw, req)
+			btc.create(brw, req)
 		}
 		default: {
 			brw.Status(http.StatusMethodNotAllowed)
@@ -40,14 +37,14 @@ func (tc *templateV1Controller) Handle(res http.ResponseWriter, req *http.Reques
 	}
 }
 
-func (tc *templateV1Controller) create(res util.IResponseWriter, req *http.Request) {
+func (btc *basicTemplateV1Controller) create(res util.IResponseWriter, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
 	entity := reqObj.ToEntity()
-	id := tc.repository.Insert(entity)
+	id := btc.repository.Insert(entity)
 	if id == -1 {
 		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
 	} else {
@@ -59,13 +56,28 @@ func (tc *templateV1Controller) create(res util.IResponseWriter, req *http.Reque
 	}
 }
 
-func (tc *templateV1Controller) get(res util.IResponseWriter, req *http.Request) {
-	id := queryIdParameter(res, req)
-	if id == nil {
-		return
-	}
+func (btc *basicTemplateV1Controller) HandleSpecific(res http.ResponseWriter, req *http.Request) {
+	brw := util.WrapResponseWriter(&res)
+	templateId, _ := strconv.Atoi(mux.Vars(req)["templateId"])
 
-	record, statusCode := tc.repository.Get(*(id.ToEntity()))
+	switch req.Method {
+		case http.MethodGet: {
+			btc.get(brw, templateId)
+		}
+		case http.MethodPut: {
+			btc.update(brw, req, templateId)
+		}
+		case http.MethodDelete: {
+			btc.delete(brw, templateId)
+		}
+		default: {
+			brw.Status(http.StatusMethodNotAllowed)
+		}
+	}
+}
+
+func (btc *basicTemplateV1Controller) get(res util.IResponseWriter, templateId int) {
+	record, statusCode := btc.repository.Get(templateId)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -77,18 +89,13 @@ func (tc *templateV1Controller) get(res util.IResponseWriter, req *http.Request)
 	}
 }
 
-func (tc *templateV1Controller) update(res util.IResponseWriter, req *http.Request) {
-	id := queryIdParameter(res, req)
-	if id == nil {
-		return
-	}
-
-	reqObj := dto.UpdateTemplateRequest{ Id: id.Id }
+func (btc *basicTemplateV1Controller) update(res util.IResponseWriter, req *http.Request, templateId int) {
+	reqObj := dto.UpdateTemplateRequest{ Id: &templateId }
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	status := tc.repository.Update(reqObj.ToEntity())
+	status := btc.repository.Update(reqObj.ToEntity())
 	if status == 0 {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else if status == 1 {
@@ -98,36 +105,11 @@ func (tc *templateV1Controller) update(res util.IResponseWriter, req *http.Reque
 	}
 }
 
-func (tc *templateV1Controller) delete(res util.IResponseWriter, req *http.Request) {
-	id := queryIdParameter(res, req)
-	if id == nil {
-		return
-	}
-
-	status := tc.repository.Delete(*(id.ToEntity()))
+func (btc *basicTemplateV1Controller) delete(res util.IResponseWriter, templateId int) {
+	status := btc.repository.Delete(templateId)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {
 		res.Status(http.StatusBadRequest).Text("Failed to delete it. Try again!")
 	}
-}
-
-func queryIdParameter(res util.IResponseWriter, req *http.Request) *dto.TemplateIdRequest {
-	query := req.URL.Query()
-	idString := query.Get("id")
-	reqObj := dto.TemplateIdRequest{}
-	if idString != "" {
-		id, err := strconv.Atoi(idString)
-		if err != nil {
-			res.Status(http.StatusBadRequest).Text("'id' must be an integer")
-			return nil
-		}
-		reqObj.Id = &id
-	}
-	err := util.ValidateRequestAndCombineErrors(&reqObj)
-	if err != nil {
-		res.Status(http.StatusBadRequest).Text(err.Error())
-		return nil
-	}
-	return &reqObj
 }
