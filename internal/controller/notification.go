@@ -71,7 +71,7 @@ func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *htt
 
 	notificationEntity := entity.NotificationEntity {
 		TemplateID: *reqObj.TemplateID,
-		UserID: *reqObj.UserID,
+		FCMRegistrationToken: reqObj.FCMRegistrationToken,
 		AppID: *reqObj.AppID,
 		ContactType: *reqObj.ContactType,
 		ContactInfo: *reqObj.ContactInfo,

@@ -3,12 +3,14 @@ package clients
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	log "github.com/sirupsen/logrus"
 	"notification-service/internal/helper"
 )
+
+var SQLClient *sql.DB = nil
 
 func InitializeSQLClient() {
 	if SQLClient != nil {
@@ -18,17 +20,15 @@ func InitializeSQLClient() {
 	dbConfig := &helper.Config.Database
 	conn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Name)
 
-	db, err := sql.Open(dbConfig.Driver, conn)
+	client, err := sql.Open(dbConfig.Driver, conn)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	db.SetConnMaxIdleTime(5 * time.Second)
-	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(dbConfig.PoolSize)
-	db.SetMaxOpenConns(dbConfig.PoolSize)
+	client.SetConnMaxIdleTime(5 * time.Second)
+	client.SetConnMaxLifetime(0)
+	client.SetMaxIdleConns(dbConfig.PoolSize)
+	client.SetMaxOpenConns(dbConfig.PoolSize)
 	
-	SQLClient = db
+	SQLClient = client
 }
-
-var SQLClient *sql.DB = nil

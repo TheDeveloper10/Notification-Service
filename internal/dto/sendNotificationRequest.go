@@ -26,13 +26,13 @@ func (tp *TemplatePlaceholder) Validate() []error {
 
 type SendNotificationRequest struct {
 	AbstractRequest
-	TemplateID   *int                  `json:"templateId"`
-	UserID       *string               `json:"userId"`
-	AppID        *string               `json:"appId"`
-	ContactType  *string               `json:"contactType"`
-	ContactInfo  *string               `json:"contactInfo"`
-	Title        *string               `json:"title"`
-	Placeholders []TemplatePlaceholder `json:"placeholders"`
+	TemplateID   		 *int          		   `json:"templateId"`
+	FCMRegistrationToken *string       		   `json:"fcmRegistrationToken"`
+	AppID        		 *string       		   `json:"appId"`
+	ContactType  		 *string		       `json:"contactType"`
+	ContactInfo  		 *string       		   `json:"contactInfo"`
+	Title        		 *string       		   `json:"title"`
+	Placeholders         []TemplatePlaceholder `json:"placeholders"`
 }
 
 func (snr *SendNotificationRequest) Validate() []error {
@@ -44,10 +44,6 @@ func (snr *SendNotificationRequest) Validate() []error {
 		errorsSlice = append(errorsSlice, errors.New("'templateId' must be greater than 0"))
 	}
 	
-	if snr.UserID == nil || len(*snr.UserID) <= 0 {
-		errorsSlice = append(errorsSlice, errors.New("'userId' must be given"))
-	} 
-	
 	if snr.AppID == nil || len(*snr.AppID) <= 0 {
 		errorsSlice = append(errorsSlice, errors.New("'appId' must be given"))
 	} 
@@ -56,6 +52,10 @@ func (snr *SendNotificationRequest) Validate() []error {
 		errorsSlice = append(errorsSlice, errors.New("'contactType' must be given"))
 	} else if !validateContactType(snr.ContactType) {
 		errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push"))
+	}
+
+	if *snr.ContactType == "push" && (snr.FCMRegistrationToken == nil || len(*snr.FCMRegistrationToken) <= 0) {
+		errorsSlice = append(errorsSlice, errors.New("'fcmRegistrationToken' must be given"))
 	}
 
 	if snr.ContactInfo == nil || len(*snr.ContactInfo) <= 0 {

@@ -38,7 +38,7 @@ func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int64 
 	if helper.IsError(err3) {
 		return -1
 	}
-	log.Info("Inserted template with id " + strconv.FormatInt(id, 10))
+	log.Info("Inserted template into the database with id " + strconv.FormatInt(id, 10))
 	return id
 }
 
@@ -91,7 +91,7 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 		return 2
 	}
 
-	log.Info("Updated template with id " + strconv.Itoa(entity.Id))
+	log.Info("Updated template in the database with id " + strconv.Itoa(entity.Id))
 	return 0
 }
 
@@ -106,6 +106,6 @@ func (btr *basicTemplateRepository) Delete(id int) bool {
 	if helper.IsError(err2) {
 		return false
 	}
-	log.Info("Deleted template with id " + strconv.Itoa(id))
+	log.Info("Deleted template from the database with id " + strconv.Itoa(id))
 	return true
 }

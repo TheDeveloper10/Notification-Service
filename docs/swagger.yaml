@@ -189,11 +189,11 @@ components:
           type: integer
           format: int64
           example: 57
-        userId:
+        fcmRegistrationToken:
           type: string
           format: string
-          example: "b4de9521-a543-475e-8e0d-45b6a3605b53"
-          maxLength: 32
+          example: "fmYbktWg5vagrE4tbhz1fs:APA91bEWirOnL4DRdcfqwbUbuKJXRla9zBF_f-80mIRLIIGQccm5sGZDxonMm1cuGJMXnx2vZt3F_3m6ZuOjETqPrxrC5D9NeDQotHUUzOYsPnF88PgWNB8nwA-sBjB0lEGu9E4p_ccN"
+          maxLength: 168
         appId:
           type: string
           format: string

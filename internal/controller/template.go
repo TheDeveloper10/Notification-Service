@@ -10,8 +10,8 @@ import (
 )
 
 type TemplateV1Controller interface {
-	Handle(res http.ResponseWriter, req *http.Request)
-	HandleSpecific(res http.ResponseWriter, req *http.Request)
+	HandleAll(res http.ResponseWriter, req *http.Request)
+	HandleById(res http.ResponseWriter, req *http.Request)
 }
 
 type basicTemplateV1Controller struct {
@@ -24,7 +24,7 @@ func NewTemplateV1Controller(repository repository.TemplateRepository) TemplateV
 	}
 }
 
-func (btc *basicTemplateV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
+func (btc *basicTemplateV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
@@ -56,7 +56,7 @@ func (btc *basicTemplateV1Controller) create(res util.IResponseWriter, req *http
 	}
 }
 
-func (btc *basicTemplateV1Controller) HandleSpecific(res http.ResponseWriter, req *http.Request) {
+func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 	templateId, _ := strconv.Atoi(mux.Vars(req)["templateId"])
 
