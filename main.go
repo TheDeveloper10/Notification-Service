@@ -34,7 +34,7 @@ func main() {
 	r.HandleFunc("/v1/test", testV1Controller.Handle)
 	r.HandleFunc("/v1/templates", templateV1Controller.HandleAll)
 	r.HandleFunc("/v1/templates/{templateId:\\d+}", templateV1Controller.HandleById)
-	r.HandleFunc("/v1/notifications", notificationV1Controller.Handle)
+	r.HandleFunc("/v1/notifications", notificationV1Controller.HandleAll)
 
 	// Starting http server
 	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, r))

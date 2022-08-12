@@ -3,6 +3,7 @@ package controller
 import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"notification-service/internal/util/iface"
 	"strings"
 
 	"notification-service/internal/dto"
@@ -12,7 +13,7 @@ import (
 )
 
 type NotificationV1Controller interface {
-	Handle(res http.ResponseWriter, req *http.Request)
+	HandleAll(res http.ResponseWriter, req *http.Request)
 }
 
 type basicNotificationV1Controller struct {
@@ -28,12 +29,15 @@ func NewNotificationV1Controller(templateRepository repository.TemplateRepositor
 	}
 }
 
-func (nc *basicNotificationV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
+func (bnc *basicNotificationV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
+		case http.MethodGet: {
+			bnc.getBulk(brw, req)
+		}
 		case http.MethodPost: {
-			nc.send(brw, req)
+			bnc.send(brw, req)
 		}
 		default: {
 			brw.Status(http.StatusMethodNotAllowed)
@@ -41,13 +45,37 @@ func (nc *basicNotificationV1Controller) Handle(res http.ResponseWriter, req *ht
 	}
 }
 
-func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *http.Request) {
+func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req *http.Request) {
+	// GET /notifications
+	// GET /notifications?page=24 (size = default = 20)
+	// GET /notifications?size=50 (page = default = 1)
+	// GET /notifications?appId=aa-bb
+	// GET /notifications?templateId=45
+	// GET /notifications?startTime=17824254
+	// GET /notifications?endTime=17824254
+
+
+	// TODO: implement**
+	//filter := entity.NotificationFilterFromRequest(req, res)
+	//if filter == nil {
+	//	return
+	//}
+	//
+	//notifications := bnc.notificationRepository.GetBulk(filter)
+	//if notifications == nil {
+	//	res.Status(http.StatusBadRequest).Text("Failed to get anything")
+	//} else {
+	//	res.Status(http.StatusOK).Json(*notifications)
+	//}
+}
+
+func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
 
-	templateEntity, status := nc.templateRepository.Get(*reqObj.TemplateID)
+	templateEntity, status := bnc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again")
 		return
@@ -83,7 +111,7 @@ func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *htt
 		Message:              templateEntity.Template,
 	}
 	
-	status2 := nc.notificationRepository.Insert(&notificationEntity)
+	status2 := bnc.notificationRepository.Insert(&notificationEntity)
 	if status2 {
 		res.Status(http.StatusCreated).Text("Notification created successfully!")
 	} else {

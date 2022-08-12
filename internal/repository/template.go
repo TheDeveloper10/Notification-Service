@@ -72,15 +72,7 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 }
 
 func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity {
-	builder := util.QueryBuilder{}
-	builder.Core("select * from Templates")
-
-	if filter.Page <= 0 {
-		filter.Page = entity.DefaultTemplatePage
-	}
-	if filter.Size <= 0 {
-		filter.Size = entity.DefaultTemplateSize
-	}
+	builder := util.NewQueryBuilder("select * from Templates")
 
 	offset := (filter.Page - 1) * filter.Size
 	query := builder.End(&filter.Size, &offset)

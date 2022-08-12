@@ -1,34 +1,40 @@
 package util
 
 import (
+	"notification-service/internal/util/iface"
 	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
 
-type QueryBuilder struct {
+func NewQueryBuilder(queryCore string) iface.IQueryBuilder {
+	qb := queryBuilder{}
+	qb.initialize(&queryCore)
+	return &qb
+}
+
+type queryBuilder struct {
+	iface.IQueryBuilder
 	query 	   string
 	whereIsSet bool
 	placeholderValues *[]any
 }
 
-func (qb *QueryBuilder) Core(queryCore string) *QueryBuilder {
-	loweredQuery := strings.ToLower(queryCore)
+func (qb *queryBuilder) initialize(queryCore *string) {
+	loweredQuery := strings.ToLower(*queryCore)
 
 	if strings.Contains(loweredQuery, " where ") || strings.Contains(loweredQuery, " limit ") || strings.Contains(loweredQuery, " offset ") {
 		log.Error("Core of query cannot contain 'where', 'limit' or 'offset'!")
-		return nil
+		return
 	}
 
-	qb.query      		 = queryCore
+	qb.query      		 = *queryCore
 	qb.whereIsSet 		 = false
 	qb.placeholderValues = nil
-
-	return qb
 }
 
-func (qb *QueryBuilder) Where(condition string, placeholderValue any) *QueryBuilder {
+func (qb *queryBuilder) Where(condition string, placeholderValue any) iface.IQueryBuilder {
 	if qb.placeholderValues == nil {
 		qb.placeholderValues = &[]any{ placeholderValue }
 	} else {
@@ -45,7 +51,7 @@ func (qb *QueryBuilder) Where(condition string, placeholderValue any) *QueryBuil
 	return qb
 }
 
-func (qb *QueryBuilder) End(limit *int, offset *int) *string {
+func (qb *queryBuilder) End(limit *int, offset *int) *string {
 	if limit != nil {
 		qb.query += " limit " + strconv.Itoa(*limit)
 	}
@@ -56,6 +62,6 @@ func (qb *QueryBuilder) End(limit *int, offset *int) *string {
 	return &qb.query
 }
 
-func (qb *QueryBuilder) Values() *[]any {
+func (qb *queryBuilder) Values() *[]any {
 	return qb.placeholderValues
 }

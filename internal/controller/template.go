@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"notification-service/internal/dto"
 	"notification-service/internal/entity"
-	"notification-service/internal/helper"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
+	"notification-service/internal/util/iface"
 	"strconv"
 )
 
@@ -42,33 +42,17 @@ func (btc *basicTemplateV1Controller) HandleAll(res http.ResponseWriter, req *ht
 	}
 }
 
-func (btc *basicTemplateV1Controller) getBulk(res util.IResponseWriter, req *http.Request) {
-	// GET /notifications
-	// GET /notifications?page=24 (size = default = 20)
-	// GET /notifications?size=50 (page = default = 1)
+func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *http.Request) {
+	// GET /templates
+	// GET /templates?page=24 (size = default = 20)
+	// GET /templates?size=50 (page = default = 1)
 
-	queryParams := req.URL.Query()
-	filter := entity.TemplateFilter{}
-
-	if page := queryParams.Get("page"); page != "" {
-		pageInt, err := strconv.Atoi(page)
-		if helper.IsError(err) || pageInt <= 0 {
-			res.Status(http.StatusBadRequest).Text("'page' must be a positive integer")
-			return
-		}
-		filter.Page = pageInt
+	filter := entity.TemplateFilterFromRequest(req, res)
+	if filter == nil {
+		return
 	}
 
-	if size := queryParams.Get("size"); size != "" {
-		sizeInt, err := strconv.Atoi(size)
-		if helper.IsError(err) || sizeInt <= 0 {
-			res.Status(http.StatusBadRequest).Text("'size' must be a positive integer")
-			return
-		}
-		filter.Size = sizeInt
-	}
-
-	templates := btc.repository.GetBulk(&filter)
+	templates := btc.repository.GetBulk(filter)
 	if templates == nil {
 		res.Status(http.StatusBadRequest).Text("Failed to get anything")
 	} else {
@@ -76,7 +60,7 @@ func (btc *basicTemplateV1Controller) getBulk(res util.IResponseWriter, req *htt
 	}
 }
 
-func (btc *basicTemplateV1Controller) create(res util.IResponseWriter, req *http.Request) {
+func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
@@ -118,7 +102,7 @@ func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *h
 	}
 }
 
-func (btc *basicTemplateV1Controller) getById(res util.IResponseWriter, templateId int) {
+func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templateId int) {
 	record, statusCode := btc.repository.Get(templateId)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
@@ -131,7 +115,7 @@ func (btc *basicTemplateV1Controller) getById(res util.IResponseWriter, template
 	}
 }
 
-func (btc *basicTemplateV1Controller) updateById(res util.IResponseWriter, req *http.Request, templateId int) {
+func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req *http.Request, templateId int) {
 	reqObj := dto.UpdateTemplateRequest{ Id: &templateId }
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
@@ -147,7 +131,7 @@ func (btc *basicTemplateV1Controller) updateById(res util.IResponseWriter, req *
 	}
 }
 
-func (btc *basicTemplateV1Controller) deleteById(res util.IResponseWriter, templateId int) {
+func (btc *basicTemplateV1Controller) deleteById(res iface.IResponseWriter, templateId int) {
 	status := btc.repository.Delete(templateId)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")

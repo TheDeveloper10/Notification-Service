@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"notification-service/internal/helper"
+	"notification-service/internal/util/iface"
 
 	log "github.com/sirupsen/logrus"
 
 	"notification-service/internal/dto"
 )
 
-func ConvertFromJson(res IResponseWriter, req *http.Request, out dto.AbstractRequest) bool {
+func ConvertFromJson(res iface.IResponseWriter, req *http.Request, out dto.AbstractRequest) bool {
 	if req.Header.Get("Content-Type") != "application/json" {
 		log.Error("Unsupported Content-Type")
 		res.Status(http.StatusUnsupportedMediaType)
