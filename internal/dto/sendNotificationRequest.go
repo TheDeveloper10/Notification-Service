@@ -3,10 +3,11 @@ package dto
 import (
 	"errors"
 	"notification-service/internal/entity"
+	"notification-service/internal/util/iface"
 )
 
 type TemplatePlaceholder struct {
-	AbstractRequest
+	iface.IRequest
 	Key   *string `json:"key"`
 	Value *string `json:"val"`
 }
@@ -26,7 +27,7 @@ func (tp *TemplatePlaceholder) Validate() []error {
 }
 
 type SendNotificationRequest struct {
-	AbstractRequest
+	iface.IRequest
 	TemplateID   		 *int          		   `json:"templateId"`
 
 	ContactType          *string			   `json:"contactType"`

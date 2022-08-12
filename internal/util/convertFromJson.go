@@ -1,17 +1,16 @@
 package util
 
 import (
-	"encoding/json"
-	"net/http"
 	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
 
-	log "github.com/sirupsen/logrus"
+	"encoding/json"
+	"net/http"
 
-	"notification-service/internal/dto"
+	log "github.com/sirupsen/logrus"
 )
 
-func ConvertFromJson(res iface.IResponseWriter, req *http.Request, out dto.AbstractRequest) bool {
+func ConvertFromJson(res iface.IResponseWriter, req *http.Request, out iface.IRequest) bool {
 	if req.Header.Get("Content-Type") != "application/json" {
 		log.Error("Unsupported Content-Type")
 		res.Status(http.StatusUnsupportedMediaType)
@@ -26,7 +25,7 @@ func ConvertFromJson(res iface.IResponseWriter, req *http.Request, out dto.Abstr
 
 	err = ValidateRequestAndCombineErrors(out)
 	if helper.IsError(err) {
-		res.Status(http.StatusBadRequest).Text(err.Error())
+		res.Status(http.StatusBadRequest).Error(err)
 		return false
 	}
 

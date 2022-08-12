@@ -2,10 +2,10 @@ package util
 
 import (
 	"errors"
-	"notification-service/internal/dto"
+	"notification-service/internal/util/iface"
 )
 
-func ValidateRequestAndCombineErrors(req dto.AbstractRequest) error {
+func ValidateRequestAndCombineErrors(req iface.IRequest) error {
 	errs := req.Validate()
 	if len(errs) > 0 {
 		errMessage := ""

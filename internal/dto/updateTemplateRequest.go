@@ -2,12 +2,13 @@ package dto
 
 import (
 	"errors"
+	"notification-service/internal/util/iface"
 
 	"notification-service/internal/entity"
 )
 
 type UpdateTemplateRequest struct {
-	AbstractRequestEntity[entity.TemplateEntity]
+	iface.IRequestEntity[entity.TemplateEntity]
 	CreateTemplateRequest
 	Id *int
 }

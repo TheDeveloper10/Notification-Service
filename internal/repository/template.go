@@ -91,7 +91,8 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 	var templates []entity.TemplateEntity
 	for rows.Next() {
 		record := entity.TemplateEntity{}
-		err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template, &record.Language, &record.Type)
+		err3 := rows.Scan(&record.Id, &record.ContactType,
+						  &record.Template, &record.Language, &record.Type)
 		if helper.IsError(err3) {
 			return nil
 		}

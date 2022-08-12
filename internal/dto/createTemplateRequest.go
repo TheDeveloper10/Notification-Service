@@ -5,10 +5,11 @@ import (
 	"strings"
 
 	"notification-service/internal/entity"
+	"notification-service/internal/util/iface"
 )
 
 type CreateTemplateRequest struct {
-	AbstractRequestEntity[entity.TemplateEntity]
+	iface.IRequestEntity[entity.TemplateEntity]
 	ContactType *string `json:"contactType"`
 	Template    *string `json:"template"`
 	Language    *string `json:"language"`

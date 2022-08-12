@@ -21,13 +21,13 @@ func TemplateFilterFromRequest(req *http.Request, res iface.IResponseWriter) *Te
 	extractor := util.NewQueryParameterExtractor(req.URL.Query())
 
 	if page, err := extractor.GetPositiveInteger("page", DefaultTemplatePage); err != nil {
-		res.Status(http.StatusBadRequest).Text(err.Error())
+		res.Status(http.StatusBadRequest).Error(err)
 	} else {
 		filter.Page = *page
 	}
 
 	if size, err := extractor.GetPositiveInteger("size", DefaultTemplateSize); err != nil {
-		res.Status(http.StatusBadRequest).Text(err.Error())
+		res.Status(http.StatusBadRequest).Error(err)
 	} else {
 		filter.Size = *size
 	}

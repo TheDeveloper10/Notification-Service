@@ -2,6 +2,7 @@ package util
 
 import (
 	"notification-service/internal/util/iface"
+
 	"strconv"
 	"strings"
 
@@ -34,7 +35,11 @@ func (qb *queryBuilder) initialize(queryCore *string) {
 	qb.placeholderValues = nil
 }
 
-func (qb *queryBuilder) Where(condition string, placeholderValue any) iface.IQueryBuilder {
+func (qb *queryBuilder) Where(condition string, placeholderValue any, skip bool) iface.IQueryBuilder {
+	if skip {
+		return qb
+	}
+
 	if qb.placeholderValues == nil {
 		qb.placeholderValues = &[]any{ placeholderValue }
 	} else {

@@ -1,9 +1,12 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+	"notification-service/internal/util/iface"
+)
 
 type TemplateIdRequest struct {
-	AbstractRequestEntity[int]
+	iface.IRequestEntity[int]
 	Id *int `json:"id"`
 }
 

@@ -54,19 +54,17 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 	// GET /notifications?startTime=17824254
 	// GET /notifications?endTime=17824254
 
+	filter := entity.NotificationFilterFromRequest(req, res)
+	if filter == nil {
+		return
+	}
 
-	// TODO: implement**
-	//filter := entity.NotificationFilterFromRequest(req, res)
-	//if filter == nil {
-	//	return
-	//}
-	//
-	//notifications := bnc.notificationRepository.GetBulk(filter)
-	//if notifications == nil {
-	//	res.Status(http.StatusBadRequest).Text("Failed to get anything")
-	//} else {
-	//	res.Status(http.StatusOK).Json(*notifications)
-	//}
+	notifications := bnc.notificationRepository.GetBulk(filter)
+	if notifications == nil {
+		res.Status(http.StatusBadRequest).Text("Failed to get anything")
+	} else {
+		res.Status(http.StatusOK).Json(*notifications)
+	}
 }
 
 func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {

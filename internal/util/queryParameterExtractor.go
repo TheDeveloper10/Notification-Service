@@ -1,9 +1,10 @@
 package util
 
 import (
+	"notification-service/internal/util/iface"
+
 	"errors"
 	"net/url"
-	"notification-service/internal/util/iface"
 	"strconv"
 )
 
