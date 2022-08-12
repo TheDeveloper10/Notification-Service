@@ -1,4 +1,3 @@
-1. GET /templates and GET /notifications (including pagination)
-2. Bulk notification sending
-3. Email server integration
-4. RabbitMQ
+1. Update swagger documentation to reflect the new changes
+2. Email server integration
+3. RabbitMQ

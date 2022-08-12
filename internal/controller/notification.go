@@ -1,15 +1,13 @@
 package controller
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net/http"
-	"notification-service/internal/util/iface"
-	"strings"
-
 	"notification-service/internal/dto"
 	"notification-service/internal/entity"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
+	"notification-service/internal/util/iface"
+	"strconv"
 )
 
 type NotificationV1Controller interface {
@@ -87,32 +85,66 @@ func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *h
 		return
 	}
 
-	for i := 0; i < len(reqObj.Placeholders); i++ {
-		placeholder := &(reqObj.Placeholders[i])
-		key := "@{" + (*placeholder.Key) + "}"
-		templateEntity.Template = strings.ReplaceAll(templateEntity.Template, key, *placeholder.Value)
-	}
-
-	unfilledPlaceholders := templateEntity.GetPlaceholders()
-	if len(unfilledPlaceholders) > 0 {
-		log.Error("Unfilled placeholders: ", unfilledPlaceholders)
-		res.Status(http.StatusUnprocessableEntity).Text("Unfilled placeholders: " + unfilledPlaceholders)
+	universalText, err := dto.FillPlaceholders(templateEntity.Template, &reqObj.UniversalPlaceholders)
+	if err != nil {
+		res.Status(http.StatusBadRequest).Error(err)
 		return
 	}
+	universallyUnfilledPlaceholders := dto.GetPlaceholders(&templateEntity.Template)
+	needToCheckPlaceholders := len(universallyUnfilledPlaceholders) > 0
 
 	notificationEntity := entity.NotificationEntity {
 		TemplateID:           *reqObj.TemplateID,
 		AppID:                *reqObj.AppID,
-		ContactType:          *reqObj.ContactType,
-		ContactInfo:          *reqObj.GetContactInfo(),
 		Title:                *reqObj.Title,
-		Message:              templateEntity.Template,
 	}
-	
-	status2 := bnc.notificationRepository.Insert(&notificationEntity)
-	if status2 {
-		res.Status(http.StatusCreated).Text("Notification created successfully!")
-	} else {
-		res.Status(http.StatusBadRequest).Text("Failed to create notification. Try again!")
+
+	var outsourceNotification func(*entity.NotificationEntity) bool
+	switch templateEntity.ContactType {
+		case entity.ContactTypeEmail:
+			outsourceNotification = bnc.notificationRepository.SendEmail
+		case entity.ContactTypePush:
+			outsourceNotification = bnc.notificationRepository.SendFCM
+		case entity.ContactTypeSMS:
+			outsourceNotification = bnc.notificationRepository.SendSMS
 	}
+
+	targetCount := len(reqObj.Targets)
+	for i := 0; i < targetCount; i++ {
+		target := &(reqObj.Targets[i])
+
+		err := target.Validate(&templateEntity.ContactType)
+		if err != nil {
+			msg := strconv.Itoa(i) + " notification(s) have been sent but an error occurred: " + err.Error() + " for each target"
+			res.Status(http.StatusBadRequest).Text(msg)
+			return
+		}
+
+		specificText, err := dto.FillPlaceholders(*universalText, &target.Placeholders)
+		if err != nil {
+			msg := strconv.Itoa(i) + " notification(s) have been sent but an error occurred: " + err.Error()
+			res.Status(http.StatusBadRequest).Text(msg)
+			return
+		}
+		if needToCheckPlaceholders {
+			unfilledPlaceholders := dto.GetPlaceholders(specificText)
+
+			if len(unfilledPlaceholders) > 0 {
+				msg := strconv.Itoa(i) + " notification(s) have been sent but an error occurred: Unfilled placeholders: " + unfilledPlaceholders
+				res.Status(http.StatusUnprocessableEntity).Text(msg)
+				return
+			}
+		}
+
+		notificationEntity.ContactInfo = *target.GetContactInfo()
+		notificationEntity.Message = *specificText
+
+		if !bnc.notificationRepository.Insert(&notificationEntity) ||
+			!outsourceNotification(&notificationEntity) {
+			res.Status(http.StatusBadRequest).Text(strconv.Itoa(i) + " notification(s) have been sent but failed to create this one. Try again!")
+			return
+		}
+	}
+
+	res.Status(http.StatusCreated).Text(strconv.Itoa(targetCount) + " notification(s) have been sent successfully!")
 }

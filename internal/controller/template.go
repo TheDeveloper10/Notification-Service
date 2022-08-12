@@ -66,14 +66,15 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 		return
 	}
 
-	entity := reqObj.ToEntity()
-	id := btc.repository.Insert(entity)
+	templateEntity := reqObj.ToEntity()
+	id := btc.repository.Insert(templateEntity)
 	if id == -1 {
 		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
 	} else {
+		placeholders := dto.GetPlaceholders(&templateEntity.Template)
 		metadata := dto.TemplateMetadata{
 			Id: id,
-			Placeholders: entity.GetPlaceholders(),
+			Placeholders: placeholders,
 		}
 		res.Status(http.StatusCreated).Json(metadata)
 	}

@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS `Notifications`(
     `Id`                   INTEGER       PRIMARY KEY AUTO_INCREMENT,
     `AppId`                VARCHAR(16)   NOT NULL,
     `TemplateId`           INTEGER       NOT NULL,
-    `ContactType`          VARCHAR(8)    NOT NULL,
     `ContactInfo`          VARCHAR(168),
     `Title`                VARCHAR(128)  NOT NULL,
     `Message`              VARCHAR(2048) NOT NULL,

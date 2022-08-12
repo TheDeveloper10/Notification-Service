@@ -14,7 +14,12 @@ import (
 )
 
 type NotificationRepository interface {
-	Insert(entity *entity.NotificationEntity) bool
+	Insert(notification *entity.NotificationEntity) bool
+
+	SendEmail(notification *entity.NotificationEntity) bool
+	SendFCM(notification *entity.NotificationEntity) bool
+	SendSMS(notification *entity.NotificationEntity) bool
+
 	GetBulk(filter *entity.NotificationFilter) *[]entity.NotificationEntity
 }
 
@@ -25,13 +30,13 @@ func NewNotificationRepository() NotificationRepository {
 }
 
 func (bnr *basicNotificationRepository) Insert(notification *entity.NotificationEntity) bool {
-	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(AppId, TemplateId, ContactType, ContactInfo, Title, Message) values(?, ?, ?, ?, ?, ?)")
+	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(AppId, TemplateId, ContactInfo, Title, Message) values(?, ?, ?, ?, ?)")
 	if helper.IsError(err1) {
 		return false
 	}
 	defer helper.HandledClose(stmt)
 
-	res1, err2 := stmt.Exec(notification.AppID, notification.TemplateID, notification.ContactType, notification.ContactInfo, notification.Title, notification.Message)
+	res1, err2 := stmt.Exec(notification.AppID, notification.TemplateID, notification.ContactInfo, notification.Title, notification.Message)
 	if helper.IsError(err2) {
 		return false
 	}
@@ -43,23 +48,29 @@ func (bnr *basicNotificationRepository) Insert(notification *entity.Notification
 
 	log.Info("Inserted notification into the database with id " + strconv.FormatInt(id, 10))
 
-	if notification.ContactType == entity.ContactTypePush {
-		_, err := clients.FCMClient.Send(context.Background(), &messaging.Message{
-			Notification: &messaging.Notification{
-				Title: notification.Title,
-				Body:  notification.Message,
-			},
-			Token: notification.ContactInfo,
-		})
-		if helper.IsError(err) {
-			return false
-		}
+	return true
+}
 
-		log.Info("Sent notification via FCM")
+func (bnr *basicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool { return true }
+
+func (bnr *basicNotificationRepository) SendFCM(notification *entity.NotificationEntity) bool {
+	_, err := clients.FCMClient.Send(context.Background(), &messaging.Message{
+		Notification: &messaging.Notification{
+			Title: notification.Title,
+			Body:  notification.Message,
+		},
+		Token: notification.ContactInfo,
+	})
+	if helper.IsError(err) {
+		return false
 	}
+
+	log.Info("Sent notification via FCM")
 
 	return true
 }
+
+func (bnr *basicNotificationRepository) SendSMS(notification *entity.NotificationEntity) bool { return true }
 
 func (bnr *basicNotificationRepository) GetBulk(filter *entity.NotificationFilter) *[]entity.NotificationEntity {
 	builder := util.NewQueryBuilder("select * from Notifications")
@@ -91,7 +102,7 @@ func (bnr *basicNotificationRepository) GetBulk(filter *entity.NotificationFilte
 	var notifications []entity.NotificationEntity
 	for rows.Next() {
 		record := entity.NotificationEntity{}
-		err3 := rows.Scan(&record.Id, &record.AppID, &record.TemplateID, &record.ContactType, &record.ContactInfo,
+		err3 := rows.Scan(&record.Id, &record.AppID, &record.TemplateID, &record.ContactInfo,
 						  &record.Title, &record.Message, &record.SentTime)
 		if helper.IsError(err3) {
 			return nil
