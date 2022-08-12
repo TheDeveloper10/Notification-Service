@@ -2,6 +2,7 @@ package dto
 
 import (
 	"errors"
+	"notification-service/internal/entity"
 )
 
 type TemplatePlaceholder struct {
@@ -27,10 +28,13 @@ func (tp *TemplatePlaceholder) Validate() []error {
 type SendNotificationRequest struct {
 	AbstractRequest
 	TemplateID   		 *int          		   `json:"templateId"`
+
+	ContactType          *string			   `json:"contactType"`
+	Email                *string               `json:"email"`
+	PhoneNumber          *string               `json:"phoneNumber"`
 	FCMRegistrationToken *string       		   `json:"fcmRegistrationToken"`
+
 	AppID        		 *string       		   `json:"appId"`
-	ContactType  		 *string		       `json:"contactType"`
-	ContactInfo  		 *string       		   `json:"contactInfo"`
 	Title        		 *string       		   `json:"title"`
 	Placeholders         []TemplatePlaceholder `json:"placeholders"`
 }
@@ -43,26 +47,51 @@ func (snr *SendNotificationRequest) Validate() []error {
 	} else if (*snr.TemplateID) <= 0 {
 		errorsSlice = append(errorsSlice, errors.New("'templateId' must be greater than 0"))
 	}
-	
-	if snr.AppID == nil || len(*snr.AppID) <= 0 {
-		errorsSlice = append(errorsSlice, errors.New("'appId' must be given"))
-	} 
-	
-	if snr.ContactType == nil {
-		errorsSlice = append(errorsSlice, errors.New("'contactType' must be given"))
-	} else if !validateContactType(snr.ContactType) {
-		errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push"))
+
+	err := basicStringValidation("appId", snr.AppID)
+	if err != nil {
+		errorsSlice = append(errorsSlice, err)
 	}
 
-	if *snr.ContactType == "push" && (snr.FCMRegistrationToken == nil || len(*snr.FCMRegistrationToken) <= 0) {
-		errorsSlice = append(errorsSlice, errors.New("'fcmRegistrationToken' must be given"))
+	err = basicStringValidation("title", snr.Title)
+	if err != nil {
+		errorsSlice = append(errorsSlice, err)
 	}
 
-	if snr.ContactInfo == nil || len(*snr.ContactInfo) <= 0 {
-		errorsSlice = append(errorsSlice, errors.New("'contactInfo' must be given"))
-	}
-	if snr.Title == nil || len(*snr.Title) <= 0 {
-		errorsSlice = append(errorsSlice, errors.New("'title' must be given"))
+	switch *snr.ContactType {
+		case entity.ContactTypeEmail: {
+			err = basicStringValidation(*snr.ContactType, snr.Email)
+			if err != nil {
+				errorsSlice = append(errorsSlice, err)
+			}
+
+			if snr.PhoneNumber != nil || snr.FCMRegistrationToken != nil {
+				errorsSlice = append(errorsSlice, errors.New("'email' must be given only"))
+			}
+		}
+		case entity.ContactTypeSMS: {
+			err = basicStringValidation(*snr.ContactType, snr.PhoneNumber)
+			if err != nil {
+				errorsSlice = append(errorsSlice, err)
+			}
+
+			if snr.Email != nil || snr.FCMRegistrationToken != nil {
+				errorsSlice = append(errorsSlice, errors.New("'phoneNumber' must be given only"))
+			}
+		}
+		case entity.ContactTypePush: {
+			err = basicStringValidation(*snr.ContactType, snr.FCMRegistrationToken)
+			if err != nil {
+				errorsSlice = append(errorsSlice, err)
+			}
+
+			if snr.Email != nil || snr.PhoneNumber != nil {
+				errorsSlice = append(errorsSlice, errors.New("'fcmRegistrationToken' must be given only"))
+			}
+		}
+		default: {
+			errorsSlice = append(errorsSlice, errors.New("'contactType' must be one of email/sms/push"))
+		}
 	}
 	
 	for i := 0; i < len(snr.Placeholders); i++ {
@@ -74,4 +103,25 @@ func (snr *SendNotificationRequest) Validate() []error {
 	}
 
 	return errorsSlice
+}
+
+func (snr *SendNotificationRequest) GetContactInfo() *string {
+	switch *snr.ContactType {
+		case entity.ContactTypeEmail:
+			return snr.Email
+		case entity.ContactTypeSMS:
+			return snr.PhoneNumber
+		case entity.ContactTypePush:
+			return snr.FCMRegistrationToken
+		default:
+			return nil
+	}
+}
+
+func basicStringValidation(propertyName string, property *string) error {
+	if property == nil || len(*property) <= 0 {
+		return errors.New("'" + propertyName + "' must be given!")
+	}
+
+	return nil
 }

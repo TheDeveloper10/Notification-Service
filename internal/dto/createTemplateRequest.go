@@ -57,7 +57,7 @@ func (ctr *CreateTemplateRequest) ToEntity() *entity.TemplateEntity {
 
 // TODO: Move these validations out of here
 func validateContactType(contactType *string) bool {
-	return *contactType == "email" || *contactType == "sms" || *contactType == "push"
+	return *contactType == entity.ContactTypeEmail || *contactType == entity.ContactTypeSMS || *contactType == entity.ContactTypePush
 }
 
 var allowedLanguages = "BG, EN, DE, ES, DA, CS"

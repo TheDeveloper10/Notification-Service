@@ -47,7 +47,7 @@ func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *htt
 		return
 	}
 
-	record, status := nc.templateRepository.Get(*reqObj.TemplateID)
+	templateEntity, status := nc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
 		res.Status(http.StatusNotFound).Text("Something was wrong with the database. Try again")
 		return
@@ -56,13 +56,18 @@ func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *htt
 		return
 	}
 
+	if templateEntity.ContactType != *reqObj.ContactType {
+		res.Status(http.StatusBadRequest).Text("'contactType' should be " + templateEntity.GetContactInfoType() + " in order to use this template")
+		return
+	}
+
 	for i := 0; i < len(reqObj.Placeholders); i++ {
 		placeholder := &(reqObj.Placeholders[i])
 		key := "@{" + (*placeholder.Key) + "}"
-		record.Template = strings.ReplaceAll(record.Template, key, *placeholder.Value)
+		templateEntity.Template = strings.ReplaceAll(templateEntity.Template, key, *placeholder.Value)
 	}
 
-	unfilledPlaceholders := record.GetPlaceholders()
+	unfilledPlaceholders := templateEntity.GetPlaceholders()
 	if len(unfilledPlaceholders) > 0 {
 		log.Error("Unfilled placeholders: ", unfilledPlaceholders)
 		res.Status(http.StatusUnprocessableEntity).Text("Unfilled placeholders: " + unfilledPlaceholders)
@@ -70,13 +75,12 @@ func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *htt
 	}
 
 	notificationEntity := entity.NotificationEntity {
-		TemplateID: *reqObj.TemplateID,
-		FCMRegistrationToken: reqObj.FCMRegistrationToken,
-		AppID: *reqObj.AppID,
-		ContactType: *reqObj.ContactType,
-		ContactInfo: *reqObj.ContactInfo,
-		Title: *reqObj.Title,
-		Message: record.Template,
+		TemplateID:           *reqObj.TemplateID,
+		AppID:                *reqObj.AppID,
+		ContactType:          *reqObj.ContactType,
+		ContactInfo:          *reqObj.GetContactInfo(),
+		Title:                *reqObj.Title,
+		Message:              templateEntity.Template,
 	}
 	
 	status2 := nc.notificationRepository.Insert(&notificationEntity)

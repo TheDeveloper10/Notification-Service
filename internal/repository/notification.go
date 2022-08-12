@@ -2,14 +2,14 @@ package repository
 
 import (
 	"context"
-	"firebase.google.com/go/messaging"
-	"notification-service/internal/helper"
 	"strconv"
 
+	"firebase.google.com/go/messaging"
 	log "github.com/sirupsen/logrus"
 
 	"notification-service/internal/clients"
 	"notification-service/internal/entity"
+	"notification-service/internal/helper"
 )
 
 type NotificationRepository interface {
@@ -22,14 +22,14 @@ func NewNotificationRepository() NotificationRepository {
 	return &basicNotificationRepository{}
 }
 
-func (bnr *basicNotificationRepository) Insert(entity *entity.NotificationEntity) bool {
-	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(TemplateId, FCMRegistrationToken, AppId, ContactType, ContactInfo, Title, Message) values(?, ?, ?, ?, ?, ?, ?)")
+func (bnr *basicNotificationRepository) Insert(notification *entity.NotificationEntity) bool {
+	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(TemplateId, , AppId, ContactType, ContactInfo, Title, Message) values(?, ?, ?, ?, ?, ?, ?)")
 	if helper.IsError(err1) {
 		return false
 	}
 	defer helper.HandledClose(stmt)
 
-	res1, err2 := stmt.Exec(entity.TemplateID, entity.FCMRegistrationToken, entity.AppID, entity.ContactType, entity.ContactInfo, entity.Title, entity.Message)
+	res1, err2 := stmt.Exec(notification.TemplateID, notification.AppID, notification.ContactType, notification.ContactInfo, notification.Title, notification.Message)
 	if helper.IsError(err2) {
 		return false
 	}
@@ -41,17 +41,20 @@ func (bnr *basicNotificationRepository) Insert(entity *entity.NotificationEntity
 
 	log.Info("Inserted notification into the database with id " + strconv.FormatInt(id, 10))
 
-	_, err := clients.FCMClient.Send(context.Background(), &messaging.Message{
-		Notification: &messaging.Notification{
-			Title: entity.Title,
-			Body:  entity.Message,
-		},
-		Token: *entity.FCMRegistrationToken,
-	})
-	if helper.IsError(err) {
-		return false
+	if notification.ContactType == entity.ContactTypeSMS {
+		_, err := clients.FCMClient.Send(context.Background(), &messaging.Message{
+			Notification: &messaging.Notification{
+				Title: notification.Title,
+				Body:  notification.Message,
+			},
+			Token: notification.ContactInfo,
+		})
+		if helper.IsError(err) {
+			return false
+		}
+
+		log.Info("Sent notification via FCM")
 	}
 
-	log.Info("Sent notification via FCM")
 	return true
 }
