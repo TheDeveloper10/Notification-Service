@@ -1,4 +1,4 @@
-1. Fix requests
-2. Multiple notifications with a single request
+1. GET /templates and GET /notifications (including pagination)
+2. Bulk notification sending
 3. Email server integration
 4. RabbitMQ

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -11,10 +12,11 @@ import (
 )
 
 type TemplateRepository interface {
-	Insert(entity *entity.TemplateEntity) int64
-	Get(id int) 						  (*entity.TemplateEntity, int)
-	Update(entity *entity.TemplateEntity) int
-	Delete(id int) 						  bool
+	Insert(entity *entity.TemplateEntity)  int64
+	Get(id int) 						   (*entity.TemplateEntity, int)
+	GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity
+	Update(entity *entity.TemplateEntity)  int
+	Delete(id int) 						   bool
 }
 
 type basicTemplateRepository struct { }
@@ -67,6 +69,45 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 		log.Warn("Template with id " + strconv.Itoa(id) + " was not found")
 		return nil, 2
 	}
+}
+
+func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity {
+	builder := util.QueryBuilder{}
+	builder.Core("select * from Templates")
+
+	if filter.Page <= 0 {
+		filter.Page = entity.DefaultTemplatePage
+	}
+	if filter.Size <= 0 {
+		filter.Size = entity.DefaultTemplateSize
+	}
+
+	offset := (filter.Page - 1) * filter.Size
+	query := builder.End(&filter.Size, &offset)
+
+	stmt, err := clients.SQLClient.Prepare(*query)
+	if helper.IsError(err) {
+		return nil
+	}
+
+	rows, err2 := stmt.Query()
+	if helper.IsError(err2) {
+		return nil
+	}
+	defer helper.HandledClose(rows)
+
+	var templates []entity.TemplateEntity
+	for rows.Next() {
+		record := entity.TemplateEntity{}
+		err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template, &record.Language, &record.Type)
+		if helper.IsError(err3) {
+			return nil
+		}
+		templates = append(templates, record)
+	}
+
+	log.Info("Fetched " + strconv.Itoa(len(templates)) + " template(s)")
+	return &templates
 }
 
 func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
