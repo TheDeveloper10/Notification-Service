@@ -60,32 +60,26 @@ func (snr *SendNotificationRequest) Validate() []error {
 
 	switch *snr.ContactType {
 		case entity.ContactTypeEmail: {
-			err = basicStringValidation(*snr.ContactType, snr.Email)
+			err = basicStringValidation("email", snr.Email)
 			if err != nil {
 				errorsSlice = append(errorsSlice, err)
-			}
-
-			if snr.PhoneNumber != nil || snr.FCMRegistrationToken != nil {
+			} else if snr.PhoneNumber != nil || snr.FCMRegistrationToken != nil {
 				errorsSlice = append(errorsSlice, errors.New("'email' must be given only"))
 			}
 		}
 		case entity.ContactTypeSMS: {
-			err = basicStringValidation(*snr.ContactType, snr.PhoneNumber)
+			err = basicStringValidation("phoneNumber", snr.PhoneNumber)
 			if err != nil {
 				errorsSlice = append(errorsSlice, err)
-			}
-
-			if snr.Email != nil || snr.FCMRegistrationToken != nil {
+			} else if snr.Email != nil || snr.FCMRegistrationToken != nil {
 				errorsSlice = append(errorsSlice, errors.New("'phoneNumber' must be given only"))
 			}
 		}
 		case entity.ContactTypePush: {
-			err = basicStringValidation(*snr.ContactType, snr.FCMRegistrationToken)
+			err = basicStringValidation("fcmRegistrationToken", snr.FCMRegistrationToken)
 			if err != nil {
 				errorsSlice = append(errorsSlice, err)
-			}
-
-			if snr.Email != nil || snr.PhoneNumber != nil {
+			} else if snr.Email != nil || snr.PhoneNumber != nil {
 				errorsSlice = append(errorsSlice, errors.New("'fcmRegistrationToken' must be given only"))
 			}
 		}

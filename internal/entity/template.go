@@ -48,16 +48,3 @@ func (te *TemplateEntity) GetPlaceholders() string {
 
 	return res
 }
-
-func (te *TemplateEntity) GetContactInfoType() string {
-	switch te.ContactType {
-		case ContactTypeEmail:
-			return "'email'"
-		case ContactTypeSMS:
-			return "'phoneNumber'"
-		case ContactTypePush:
-			return "'fcmRegistrationToken'"
-		default:
-			return ""
-	}
-}

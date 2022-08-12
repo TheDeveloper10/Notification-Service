@@ -23,13 +23,13 @@ func NewNotificationRepository() NotificationRepository {
 }
 
 func (bnr *basicNotificationRepository) Insert(notification *entity.NotificationEntity) bool {
-	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(TemplateId, , AppId, ContactType, ContactInfo, Title, Message) values(?, ?, ?, ?, ?, ?, ?)")
+	stmt, err1 := clients.SQLClient.Prepare("insert into Notifications(AppId, TemplateId, ContactInfo, Title, Message) values(?, ?, ?, ?, ?)")
 	if helper.IsError(err1) {
 		return false
 	}
 	defer helper.HandledClose(stmt)
 
-	res1, err2 := stmt.Exec(notification.TemplateID, notification.AppID, notification.ContactType, notification.ContactInfo, notification.Title, notification.Message)
+	res1, err2 := stmt.Exec(notification.AppID, notification.TemplateID, notification.ContactInfo, notification.Title, notification.Message)
 	if helper.IsError(err2) {
 		return false
 	}
@@ -41,7 +41,7 @@ func (bnr *basicNotificationRepository) Insert(notification *entity.Notification
 
 	log.Info("Inserted notification into the database with id " + strconv.FormatInt(id, 10))
 
-	if notification.ContactType == entity.ContactTypeSMS {
+	if notification.ContactType == entity.ContactTypePush {
 		_, err := clients.FCMClient.Send(context.Background(), &messaging.Message{
 			Notification: &messaging.Notification{
 				Title: notification.Title,

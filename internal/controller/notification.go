@@ -57,7 +57,7 @@ func (nc *basicNotificationV1Controller) send(res util.IResponseWriter, req *htt
 	}
 
 	if templateEntity.ContactType != *reqObj.ContactType {
-		res.Status(http.StatusBadRequest).Text("'contactType' should be " + templateEntity.GetContactInfoType() + " in order to use this template")
+		res.Status(http.StatusBadRequest).Text("'contactType' should be '" + templateEntity.ContactType + "' in order to use this template")
 		return
 	}
 
