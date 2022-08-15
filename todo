@@ -1,2 +1,2 @@
-1. Email server integration
-2. RabbitMQ
+1. RabbitMQ
+2. Launch go-routines to process smses, emails and push notifications

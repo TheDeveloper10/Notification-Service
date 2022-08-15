@@ -23,7 +23,7 @@ type NotificationRepository interface {
 	GetBulk(filter *entity.NotificationFilter) *[]entity.NotificationEntity
 }
 
-type basicNotificationRepository struct { }
+type basicNotificationRepository struct{}
 
 func NewNotificationRepository() NotificationRepository {
 	return &basicNotificationRepository{}
@@ -51,7 +51,16 @@ func (bnr *basicNotificationRepository) Insert(notification *entity.Notification
 	return true
 }
 
-func (bnr *basicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool { return true }
+func (bnr *basicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool {
+	err := clients.MailClient.MailSingle(notification.Title, notification.Message, notification.ContactInfo)
+	if helper.IsError(err) {
+		return false
+	}
+
+	log.Info("Sent notification via FCM")
+
+	return true
+}
 
 func (bnr *basicNotificationRepository) SendFCM(notification *entity.NotificationEntity) bool {
 	_, err := clients.FCMClient.Send(context.Background(), &messaging.Message{
@@ -70,7 +79,9 @@ func (bnr *basicNotificationRepository) SendFCM(notification *entity.Notificatio
 	return true
 }
 
-func (bnr *basicNotificationRepository) SendSMS(notification *entity.NotificationEntity) bool { return true }
+func (bnr *basicNotificationRepository) SendSMS(notification *entity.NotificationEntity) bool {
+	return true
+}
 
 func (bnr *basicNotificationRepository) GetBulk(filter *entity.NotificationFilter) *[]entity.NotificationEntity {
 	builder := util.NewQueryBuilder("select * from Notifications")
@@ -103,7 +114,7 @@ func (bnr *basicNotificationRepository) GetBulk(filter *entity.NotificationFilte
 	for rows.Next() {
 		record := entity.NotificationEntity{}
 		err3 := rows.Scan(&record.Id, &record.AppID, &record.TemplateID, &record.ContactInfo,
-						  &record.Title, &record.Message, &record.SentTime)
+			&record.Title, &record.Message, &record.SentTime)
 		if helper.IsError(err3) {
 			return nil
 		}

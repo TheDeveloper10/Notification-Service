@@ -7,3 +7,8 @@ database:
   host: ns-database:3306
   name: TestDatabase
   pool_size: 5
+smtp:
+  from_email: your-email@gmail.com
+  from_password: your-password
+  host: smtp.gmail.com
+  port: 587

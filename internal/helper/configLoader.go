@@ -13,12 +13,18 @@ type config struct {
 		Addr string
 	}
 	Database struct {
-		Driver string 
-		Username string 
-		Password string 
-		Host string 
-		Name string 
+		Driver   string
+		Username string
+		Password string
+		Host     string
+		Name     string
 		PoolSize int `yaml:"pool_size"`
+	}
+	Smtp struct {
+		FromEmail    string `yaml:"from_email"`
+		FromPassword string `yaml:"from_password"`
+		Host         string
+		Port         int
 	}
 }
 

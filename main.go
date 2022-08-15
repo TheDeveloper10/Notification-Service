@@ -13,11 +13,13 @@ import (
 )
 
 func main() {
+
 	// Configuration
 	helper.LoadConfig("./config/service_config.yaml")
 
 	clients.InitializeSQLClient()
 	clients.InitializeFCMClient("./config/adc_config.json")
+	clients.InitializeMailClient()
 
 	// Repositories
 	templateRepository := repository.NewTemplateRepository()
