@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"notification-service/internal/dto"
 	"notification-service/internal/entity"
@@ -9,6 +8,8 @@ import (
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type TemplateV1Controller interface {
@@ -30,13 +31,16 @@ func (btc *basicTemplateV1Controller) HandleAll(res http.ResponseWriter, req *ht
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
-		case http.MethodGet: {
+	case http.MethodGet:
+		{
 			btc.getBulk(brw, req)
 		}
-		case http.MethodPost: {
+	case http.MethodPost:
+		{
 			btc.create(brw, req)
 		}
-		default: {
+	default:
+		{
 			brw.Status(http.StatusMethodNotAllowed)
 		}
 	}
@@ -55,8 +59,10 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 	templates := btc.repository.GetBulk(filter)
 	if templates == nil {
 		res.Status(http.StatusBadRequest).Text("Failed to get anything")
-	} else {
+	} else if len(*templates) > 0 {
 		res.Status(http.StatusOK).Json(*templates)
+	} else {
+		res.Status(http.StatusOK)
 	}
 }
 
@@ -73,31 +79,32 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 	} else {
 		placeholders := dto.GetPlaceholders(&templateEntity.Template)
 		metadata := dto.TemplateMetadata{
-			Id: id,
+			Id:           id,
 			Placeholders: placeholders,
 		}
 		res.Status(http.StatusCreated).Json(metadata)
 	}
 }
 
-
-
-
 func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 	templateId, _ := strconv.Atoi(mux.Vars(req)["templateId"])
 
 	switch req.Method {
-		case http.MethodGet: {
+	case http.MethodGet:
+		{
 			btc.getById(brw, templateId)
 		}
-		case http.MethodPut: {
+	case http.MethodPut:
+		{
 			btc.updateById(brw, req, templateId)
 		}
-		case http.MethodDelete: {
+	case http.MethodDelete:
+		{
 			btc.deleteById(brw, templateId)
 		}
-		default: {
+	default:
+		{
 			brw.Status(http.StatusMethodNotAllowed)
 		}
 	}
@@ -117,7 +124,7 @@ func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templat
 }
 
 func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req *http.Request, templateId int) {
-	reqObj := dto.UpdateTemplateRequest{ Id: &templateId }
+	reqObj := dto.UpdateTemplateRequest{Id: &templateId}
 	if !util.ConvertFromJson(res, req, &reqObj) {
 		return
 	}
@@ -127,7 +134,7 @@ func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req 
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else if status == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to update it. Try again!")
-	} else if status == 2 { 
+	} else if status == 2 {
 		res.Status(http.StatusBadRequest).Text("Failed to find template to update. Try with another one!")
 	}
 }

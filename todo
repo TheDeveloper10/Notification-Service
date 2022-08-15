@@ -1,6 +1,3 @@
-1. Use more 422 (Unprocessable Entity)
-2. Return JSON and not an error message
-3. Don't return a null, return an empty object
-4. Update swagger documentation to reflect the new changes
-5. Email server integration
-6. RabbitMQ
+1. Update swagger documentation to reflect the new changes
+2. Email server integration
+3. RabbitMQ
