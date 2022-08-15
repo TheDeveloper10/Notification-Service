@@ -58,7 +58,7 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 
 	templates := btc.repository.GetBulk(filter)
 	if templates == nil {
-		res.Status(http.StatusBadRequest).Text("Failed to get anything")
+		res.Status(http.StatusBadRequest).TextError("Failed to get anything")
 	} else if len(*templates) > 0 {
 		res.Status(http.StatusOK).Json(*templates)
 	} else {
@@ -75,7 +75,7 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 	templateEntity := reqObj.ToEntity()
 	id := btc.repository.Insert(templateEntity)
 	if id == -1 {
-		res.Status(http.StatusBadRequest).Text("Failed to add template to the database. Try again!")
+		res.Status(http.StatusBadRequest).TextError("Failed to add template to the database. Try again!")
 	} else {
 		placeholders := dto.GetPlaceholders(&templateEntity.Template)
 		metadata := dto.TemplateMetadata{

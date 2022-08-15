@@ -10,6 +10,37 @@ tags:
     description: Operations related to notifications
 paths:
   /v1/templates:
+    get:
+      tags:
+        - template
+      operationId: getTemplates
+      summary: Get a list of templates and filter them
+      parameters:
+        - name: size
+          in: query
+          description: Maximum number of templates to output
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 20
+            minimum: 1
+        - name: page
+          in: query
+          description: Page of templates to go to (skips page * size templates and gets you next ones)
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 1
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully fetched a list of templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfTemplateEntities'
     post:
       tags:
         - template
@@ -109,6 +140,65 @@ paths:
         '415':
           description: Unsupported Content-Type
   /v1/notifications:
+    get:
+      tags:
+        - notification
+      operationId: getNotifications
+      summary: Get a list of templates and filter them
+      parameters:
+        - name: size
+          in: query
+          description: Maximum number of templates to output
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 20
+            minimum: 1
+        - name: page
+          in: query
+          description: Page of templates to go to (skips page * size templates and gets you next ones)
+          required: false
+          schema:
+            type: integer
+            format: int64
+            default: 1
+            minimum: 1
+        - name: appId
+          in: query
+          description: Filter by id of the app
+          required: false
+          schema:
+            type: string
+            format: string
+        - name: templateId
+          in: query
+          description: Filter by id of used template
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: startTime
+          in: query
+          description: All notifications must have a sent time that is greater than startTime
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: endTime
+          in: query
+          description: All notifications must have a sent time that is lesser than endTime
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully fetched a list of notifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfNotificationEntities'
     post:
       tags:
         - notification
@@ -131,6 +221,10 @@ paths:
 
 components:
   schemas:
+    ListOfTemplateEntities:
+      type: array
+      items:
+        $ref: '#/components/schemas/TemplateEntity'
     TemplateEntity:
       type: object
       allOf:
@@ -182,23 +276,54 @@ components:
           type: string
           format: string
           example: "secondName, welcomeReward"
-    SendNotificationRequest:
+    ListOfNotificationEntities:
+      type: array
+      items:
+        $ref: '#/components/schemas/NotificationEntity'
+    NotificationEntity:
       type: object
       properties:
+        id:
+          type: integer
+          format: int64
+          example: 57123
         templateId:
           type: integer
           format: int64
-          example: 57
-        fcmRegistrationToken:
+          example: 4
+        appId:
           type: string
           format: string
-          example: "fmYbktWg5vagrE4tbhz1fs:APA91bEWirOnL4DRdcfqwbUbuKJXRla9zBF_f-80mIRLIIGQccm5sGZDxonMm1cuGJMXnx2vZt3F_3m6ZuOjETqPrxrC5D9NeDQotHUUzOYsPnF88PgWNB8nwA-sBjB0lEGu9E4p_ccN"
-          maxLength: 168
+          example: "My-App"
+        contactInfo:
+          type: string
+          format: string
+          example: "john.doe@example.com"
+        title:
+          type: string
+          format: string
+          example: "Welcome!"
+        message:
+          type: string
+          format: string
+          example: "Welcome to our community, John! We hope you have a great time!"
+        sentTime:
+          type: integer
+          format: int64
+          description: Unix timestamp of the time the notification was sent
+          example: 1660558818
+    SendNotificationRequest:
+      type: object
+      properties:
         appId:
           type: string
           format: string
           example: "special_app"
           maxLength: 16
+        templateId:
+          type: integer
+          format: int64
+          example: 57
         contactType:
           type: string
           format: string
@@ -207,19 +332,40 @@ components:
             - email
             - push
             - sms
-        contactInfo:
-          type: string
-          format: string
-          example: "john@example.com"
-          maxLength: 128
         title:
           type: string
           format: string
           example: "Welcome to our app!"
+        universalPlaceholders:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplatePlaceholder'
+          description: Placeholders universal to all targets
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationTarget'
+          description: List of people that will receive notifications
+    NotificationTarget:
+      type: object
+      properties:
+        email:
+          type: string
+          format: string
+          description: Email of target user (phoneNumber and fcmRegistrationToken must not be given)
+        phoneNumber:
+          type: string
+          format: string
+          description: Phone number of target user (email and fcmRegistrationToken must not be given)
+        fcmRegistrationToken:
+          type: string
+          format: string
+          description: Firebase Cloud Messaging Registration Token of target user (email and phoneNumber must not be given)
         placeholders:
           type: array
           items:
             $ref: '#/components/schemas/TemplatePlaceholder'
+          description: Placeholders relative to this target only
     TemplatePlaceholder:
       type: object
       properties:

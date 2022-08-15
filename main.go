@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// Configuration
-	helper.LoadConfig("./config/config.yaml")
+	helper.LoadConfig("./config/service_config.yaml")
 
 	clients.InitializeSQLClient()
 	clients.InitializeFCMClient("./config/adc_config.json")

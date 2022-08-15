@@ -1,4 +1,4 @@
-config/config.yaml
+config/service_config.yaml
 config/adc_config.json
 .idea
 notification-service
