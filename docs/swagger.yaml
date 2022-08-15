@@ -234,48 +234,6 @@ components:
           type: integer
           format: int64
           example: 82
-    WriteTemplateRequest:
-      type: object
-      properties:
-        contactType:
-          type: string
-          format: string
-          example: "email"
-          enum:
-            - email
-            - push
-            - sms
-        template:
-          type: string
-          format: string
-          example: "Hello, @{secondName}. We are happy you joined us. Claim your welcome reward at @{welcomeReward}."
-        language:
-          type: string
-          format: string
-          example: "EN"
-          enum:
-            - BG
-            - EN
-            - DE
-            - ES
-            - DA
-            - CS
-        type:
-          type: string
-          format: string
-          maxLength: 8
-          example: "register"
-    TemplateMetadata:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 582
-        placeholders:
-          type: string
-          format: string
-          example: "secondName, welcomeReward"
     ListOfNotificationEntities:
       type: array
       items:
@@ -312,8 +270,63 @@ components:
           format: int64
           description: Unix timestamp of the time the notification was sent
           example: 1660558818
+    TemplateMetadata:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 582
+        placeholders:
+          type: string
+          format: string
+          example: "secondName, welcomeReward"
+          
+          
+    WriteTemplateRequest:
+      type: object
+      required:
+        - contactType
+        - template
+        - language
+        - type
+      properties:
+        contactType:
+          type: string
+          format: string
+          example: "email"
+          enum:
+            - email
+            - push
+            - sms
+        template:
+          type: string
+          format: string
+          example: "Hello, @{secondName}. We are happy you joined us. Claim your welcome reward at @{welcomeReward}."
+        language:
+          type: string
+          format: string
+          example: "EN"
+          enum:
+            - BG
+            - EN
+            - DE
+            - ES
+            - DA
+            - CS
+        type:
+          type: string
+          format: string
+          maxLength: 8
+          example: "register"
     SendNotificationRequest:
       type: object
+      required:
+        - appId
+        - templateId
+        - contactType
+        - title
+        - targets
       properties:
         appId:
           type: string
@@ -348,6 +361,11 @@ components:
           description: List of people that will receive notifications
     NotificationTarget:
       type: object
+      required:
+        - email
+        - phoneNumber
+        - fcmRegistrationToken
+        - placeholders
       properties:
         email:
           type: string
@@ -368,6 +386,9 @@ components:
           description: Placeholders relative to this target only
     TemplatePlaceholder:
       type: object
+      required:
+        - key
+        - val
       properties:
         key:
           type: string
