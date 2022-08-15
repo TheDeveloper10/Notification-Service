@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 
 	"notification-service/internal/clients"
 	"notification-service/internal/controller"
@@ -37,5 +37,6 @@ func main() {
 	r.HandleFunc("/v1/notifications", notificationV1Controller.HandleAll)
 
 	// Starting http server
+	log.Info("Listening...")
 	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, r))
 }

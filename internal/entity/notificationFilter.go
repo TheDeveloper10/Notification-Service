@@ -12,12 +12,12 @@ const (
 )
 
 type NotificationFilter struct {
-	AppId 	   *string
+	AppId      *string
 	TemplateId *int
 	StartTime  *int
 	EndTime    *int
 	Page       int
-	Size  	   int
+	Size       int
 }
 
 func NotificationFilterFromRequest(req *http.Request, res iface.IResponseWriter) *NotificationFilter {

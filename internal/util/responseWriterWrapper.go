@@ -8,7 +8,7 @@ import (
 )
 
 func WrapResponseWriter(res *http.ResponseWriter) iface.IResponseWriter {
-	return &responseWriterWrapper {
+	return &responseWriterWrapper{
 		rw: res,
 	}
 }
@@ -18,39 +18,35 @@ type responseWriterWrapper struct {
 	rw *http.ResponseWriter
 }
 
-func (brw *responseWriterWrapper) Status(statusCode int) iface.IResponseWriter {
-	(*brw.rw).WriteHeader(statusCode)
-	return brw
-} 
-
-func (brw *responseWriterWrapper) Text(text string) iface.IResponseWriter {
-	_, err := (*brw.rw).Write([]byte(text))
-	if helper.IsError(err) {
-		return brw
-	}
-	return brw
+func (rrw *responseWriterWrapper) Status(statusCode int) iface.IResponseWriter {
+	(*rrw.rw).WriteHeader(statusCode)
+	return rrw
 }
 
-func (brw *responseWriterWrapper) Error(err error) iface.IResponseWriter {
-	_, err2 := (*brw.rw).Write([]byte(err.Error()))
-	if helper.IsError(err2) {
-		return brw
-	}
-	return brw
+func (rrw *responseWriterWrapper) Text(text string) iface.IResponseWriter {
+	_, err := (*rrw.rw).Write([]byte(text))
+	helper.IsError(err)
+	return rrw
 }
 
-func (brw *responseWriterWrapper) Json(data interface{}) iface.IResponseWriter {
+func (rrw *responseWriterWrapper) Error(err error) iface.IResponseWriter {
+	return rrw.Json(NewErrorList().AddError(err))
+}
+
+func (rrw *responseWriterWrapper) TextError(err string) iface.IResponseWriter {
+	return rrw.Json(NewErrorList().AddErrorFromString(err))
+}
+
+func (rrw *responseWriterWrapper) Json(data interface{}) iface.IResponseWriter {
 	bytes, err := json.Marshal(data)
 	if helper.IsError(err) {
-		return brw
+		return rrw
 	}
-	return brw.Bytes(bytes)
+	return rrw.Bytes(bytes)
 }
 
-func (brw *responseWriterWrapper) Bytes(data []byte) iface.IResponseWriter {
-	_, err := (*brw.rw).Write(data)
-	if helper.IsError(err) {
-		return brw
-	}
-	return brw
+func (rrw *responseWriterWrapper) Bytes(data []byte) iface.IResponseWriter {
+	_, err := (*rrw.rw).Write(data)
+	helper.IsError(err)
+	return rrw
 }

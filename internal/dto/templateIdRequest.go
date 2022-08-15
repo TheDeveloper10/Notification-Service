@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"errors"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 )
 
@@ -10,16 +10,16 @@ type TemplateIdRequest struct {
 	Id *int `json:"id"`
 }
 
-func (tir *TemplateIdRequest) Validate() []error {
-	var errorsSlice []error
+func (tir *TemplateIdRequest) Validate() iface.IErrorList {
+	errs := util.NewErrorList()
 
 	if tir.Id == nil {
-		errorsSlice = append(errorsSlice, errors.New("'id' must be given"))
+		errs.AddErrorFromString("'id' must be given")
 	} else if (*tir.Id) <= 0 {
-		errorsSlice = append(errorsSlice, errors.New("'id' must be greater than 0"))
+		errs.AddErrorFromString("'id' must be greater than 0")
 	}
-	
-	return errorsSlice
+
+	return errs
 }
 
 func (tir *TemplateIdRequest) ToEntity() *int {

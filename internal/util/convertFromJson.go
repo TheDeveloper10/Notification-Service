@@ -19,13 +19,13 @@ func ConvertFromJson(res iface.IResponseWriter, req *http.Request, out iface.IRe
 
 	err := json.NewDecoder(req.Body).Decode(&out)
 	if helper.IsError(err) {
-		res.Status(http.StatusBadRequest).Text("Invalid JSON")
+		res.Status(http.StatusBadRequest).TextError("Invalid JSON")
 		return false
 	}
 
-	err = ValidateRequestAndCombineErrors(out)
-	if helper.IsError(err) {
-		res.Status(http.StatusBadRequest).Error(err)
+	errs := out.Validate()
+	if errs.ErrorsCount() > 0 {
+		res.Status(http.StatusBadRequest).Json(errs)
 		return false
 	}
 

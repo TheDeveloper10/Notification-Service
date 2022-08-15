@@ -1,7 +1,7 @@
 package iface
 
 type IRequest interface {
-	Validate() []error
+	Validate() IErrorList
 }
 
 type IRequestEntity[T any] interface {
