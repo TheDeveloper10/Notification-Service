@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
-	"notification-service/internal/clients"
+	"notification-service/internal/client"
 	"notification-service/internal/controller"
 	"notification-service/internal/helper"
 	"notification-service/internal/repository"
@@ -17,9 +17,9 @@ func main() {
 	// Configuration
 	helper.LoadConfig("./config/service_config.yaml")
 
-	clients.InitializeSQLClient()
-	clients.InitializeFCMClient("./config/adc_config.json")
-	clients.InitializeMailClient()
+	client.InitializeSQLClient()
+	client.InitializeMailClient()
+	client.InitializePushClient("./config/adc_config.json")
 
 	// Repositories
 	templateRepository := repository.NewTemplateRepository()

@@ -7,7 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"notification-service/internal/clients"
+	"notification-service/internal/client"
 	"notification-service/internal/entity"
 )
 
@@ -26,7 +26,7 @@ func NewTemplateRepository() TemplateRepository {
 }
 
 func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int64 {
-	stmt, err1 := clients.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
+	stmt, err1 := client.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
 	if helper.IsError(err1) {
 		return -1
 	}
@@ -45,7 +45,7 @@ func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int64 
 }
 
 func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
-	stmt, err1 := clients.SQLClient.Prepare("select * from Templates where Id=?")
+	stmt, err1 := client.SQLClient.Prepare("select * from Templates where Id=?")
 	if helper.IsError(err1) {
 		return nil, 1
 	}
@@ -77,7 +77,7 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 	offset := (filter.Page - 1) * filter.Size
 	query := builder.End(&filter.Size, &offset)
 
-	stmt, err := clients.SQLClient.Prepare(*query)
+	stmt, err := client.SQLClient.Prepare(*query)
 	if helper.IsError(err) {
 		return nil
 	}
@@ -104,7 +104,7 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 }
 
 func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
-	stmt, err1 := clients.SQLClient.Prepare("update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?")
+	stmt, err1 := client.SQLClient.Prepare("update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?")
 	if helper.IsError(err1) {
 		return 1
 	}
@@ -130,7 +130,7 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 }
 
 func (btr *basicTemplateRepository) Delete(id int) bool {
-	stmt, err1 := clients.SQLClient.Prepare("delete from Templates where Id=?")
+	stmt, err1 := client.SQLClient.Prepare("delete from Templates where Id=?")
 	if helper.IsError(err1) {
 		return false
 	}

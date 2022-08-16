@@ -1,2 +1,3 @@
 1. RabbitMQ
 2. Launch go-routines to process smses, emails and push notifications
+3. Abstract FCM

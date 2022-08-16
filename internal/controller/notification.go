@@ -109,7 +109,7 @@ func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *h
 	case entity.ContactTypeEmail:
 		outsourceNotification = bnc.notificationRepository.SendEmail
 	case entity.ContactTypePush:
-		outsourceNotification = bnc.notificationRepository.SendFCM
+		outsourceNotification = bnc.notificationRepository.SendPush
 	case entity.ContactTypeSMS:
 		outsourceNotification = bnc.notificationRepository.SendSMS
 	}
