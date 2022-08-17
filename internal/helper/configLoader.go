@@ -9,8 +9,15 @@ import (
 )
 
 type config struct {
-	Server struct {
+	Service struct {
+		UseHTTP     string `yaml:"use_http"`
+		UseRabbitMQ string `yaml:"use_rabbitmq"`
+	}
+	HTTPServer struct {
 		Addr string
+	} `yaml:"http_server"`
+	RabbitMQ struct {
+		URL string
 	}
 	Database struct {
 		Driver   string
@@ -20,7 +27,7 @@ type config struct {
 		Name     string
 		PoolSize int `yaml:"pool_size"`
 	}
-	Smtp struct {
+	SMTP struct {
 		FromEmail    string `yaml:"from_email"`
 		FromPassword string `yaml:"from_password"`
 		Host         string

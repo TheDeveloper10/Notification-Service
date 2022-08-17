@@ -17,7 +17,7 @@ func InitializeMailClient() {
 	}
 
 	client := &mailClient{}
-	client.init(helper.Config.Smtp.Host, helper.Config.Smtp.Port, helper.Config.Smtp.FromEmail, helper.Config.Smtp.FromPassword)
+	client.init(helper.Config.SMTP.Host, helper.Config.SMTP.Port, helper.Config.SMTP.FromEmail, helper.Config.SMTP.FromPassword)
 
 	MailClient = client
 }

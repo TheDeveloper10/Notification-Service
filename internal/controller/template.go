@@ -13,8 +13,9 @@ import (
 )
 
 type TemplateV1Controller interface {
-	HandleAll(res http.ResponseWriter, req *http.Request)
-	HandleById(res http.ResponseWriter, req *http.Request)
+	HandleAll(http.ResponseWriter, *http.Request)
+	HandleById(http.ResponseWriter, *http.Request)
+	CreateTemplateFromBytes([]byte) bool
 }
 
 type basicTemplateV1Controller struct {
@@ -27,22 +28,33 @@ func NewTemplateV1Controller(repository repository.TemplateRepository) TemplateV
 	}
 }
 
+
+
+
+func (btc *basicTemplateV1Controller) CreateTemplateFromBytes(bytes []byte) bool {
+	reqObj := dto.CreateTemplateRequest{}
+	if !util.ConvertFromJsonBytes(bytes, &reqObj) {
+		return false
+	}
+
+	templateEntity := reqObj.ToEntity()
+	id := btc.repository.Insert(templateEntity)
+	return id != -1
+}
+
+
+
+
 func (btc *basicTemplateV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
 	case http.MethodGet:
-		{
-			btc.getBulk(brw, req)
-		}
+		btc.getBulk(brw, req)
 	case http.MethodPost:
-		{
-			btc.create(brw, req)
-		}
+		btc.create(brw, req)
 	default:
-		{
-			brw.Status(http.StatusMethodNotAllowed)
-		}
+		brw.Status(http.StatusMethodNotAllowed)
 	}
 }
 
@@ -68,7 +80,7 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 
 func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *http.Request) {
 	reqObj := dto.CreateTemplateRequest{}
-	if !util.ConvertFromJson(res, req, &reqObj) {
+	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
 		return
 	}
 
@@ -86,27 +98,22 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 	}
 }
 
+
+
+
 func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 	templateId, _ := strconv.Atoi(mux.Vars(req)["templateId"])
 
 	switch req.Method {
 	case http.MethodGet:
-		{
-			btc.getById(brw, templateId)
-		}
+		btc.getById(brw, templateId)
 	case http.MethodPut:
-		{
-			btc.updateById(brw, req, templateId)
-		}
+		btc.updateById(brw, req, templateId)
 	case http.MethodDelete:
-		{
-			btc.deleteById(brw, templateId)
-		}
+		btc.deleteById(brw, templateId)
 	default:
-		{
-			brw.Status(http.StatusMethodNotAllowed)
-		}
+		brw.Status(http.StatusMethodNotAllowed)
 	}
 }
 
@@ -125,7 +132,7 @@ func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templat
 
 func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req *http.Request, templateId int) {
 	reqObj := dto.UpdateTemplateRequest{Id: &templateId}
-	if !util.ConvertFromJson(res, req, &reqObj) {
+	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
 		return
 	}
 

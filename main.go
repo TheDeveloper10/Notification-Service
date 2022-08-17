@@ -1,15 +1,12 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
-
 	"notification-service/internal/client"
 	"notification-service/internal/controller"
 	"notification-service/internal/helper"
 	"notification-service/internal/repository"
+	"notification-service/internal/service"
+	"sync"
 )
 
 func main() {
@@ -25,20 +22,29 @@ func main() {
 	templateRepository := repository.NewTemplateRepository()
 	notificationRepository := repository.NewNotificationRepository()
 
+	var wg sync.WaitGroup
+
 	// Controllers
 	testV1Controller := controller.NewTestV1Controller()
 	templateV1Controller := controller.NewTemplateV1Controller(templateRepository)
 	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository)
 
-	// Routing
-	r := mux.NewRouter()
+	// HTTP Server
+	if helper.Config.Service.UseHTTP == "yes" {
+		httpServer := service.HTTPServer{}
+		httpServer.Init(&testV1Controller, &templateV1Controller, &notificationV1Controller)
+		wg.Add(1)
+		go httpServer.Run()
+	}
 
-	r.HandleFunc("/v1/test", testV1Controller.Handle)
-	r.HandleFunc("/v1/templates", templateV1Controller.HandleAll)
-	r.HandleFunc("/v1/templates/{templateId:\\d+}", templateV1Controller.HandleById)
-	r.HandleFunc("/v1/notifications", notificationV1Controller.HandleAll)
+	// RabbitMQ Listener
+	if helper.Config.Service.UseRabbitMQ == "yes" {
+		rabbitMQListener := service.RabbitMQListener{}
+		rabbitMQListener.Init(&templateV1Controller, &notificationV1Controller)
+		wg.Add(1)
+		go rabbitMQListener.Run()
+		defer rabbitMQListener.Close()
+	}
 
-	// Starting http server
-	log.Info("Listening...")
-	log.Fatal(http.ListenAndServe(helper.Config.Server.Addr, r))
+	wg.Wait()
 }

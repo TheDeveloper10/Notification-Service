@@ -1,12 +1,20 @@
 version: '3.7'
 services:
   database:
-    image: "mysql"
+    image: "mysql:8.0.30"
     container_name: "ns-database"
-    environment:
-      - MYSQL_ROOT_PASSWORD=RootestPasswordEver1234
+    env_file:
+      - ../sql/.env
     volumes:
       - ../sql/:/docker-entrypoint-initdb.d/
+  rabbitmq:
+    image: "rabbitmq:3.10.7-management-alpine"
+    container_name: "ns-rabbitmq"
+    ports:
+      - "5672:5672"
+    volumes:
+      - ../rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ../rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
   backend:
     image: "golang:1.18.5-bullseye"
     container_name: "ns-backend"
@@ -18,3 +26,4 @@ services:
     command: bash ./scripts/build/build-and-run.sh
     depends_on:
       - database
+      - rabbitmq

@@ -10,7 +10,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ConvertFromJson(res iface.IResponseWriter, req *http.Request, out iface.IRequest) bool {
+func ConvertFromJsonBytes(bytes []byte, out iface.IRequest) bool {
+	err := json.Unmarshal(bytes, &out)
+	return !helper.IsError(err)
+}
+
+func ConvertFromJsonRequest(res iface.IResponseWriter, req *http.Request, out iface.IRequest) bool {
 	if req.Header.Get("Content-Type") != "application/json" {
 		log.Error("Unsupported Content-Type")
 		res.Status(http.StatusUnsupportedMediaType)

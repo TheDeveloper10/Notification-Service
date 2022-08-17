@@ -1,5 +1,10 @@
-server:
+service:
+  use_http: yes
+  use_rabbitmq: yes
+http_server:
   addr: :80
+rabbitmq:
+  url: amqp://rabbitmq_def_user:rabbitmq_def_pass@ns-rabbitmq:5672
 database:
   driver: mysql
   username: root

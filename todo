@@ -1,3 +1,8 @@
 1. RabbitMQ
-2. Launch go-routines to process smses, emails and push notifications
-3. Abstract FCM
+2. Extract shared code from send notification and from create template
+3. Add delete and update template
+4. Make clients optional (mail client, push client, etc.)
+5. Batch acknowledgments for RabbitMQ
+6. Make a detailed README
+7. Launch go-routines to process smses, emails and push notifications
+8. SMS

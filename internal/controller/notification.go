@@ -11,7 +11,8 @@ import (
 )
 
 type NotificationV1Controller interface {
-	HandleAll(res http.ResponseWriter, req *http.Request)
+	HandleAll(http.ResponseWriter, *http.Request)
+	CreateNotificationFromBytes([]byte) bool
 }
 
 type basicNotificationV1Controller struct {
@@ -27,22 +28,91 @@ func NewNotificationV1Controller(templateRepository repository.TemplateRepositor
 	}
 }
 
+
+
+
+func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []byte) bool {
+	reqObj := dto.SendNotificationRequest{}
+	if !util.ConvertFromJsonBytes(bytes, &reqObj) {
+		return false
+	}
+	templateEntity, status := bnc.templateRepository.Get(*reqObj.TemplateID)
+	if status != 0 {
+		return false
+	}
+	if templateEntity.ContactType != *reqObj.ContactType {
+		return false
+	}
+
+	universalText, err := dto.FillPlaceholders(templateEntity.Template, &reqObj.UniversalPlaceholders)
+	if err != nil {
+		return false
+	}
+	universallyUnfilledPlaceholders := dto.GetPlaceholders(&templateEntity.Template)
+	needToCheckPlaceholders := len(universallyUnfilledPlaceholders) > 0
+
+	notificationEntity := entity.NotificationEntity{
+		TemplateID: *reqObj.TemplateID,
+		AppID:      *reqObj.AppID,
+		Title:      *reqObj.Title,
+	}
+
+	var outsourceNotification func(*entity.NotificationEntity) bool
+	switch templateEntity.ContactType {
+	case entity.ContactTypeEmail:
+		outsourceNotification = bnc.notificationRepository.SendEmail
+	case entity.ContactTypePush:
+		outsourceNotification = bnc.notificationRepository.SendPush
+	case entity.ContactTypeSMS:
+		outsourceNotification = bnc.notificationRepository.SendSMS
+	}
+
+	targetCount := len(reqObj.Targets)
+	for i := 0; i < targetCount; i++ {
+		target := &(reqObj.Targets[i])
+
+		err := target.Validate(&templateEntity.ContactType)
+		if err != nil {
+			return false
+		}
+
+		specificText, err := dto.FillPlaceholders(*universalText, &target.Placeholders)
+		if err != nil {
+			return false
+		}
+		if needToCheckPlaceholders {
+			unfilledPlaceholders := dto.GetPlaceholders(specificText)
+
+			if len(unfilledPlaceholders) > 0 {
+				return false
+			}
+		}
+
+		notificationEntity.ContactInfo = *target.GetContactInfo()
+		notificationEntity.Message = *specificText
+
+		if !outsourceNotification(&notificationEntity) ||
+			!bnc.notificationRepository.Insert(&notificationEntity) {
+			return false
+		}
+	}
+
+	return true
+}
+
+
+
+
 func (bnc *basicNotificationV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
 	switch req.Method {
 	case http.MethodGet:
-		{
-			bnc.getBulk(brw, req)
-		}
+		bnc.getBulk(brw, req)
 	case http.MethodPost:
-		{
-			bnc.send(brw, req)
-		}
+		bnc.send(brw, req)
 	default:
-		{
-			brw.Status(http.StatusMethodNotAllowed)
-		}
+		brw.Status(http.StatusMethodNotAllowed)
 	}
 }
 
@@ -72,7 +142,7 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 
 func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
-	if !util.ConvertFromJson(res, req, &reqObj) {
+	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
 		return
 	}
 
@@ -150,8 +220,8 @@ func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *h
 		notificationEntity.ContactInfo = *target.GetContactInfo()
 		notificationEntity.Message = *specificText
 
-		if !bnc.notificationRepository.Insert(&notificationEntity) ||
-			!outsourceNotification(&notificationEntity) {
+		if !outsourceNotification(&notificationEntity) ||
+			!bnc.notificationRepository.Insert(&notificationEntity) {
 			res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
 				SentNotifications: i,
 				Error:             "Failed to create this one",
