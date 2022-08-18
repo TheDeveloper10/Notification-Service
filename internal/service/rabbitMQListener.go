@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"notification-service/internal/controller"
 	"notification-service/internal/helper"
+	"time"
 )
 
 type RabbitMQListener struct {
@@ -41,12 +42,20 @@ func (l *RabbitMQListener) Close() {
 }
 
 func (l *RabbitMQListener) Run() {
-	l.handleQueue("templates",     (*l.templateController).CreateTemplateFromBytes)
-	l.handleQueue("notifications", (*l.notificationController).CreateNotificationFromBytes)
+	l.handleQueue(
+		"templates",
+		(*l.templateController).CreateTemplateFromBytes,
+		helper.Config.RabbitMQ.TemplatesQueueMax,
+	)
+	l.handleQueue(
+		"notifications",
+		(*l.notificationController).CreateNotificationFromBytes,
+		helper.Config.RabbitMQ.NotificationsQueueMax,
+	)
 	log.Info("RabbitMQ listener is ON...")
 }
 
-func (l *RabbitMQListener) handleQueue(queue string, target func([]byte)bool) {
+func (l *RabbitMQListener) handleQueue(queue string, target func([]byte)bool, maxRunningProcesses int) {
 	requests, err := l.channel.Consume(
 		queue,
 		"", false, false, false, false, nil,
@@ -56,15 +65,35 @@ func (l *RabbitMQListener) handleQueue(queue string, target func([]byte)bool) {
 		log.Fatal(err.Error())
 	}
 
-	go func() {
-		for req := range requests {
-			res := target(req.Body)
-			if res {
-				err := req.Ack(false)
-				if err != nil {
-					log.Error(err.Error())
-				}
-			}
+	go l.processChannel(&requests, target, maxRunningProcesses)
+}
+
+func (l *RabbitMQListener) processChannel(requests *<-chan amqp.Delivery, target func([]byte)bool, maxRunningProcesses int) {
+	runningProcesses := 0
+
+	for request := range *requests {
+		runningProcesses++
+
+		go l.processRequest(request, target, &runningProcesses)
+
+		// sync.WaitGroup can be used instead of doing this but it cannot
+		// Wait for a single process to finish - all of them have to finish
+		// in order to free up for the next requests
+		for runningProcesses >= maxRunningProcesses {
+			time.Sleep(2 * time.Millisecond)
 		}
-	}()
+	}
+}
+
+func (l *RabbitMQListener) processRequest(request amqp.Delivery,
+										  target func([]byte)bool,
+										  runningProcesses *int) {
+	res := target(request.Body)
+	if res {
+		err := request.Ack(false)
+		if err != nil {
+			log.Error(err.Error())
+		}
+	}
+	(*runningProcesses)--
 }

@@ -20,6 +20,8 @@ type config struct {
 	} `yaml:"http_server"`
 	RabbitMQ struct {
 		URL string
+		TemplatesQueueMax     int `yaml:"templates_queue_max"`
+		NotificationsQueueMax int `yaml:"notifications_queue_max"`
 	}
 	Database struct {
 		Driver   string
