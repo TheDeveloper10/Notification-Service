@@ -1,10 +1,19 @@
 service:
   use_http: yes
   use_rabbitmq: yes
+
+  use_smtp: yes
+  use_push: yes
+
+# needed only if `use_http` is yes
 http_server:
   addr: :80
+
+# needed only if `use_rabbitmq` is yes
 rabbitmq:
   url: amqp://rabbitmq_def_user:rabbitmq_def_pass@ns-rabbitmq:5672
+
+# required
 database:
   driver: mysql
   username: root
@@ -12,6 +21,8 @@ database:
   host: ns-database:3306
   name: TestDatabase
   pool_size: 5
+
+# needed only if `use_smtp` is yes
 smtp:
   from_email: your-email@gmail.com
   from_password: your-password

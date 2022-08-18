@@ -5,9 +5,20 @@ If you want to run the application standalone you will need
 If you want to run the full package you will need
 - docker
 
+# Configuration
+Configuration happens through `config/service_config.yaml` but by default you don't have it. You can clone `service_config_example.yaml`
+and fill in your values in the fields.
+
+#### Firebase Cloud Messaging
+Get your adc
+
 # How to start?
 ```
 $ git clone https://github.com/TheDeveloper10/Notification-Service
 $ cd Notification-Service/scripts/docker
 $ sudo docker compose up
 ```
+
+# RabbitMQ
+To use RabbitMQ you need 2 queues: "notifications" and "templates". Requests related to notifications (create) go in the
+"notifications" queue and requests related to templates (create, update, delete) go in the "templates" queue.

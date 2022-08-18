@@ -12,6 +12,8 @@ type config struct {
 	Service struct {
 		UseHTTP     string `yaml:"use_http"`
 		UseRabbitMQ string `yaml:"use_rabbitmq"`
+		UseSMTP     string `yaml:"use_smtp"`
+		UsePush     string `yaml:"use_push"`
 	}
 	HTTPServer struct {
 		Addr string

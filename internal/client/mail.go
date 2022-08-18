@@ -16,10 +16,14 @@ func InitializeMailClient() {
 		return
 	}
 
-	client := &mailClient{}
-	client.init(helper.Config.SMTP.Host, helper.Config.SMTP.Port, helper.Config.SMTP.FromEmail, helper.Config.SMTP.FromPassword)
+	if helper.Config.Service.UseSMTP == "yes" {
+		client := &mailClient{}
+		client.init(helper.Config.SMTP.Host, helper.Config.SMTP.Port, helper.Config.SMTP.FromEmail, helper.Config.SMTP.FromPassword)
 
-	MailClient = client
+		MailClient = client
+	} else {
+		MailClient = &emptyMailClient{}
+	}
 }
 
 
@@ -48,3 +52,13 @@ func (mw *mailClient) Mail(subject string, message string, to []string) error {
 func (mw *mailClient) MailSingle(subject string, message string, to string) error {
 	return mw.Mail(subject, message, []string{to})
 }
+
+
+
+type emptyMailClient struct {
+	iface.IMailClient
+}
+
+func (emc *emptyMailClient) Mail(subject string, message string, to []string) error { return nil }
+
+func (emc *emptyMailClient) MailSingle(subject string, message string, to string) error { return nil }

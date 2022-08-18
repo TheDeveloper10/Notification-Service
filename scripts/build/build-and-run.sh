@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Building..."
-#go build .
+go build .
 
 echo "Running..."
 ./notification-service

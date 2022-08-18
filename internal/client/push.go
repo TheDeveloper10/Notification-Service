@@ -5,6 +5,7 @@ import (
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
+	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
 
 	log "github.com/sirupsen/logrus"
@@ -17,10 +18,13 @@ func InitializePushClient(credentialsFile string) {
 		return
 	}
 
-	client := &pushClient{}
-	client.init(credentialsFile)
-
-	PushClient = client
+	if helper.Config.Service.UsePush == "yes" {
+		client := &pushClient{}
+		client.init(credentialsFile)
+		PushClient = client
+	} else {
+		PushClient = &emptyPushClient{}
+	}
 }
 
 
@@ -61,3 +65,11 @@ func (pc *pushClient) SendMessage(title string, body string, token string) error
 	})
 	return err
 }
+
+
+
+type emptyPushClient struct {
+	iface.IPushClient
+}
+
+func (epc *emptyPushClient) SendMessage(title string, body string, token string) error { return nil }
