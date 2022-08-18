@@ -1,24 +1,36 @@
-# Requirements
+# Description
+This is a notification service. You can create templates and send notifications using these templates. The currently supported notification types are email and push notifications. We are working towards implementing SMS, too. It's using a database to store all templates and sent notifications and also RabbitMQ *(OPTIONAL)* to manage heavier loads.
+
+___
+# How to start?
+### Requirements
 If you want to run the application standalone you will need
-- golang
+\- golang
 
 If you want to run the full package you will need
-- docker
+\- docker
 
-# Configuration
-Configuration happens through `config/service_config.yaml` but by default you don't have it. You can clone `service_config_example.yaml`
-and fill in your values in the fields.
-
-#### Firebase Cloud Messaging
-Get your adc
-
-# How to start?
+### Commands
 ```
 $ git clone https://github.com/TheDeveloper10/Notification-Service
-$ cd Notification-Service/scripts/docker
+$ cd ./Notification-Service/scripts/docker
 $ sudo docker compose up
 ```
 
-# RabbitMQ
-To use RabbitMQ you need 2 queues: "notifications" and "templates". Requests related to notifications (create) go in the
-"notifications" queue and requests related to templates (create, update, delete) go in the "templates" queue.
+___
+# Configuration
+You can configure the entire service by cloning `config/service_config_example.yaml` and naming it `config/service_config.yaml`. This is the primary configuration file - you can turn on/off any service from here: HTTP server, RabbitMQ, SMTP client, Push client and perform many more configurations.
+
+___
+# Used Services
+### MySQL
+The database is responsible for storing the list of templates and sent notifications. By default the used database is MySQL and you can change that by editing the `scripts/docker/docker-compose.yaml` file and `config/service_config.yaml`. It is being auto-configured by the files in `scripts/sql/`.
+
+### RabbitMQ
+RabbitMQ was added because it's a good and stable message queue which can help the service scale better. It is auto-configured by the files in `scripts/rabbitmq`. The configuration files create the required queues.
+
+### SMTP
+This is used for Email Notifications. You can use any SMTP service but in this case the preconfigured one is GMail. You can change the SMTP configuration or turn it off in `config/service_config.yaml`.
+
+### Firebase Cloud Messaging
+This is used for Push Notifications. In order to configure it you have to get your private key from the Firebase console and put it in `config/adc_config.json`. You can see an example in `config/adc_config_example.json`. If you want to turn it off you can do that in `config/service_config.yaml`.

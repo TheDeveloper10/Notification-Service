@@ -1,7 +1,4 @@
-1. RabbitMQ
-2. Extract shared code from send notification and from create template
-3. Add delete and update template
-4. Batch acknowledgments for RabbitMQ
-5. Make a detailed README
-6. Launch go-routines to process smses, emails and push notifications
-7. SMS
+1. Extract shared code from send notification and from create template
+2. Batch acknowledgments for RabbitMQ
+3. Launch go-routines to process smses, emails and push notifications
+4. SMS
