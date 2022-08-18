@@ -30,6 +30,6 @@ func (s *HTTPServer) Init(testController *controller.TestV1Controller,
 }
 
 func (s *HTTPServer) Run() {
-	log.Info("HTTP Server is listening...")
+	log.Info("HTTP Server is ON...")
 	log.Fatal(http.ListenAndServe(helper.Config.HTTPServer.Addr, s.router))
 }

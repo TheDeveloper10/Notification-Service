@@ -36,68 +36,10 @@ func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []by
 	if !util.ConvertFromJsonBytes(bytes, &reqObj) {
 		return false
 	}
-	templateEntity, status := bnc.templateRepository.Get(*reqObj.TemplateID)
-	if status != 0 {
-		return false
-	}
-	if templateEntity.ContactType != *reqObj.ContactType {
-		return false
-	}
 
-	universalText, err := dto.FillPlaceholders(templateEntity.Template, &reqObj.UniversalPlaceholders)
-	if err != nil {
-		return false
-	}
-	universallyUnfilledPlaceholders := dto.GetPlaceholders(&templateEntity.Template)
-	needToCheckPlaceholders := len(universallyUnfilledPlaceholders) > 0
-
-	notificationEntity := entity.NotificationEntity{
-		TemplateID: *reqObj.TemplateID,
-		AppID:      *reqObj.AppID,
-		Title:      *reqObj.Title,
-	}
-
-	var outsourceNotification func(*entity.NotificationEntity) bool
-	switch templateEntity.ContactType {
-	case entity.ContactTypeEmail:
-		outsourceNotification = bnc.notificationRepository.SendEmail
-	case entity.ContactTypePush:
-		outsourceNotification = bnc.notificationRepository.SendPush
-	case entity.ContactTypeSMS:
-		outsourceNotification = bnc.notificationRepository.SendSMS
-	}
-
-	targetCount := len(reqObj.Targets)
-	for i := 0; i < targetCount; i++ {
-		target := &(reqObj.Targets[i])
-
-		err := target.Validate(&templateEntity.ContactType)
-		if err != nil {
-			return false
-		}
-
-		specificText, err := dto.FillPlaceholders(*universalText, &target.Placeholders)
-		if err != nil {
-			return false
-		}
-		if needToCheckPlaceholders {
-			unfilledPlaceholders := dto.GetPlaceholders(specificText)
-
-			if len(unfilledPlaceholders) > 0 {
-				return false
-			}
-		}
-
-		notificationEntity.ContactInfo = *target.GetContactInfo()
-		notificationEntity.Message = *specificText
-
-		if !outsourceNotification(&notificationEntity) ||
-			!bnc.notificationRepository.Insert(&notificationEntity) {
-			return false
-		}
-	}
-
-	return true
+	res := util.StatusOnlyResponseWriter{}
+	bnc.internalSend(&reqObj, &res)
+	return res.StatusCode != nil && (*res.StatusCode) == 200
 }
 
 
@@ -146,6 +88,10 @@ func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *h
 		return
 	}
 
+	bnc.internalSend(&reqObj, res)
+}
+
+func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificationRequest, res iface.IResponseWriter) {
 	templateEntity, status := bnc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
 		res.Status(http.StatusNotFound).TextError("Something was wrong with the database. Try again")

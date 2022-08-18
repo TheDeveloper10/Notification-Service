@@ -3,7 +3,6 @@ package service
 import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	log "github.com/sirupsen/logrus"
-
 	"notification-service/internal/controller"
 	"notification-service/internal/helper"
 )
@@ -44,6 +43,7 @@ func (l *RabbitMQListener) Close() {
 func (l *RabbitMQListener) Run() {
 	l.handleQueue("templates",     (*l.templateController).CreateTemplateFromBytes)
 	l.handleQueue("notifications", (*l.notificationController).CreateNotificationFromBytes)
+	log.Info("RabbitMQ listener is ON...")
 }
 
 func (l *RabbitMQListener) handleQueue(queue string, target func([]byte)bool) {
