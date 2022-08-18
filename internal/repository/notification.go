@@ -49,6 +49,7 @@ func (bnr *basicNotificationRepository) Insert(notification *entity.Notification
 }
 
 func (bnr *basicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool {
+	log.Info(notification.Title + "  " + notification.ContactInfo)
 	err := client.MailClient.MailSingle(notification.Title, notification.Message, notification.ContactInfo)
 	if helper.IsError(err) {
 		return false

@@ -8,6 +8,7 @@ import (
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"strconv"
+	"sync"
 )
 
 type NotificationV1Controller interface {
@@ -114,12 +115,6 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 	universallyUnfilledPlaceholders := dto.GetPlaceholders(&templateEntity.Template)
 	needToCheckPlaceholders := len(universallyUnfilledPlaceholders) > 0
 
-	notificationEntity := entity.NotificationEntity{
-		TemplateID: *reqObj.TemplateID,
-		AppID:      *reqObj.AppID,
-		Title:      *reqObj.Title,
-	}
-
 	var outsourceNotification func(*entity.NotificationEntity) bool
 	switch templateEntity.ContactType {
 	case entity.ContactTypeEmail:
@@ -130,51 +125,86 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 		outsourceNotification = bnc.notificationRepository.SendSMS
 	}
 
+	var wg sync.WaitGroup
+	var failures *string = nil
+	failedCount := 0
+	additionalError := ""
+
 	targetCount := len(reqObj.Targets)
-	for i := 0; i < targetCount; i++ {
-		target := &(reqObj.Targets[i])
+	currentTarget := 0
+	for ; currentTarget < targetCount; currentTarget++ {
+		target := &(reqObj.Targets[currentTarget])
 
 		err := target.Validate(&templateEntity.ContactType)
 		if err != nil {
-			res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
-				SentNotifications: i,
-				Error:             err.Error() + " for each target",
-			})
-			return
+			additionalError = err.Error() + " for each target"
+			break
 		}
 
 		specificText, err := dto.FillPlaceholders(*universalText, &target.Placeholders)
 		if err != nil {
-			res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
-				SentNotifications: i,
-				Error:             err.Error(),
-			})
-			return
+			additionalError = err.Error()
+			break
 		}
 		if needToCheckPlaceholders {
 			unfilledPlaceholders := dto.GetPlaceholders(specificText)
 
 			if len(unfilledPlaceholders) > 0 {
-				res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
-					SentNotifications: i,
-					Error:             "Unfilled placeholders: " + unfilledPlaceholders,
-				})
-				return
+				additionalError = "Unfilled placeholders: " + unfilledPlaceholders
+				break
 			}
 		}
 
-		notificationEntity.ContactInfo = *target.GetContactInfo()
-		notificationEntity.Message = *specificText
-
-		if !outsourceNotification(&notificationEntity) ||
-			!bnc.notificationRepository.Insert(&notificationEntity) {
-			res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
-				SentNotifications: i,
-				Error:             "Failed to create this one",
-			})
-			return
+		notificationEntity := entity.NotificationEntity{
+			TemplateID:  *reqObj.TemplateID,
+			AppID:       *reqObj.AppID,
+			Title:       *reqObj.Title,
+			ContactInfo: *target.GetContactInfo(),
+			Message:     *specificText,
 		}
+
+		wg.Add(1)
+		go bnc.processNotificationEntity(
+			outsourceNotification,
+			&notificationEntity,
+			currentTarget,
+			&failures,
+			&failedCount,
+			&wg,
+		)
 	}
 
-	res.Status(http.StatusCreated).Text(strconv.Itoa(targetCount) + " notification(s) have been sent successfully!")
+	wg.Wait()
+
+	if failures != nil {
+		res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
+			SentNotifications: currentTarget - failedCount,
+			Error1:            "Failed to send the following notifications: " + (*failures),
+			Error2:            additionalError,
+		})
+	} else {
+		res.Status(http.StatusCreated).Text(strconv.Itoa(targetCount) + " notification(s) have been sent successfully!")
+	}
+}
+
+func (bnc *basicNotificationV1Controller) processNotificationEntity(outsourceNotification func(*entity.NotificationEntity)bool,
+																	notificationEntity *entity.NotificationEntity,
+																	processId int,
+																	failures **string,
+																	failedCount *int,
+																	wg *sync.WaitGroup) {
+	defer wg.Done()
+	if outsourceNotification(notificationEntity) &&
+		bnc.notificationRepository.Insert(notificationEntity) {
+		return
+	}
+
+	(*failedCount)++
+	if *failures != nil {
+		newFailures := (**failures) + ", " + strconv.Itoa(processId)
+		*failures = &newFailures
+	} else {
+		newFailures := strconv.Itoa(processId)
+		*failures = &newFailures
+	}
 }

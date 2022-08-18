@@ -1,3 +1,2 @@
 1. Batch acknowledgments for RabbitMQ
-2. Launch go-routines to process smses, emails and push notifications
-3. SMS
+2. SMS
