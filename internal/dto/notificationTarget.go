@@ -2,7 +2,9 @@ package dto
 
 import (
 	"errors"
+	"net/mail"
 	"notification-service/internal/entity"
+	"regexp"
 )
 
 type NotificationTarget struct {
@@ -17,13 +19,22 @@ func (nt *NotificationTarget) Validate(contactType *string) error {
 		case entity.ContactTypeEmail: {
 			if nt.Email == nil {
 				return errors.New("'email' must be given")
+			} else if _, err := mail.ParseAddress(*nt.Email); err != nil {
+				return errors.New("'email' is invalid")
 			}
+
 			break
 		}
 		case entity.ContactTypeSMS: {
 			if nt.PhoneNumber == nil {
 				return errors.New("'phoneNumber' must be given")
+			} else {
+				rgx, err := regexp.Compile("^\\+\\d+$")
+				if err != nil || !rgx.MatchString(*nt.PhoneNumber) {
+					return errors.New("'phoneNumber' is invalid")
+				}
 			}
+
 			break
 		}
 		case entity.ContactTypePush: {

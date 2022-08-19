@@ -137,7 +137,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 		err := target.Validate(&templateEntity.ContactType)
 		if err != nil {
-			additionalError = err.Error() + " for each target"
+			additionalError = err.Error()
 			break
 		}
 
