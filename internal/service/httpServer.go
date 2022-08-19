@@ -14,6 +14,7 @@ type HTTPServer struct {
 }
 
 func (s *HTTPServer) Init(testController *controller.TestV1Controller,
+						  authController *controller.AuthV1Controller,
 						  templateController *controller.TemplateV1Controller,
 						  notificationController *controller.NotificationV1Controller) {
 	if s.router != nil {
@@ -24,8 +25,12 @@ func (s *HTTPServer) Init(testController *controller.TestV1Controller,
 	s.router = &mux.Router{}
 
 	s.router.HandleFunc("/v1/test", (*testController).Handle)
+
+	s.router.HandleFunc("/v1/oauth/token", (*authController).HandleToken)
+
 	s.router.HandleFunc("/v1/templates", (*templateController).HandleAll)
 	s.router.HandleFunc("/v1/templates/{templateId:\\d+}", (*templateController).HandleById)
+
 	s.router.HandleFunc("/v1/notifications", (*notificationController).HandleAll)
 }
 

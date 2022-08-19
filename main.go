@@ -19,6 +19,7 @@ func main() {
 	client.InitializeSMSClient()
 
 	// Repositories
+	clientRepository := repository.NewClientRepository()
 	templateRepository := repository.NewTemplateRepository()
 	notificationRepository := repository.NewNotificationRepository()
 
@@ -26,13 +27,19 @@ func main() {
 
 	// Controllers
 	testV1Controller := controller.NewTestV1Controller()
+	authV1Controller := controller.NewAuthV1Controller(clientRepository)
 	templateV1Controller := controller.NewTemplateV1Controller(templateRepository)
 	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository)
 
 	// HTTP Server
 	if helper.Config.Service.UseHTTP == "yes" {
 		httpServer := service.HTTPServer{}
-		httpServer.Init(&testV1Controller, &templateV1Controller, &notificationV1Controller)
+		httpServer.Init(
+			&testV1Controller,
+			&authV1Controller,
+			&templateV1Controller,
+			&notificationV1Controller,
+		)
 		wg.Add(1)
 		go httpServer.Run()
 	}

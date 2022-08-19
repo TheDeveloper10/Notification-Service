@@ -12,13 +12,13 @@ import (
 )
 
 type NotificationRepository interface {
-	Insert(notification *entity.NotificationEntity) bool
+	Insert(*entity.NotificationEntity) bool
 
-	SendEmail(notification *entity.NotificationEntity) bool
-	SendPush(notification *entity.NotificationEntity) bool
-	SendSMS(notification *entity.NotificationEntity) bool
+	SendEmail(*entity.NotificationEntity) bool
+	SendPush(*entity.NotificationEntity) bool
+	SendSMS(*entity.NotificationEntity) bool
 
-	GetBulk(filter *entity.NotificationFilter) *[]entity.NotificationEntity
+	GetBulk(*entity.NotificationFilter) *[]entity.NotificationEntity
 }
 
 type basicNotificationRepository struct{}

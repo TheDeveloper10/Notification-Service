@@ -19,3 +19,10 @@ CREATE TABLE IF NOT EXISTS `Notifications`(
     `Message`              VARCHAR(2048) NOT NULL,
     `SentTime`             INTEGER       NOT NULL DEFAULT(UNIX_TIMESTAMP())
 );
+
+CREATE TABLE IF NOT EXISTS `Clients`(
+    `Id`           VARCHAR(16)  PRIMARY KEY,
+    `Secret`       VARCHAR(128) NOT NULL,
+    `Permissions`  INTEGER      NOT NULL,
+    `CreationTime` INTEGER      NOT NULL DEFAULT(UNIX_TIMESTAMP())
+);
