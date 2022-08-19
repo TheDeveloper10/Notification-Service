@@ -10,13 +10,13 @@ import (
 )
 
 func main() {
-
 	// Configuration
 	helper.LoadConfig("./config/service_config.yaml")
 
 	client.InitializeSQLClient()
 	client.InitializeMailClient()
 	client.InitializePushClient("./config/adc_config.json")
+	client.InitializeSMSClient()
 
 	// Repositories
 	templateRepository := repository.NewTemplateRepository()

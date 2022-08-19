@@ -176,10 +176,14 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 	wg.Wait()
 
-	if failures != nil {
+	if additionalError != "" || failures != nil {
+		err1 := ""
+		if failures != nil {
+			err1 = "Failed to send the following notifications: " + (*failures)
+		}
 		res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
 			SentNotifications: currentTarget - failedCount,
-			Error1:            "Failed to send the following notifications: " + (*failures),
+			Error1:            err1,
 			Error2:            additionalError,
 		})
 	} else {

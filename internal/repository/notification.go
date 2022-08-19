@@ -49,7 +49,6 @@ func (bnr *basicNotificationRepository) Insert(notification *entity.Notification
 }
 
 func (bnr *basicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool {
-	log.Info(notification.Title + "  " + notification.ContactInfo)
 	err := client.MailClient.MailSingle(notification.Title, notification.Message, notification.ContactInfo)
 	if helper.IsError(err) {
 		return false
@@ -70,6 +69,12 @@ func (bnr *basicNotificationRepository) SendPush(notification *entity.Notificati
 }
 
 func (bnr *basicNotificationRepository) SendSMS(notification *entity.NotificationEntity) bool {
+	err := client.SMSClient.SendSMS(notification.Title, notification.Message, notification.ContactInfo)
+	if helper.IsError(err) {
+		return false
+	}
+
+	log.Info("Sent an SMS")
 	return true
 }
 

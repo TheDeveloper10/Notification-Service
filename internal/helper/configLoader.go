@@ -14,6 +14,7 @@ type config struct {
 		UseRabbitMQ string `yaml:"use_rabbitmq"`
 		UseSMTP     string `yaml:"use_smtp"`
 		UsePush     string `yaml:"use_push"`
+		UseSMS      string `yaml:"use_sms"`
 	}
 	HTTPServer struct {
 		Addr string
@@ -36,6 +37,11 @@ type config struct {
 		FromPassword string `yaml:"from_password"`
 		Host         string
 		Port         int
+	}
+	Twillio struct {
+		MessagingServiceSID string `yaml:"messaging_service_sid"`
+		AccountSID string `yaml:"account_sid"`
+		AuthToken string `yaml:"authentication_token"`
 	}
 }
 

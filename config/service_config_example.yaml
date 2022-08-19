@@ -4,6 +4,7 @@ service:
 
   use_smtp: yes
   use_push: yes
+  use_sms: yes
 
 # needed only if `use_http` is yes
 http_server:
@@ -31,3 +32,9 @@ smtp:
   from_password: your-password
   host: smtp.gmail.com
   port: 587
+
+# needed only if `use_sms` is yes
+twillio:
+  messaging_service_sid:
+  account_sid:
+  authentication_token:
