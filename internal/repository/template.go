@@ -12,20 +12,24 @@ import (
 )
 
 type TemplateRepository interface {
-	Insert(entity *entity.TemplateEntity)  int64
+	Insert(entity *entity.TemplateEntity)  int
 	Get(id int) 						   (*entity.TemplateEntity, int)
 	GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity
 	Update(entity *entity.TemplateEntity)  int
 	Delete(id int) 						   bool
 }
 
-type basicTemplateRepository struct { }
-
-func NewTemplateRepository() TemplateRepository {
-	return &basicTemplateRepository{}
+type basicTemplateRepository struct {
+	cache map[int]*entity.TemplateEntity
 }
 
-func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int64 {
+func NewTemplateRepository() TemplateRepository {
+	return &basicTemplateRepository{
+		cache: map[int]*entity.TemplateEntity{},
+	}
+}
+
+func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int {
 	stmt, err1 := client.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
 	if helper.IsError(err1) {
 		return -1
@@ -40,11 +44,17 @@ func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int64 
 	if helper.IsError(err3) {
 		return -1
 	}
+
 	log.Info("Inserted template into the database with id " + strconv.FormatInt(id, 10))
-	return id
+	btr.cache[int(id)] = entity
+	return int(id)
 }
 
 func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
+	if result, ok := btr.cache[id]; ok {
+		return result, 0
+	}
+
 	stmt, err1 := client.SQLClient.Prepare("select * from Templates where Id=?")
 	if helper.IsError(err1) {
 		return nil, 1
@@ -63,7 +73,10 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 		if helper.IsError(err3) {
 			return nil, 2
 		}
+
 		log.Info("Fetched template with id " + strconv.Itoa(id))
+
+		btr.cache[id] = &record
 		return &record, 0
 	} else {
 		log.Warn("Template with id " + strconv.Itoa(id) + " was not found")
@@ -96,6 +109,8 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 		if helper.IsError(err3) {
 			return nil
 		}
+
+		btr.cache[record.Id] = &record
 		templates = append(templates, record)
 	}
 
@@ -126,6 +141,7 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 	}
 
 	log.Info("Updated template in the database with id " + strconv.Itoa(entity.Id))
+	btr.cache[entity.Id] = entity
 	return 0
 }
 
@@ -140,6 +156,8 @@ func (btr *basicTemplateRepository) Delete(id int) bool {
 	if helper.IsError(err2) {
 		return false
 	}
+
 	log.Info("Deleted template from the database with id " + strconv.Itoa(id))
+	delete(btr.cache, id)
 	return true
 }
