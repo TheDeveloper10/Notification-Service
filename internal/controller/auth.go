@@ -44,5 +44,16 @@ func (boac *basicAuthV1Controller) token(res iface.IResponseWriter, req *http.Re
 	}
 
 	client := boac.repository.GetClient(reqObj.ToEntity())
+	if client == nil {
+		res.Status(http.StatusUnauthorized)
+		return
+	}
 
+	accessToken := boac.repository.GenerateAccessToken(client)
+	if accessToken == nil {
+		res.Status(http.StatusBadRequest).TextError("Failed to generate a token!")
+		return
+	}
+
+	res.Status(http.StatusOK).Json(*accessToken)
 }

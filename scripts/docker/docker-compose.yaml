@@ -7,15 +7,15 @@ services:
       - ../sql/.env
     volumes:
       - ../sql/:/docker-entrypoint-initdb.d/
-  rabbitmq:
-    image: "rabbitmq:3.10.7-management-alpine"
-    container_name: "ns-rabbitmq"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - ../rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
-      - ../rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+#  rabbitmq:
+#    image: "rabbitmq:3.10.7-management-alpine"
+#    container_name: "ns-rabbitmq"
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    volumes:
+#      - ../rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+#      - ../rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
   backend:
     image: "golang:1.18.5-bullseye"
     container_name: "ns-backend"

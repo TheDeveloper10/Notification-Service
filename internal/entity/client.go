@@ -1,9 +1,23 @@
 package entity
 
+import "github.com/golang-jwt/jwt"
+
 type ClientCredentials struct {
 	Id     string
 	Secret string
 }
+
+
+type ClientClaims struct {
+	jwt.StandardClaims
+	ClientId 	string
+	Permissions int
+}
+
+type AccessToken struct {
+	AccessToken string `json:"access_token"`
+}
+
 
 type ClientEntity struct {
 	ClientCredentials

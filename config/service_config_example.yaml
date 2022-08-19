@@ -9,10 +9,13 @@ service:
 # needed only if `use_http` is yes
 http_server:
   addr: :80
+  access_token_expiry_time: 5 # in minutes
+  access_token_key_length: 16
+  access_token_encryption_key_length: 16
 
 # needed only if `use_rabbitmq` is yes
 rabbitmq:
-  url: amqp://rabbitmq_def_user:rabbitmq_def_pass@ns-rabbitmq:5672
+  url: amqp://guest:guest@ns-rabbitmq:5672
   # the maximum amount of requests the service is going to process simultaneously from the respective queue
   templates_queue_max: 20
   notifications_queue_max: 200
