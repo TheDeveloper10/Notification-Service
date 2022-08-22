@@ -8,9 +8,13 @@ tags:
     description: Operations related to templates
   - name: notification
     description: Operations related to notifications
+  - name: authentication
+    description: Operations related to clients and access tokens
 paths:
   /v1/templates:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - template
       operationId: getTemplates
@@ -41,7 +45,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOfTemplateEntities'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
+        '415':
+          $ref: '#/components/responses/UnsupportedContentType'
     post:
+      security:
+        - bearerAuth: []
       tags:
         - template
       summary: Create a new template
@@ -60,11 +74,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/TemplateMetadata'
         '400':
-          description: Invalid request body
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
         '415':
-          description: Unsupported Content-Type
+          $ref: '#/components/responses/UnsupportedContentType'
   /v1/templates/{templateId}:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - template
       operationId: getTemplate
@@ -84,13 +104,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TemplateEntity'
-        '400':
-          description: Invalid request body
         '404':
-          description: Template not found
+          $ref: '#/components/responses/TemplateNotFound'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
         '415':
-          description: Unsupported Content-Type
+          $ref: '#/components/responses/UnsupportedContentType'
     put:
+      security:
+        - bearerAuth: []
       tags:
         - template
       operationId: updateTemplate
@@ -111,13 +137,19 @@ paths:
       responses:
         '200':
           description: Successfully updated the template
-        '400':
-          description: Invalid request body
         '404':
-          description: Template not found
+          $ref: '#/components/responses/TemplateNotFound'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
         '415':
-          description: Unsupported Content-Type
+          $ref: '#/components/responses/UnsupportedContentType'
     delete:
+      security:
+        - bearerAuth: []
       tags:
         - template
       operationId: deleteTemplate
@@ -133,14 +165,20 @@ paths:
       responses:
         '200':
           description: Successfully deleted the template
-        '400':
-          description: Invalid request body
         '404':
-          description: Template not found
+          $ref: '#/components/responses/TemplateNotFound'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
         '415':
-          description: Unsupported Content-Type
+          $ref: '#/components/responses/UnsupportedContentType'
   /v1/notifications:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - notification
       operationId: getNotifications
@@ -199,7 +237,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOfNotificationEntities'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
+        '415':
+          $ref: '#/components/responses/UnsupportedContentType'
     post:
+      security:
+        - bearerAuth: []
       tags:
         - notification
       operationId: sendNotification
@@ -210,16 +258,93 @@ paths:
             schema:
               $ref: '#/components/schemas/SendNotificationRequest'
       responses:
-        '200':
+        '201':
           description: Successfully sent notification
-        '400':
-          description: Invalid request body
         '404':
-          description: Template not found
+          $ref: '#/components/responses/TemplateNotFound'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
         '415':
-          description: Unsupported Content-Type
+          $ref: '#/components/responses/UnsupportedContentType'
+  /v1/oauth/client:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - authentication
+      operationId: createClient
+      summary: Create a client via Master Access Token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientRequest'
+      responses:
+        '201':
+          description: Successfully created client
+        '404':
+          $ref: '#/components/responses/TemplateNotFound'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
+        '415':
+          $ref: '#/components/responses/UnsupportedContentType'
+  /v1/oauth/token:
+    post:
+      security:
+        - basicAuth: []
+      tags:
+        - authentication
+      operationId: createAccessToken
+      summary: Create an access token via client id and client secret
+      responses:
+        '201':
+          description: Successfully created an access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+        '404':
+          $ref: '#/components/responses/TemplateNotFound'
+        '400':
+          $ref: '#/components/responses/InvalidRequestBody'
+        '401':
+          $ref: '#/components/responses/AccessTokenRequired'
+        '403':
+          $ref: '#/components/responses/ForbiddenAccess'
+        '415':
+          $ref: '#/components/responses/UnsupportedContentType'
+        
+security:
+  - basicAuth: []
+  - bearerAuth: []
 
 components:
+  responses:
+    ForbiddenAccess:
+      description: You have no permission to access this resource
+    InvalidRequestBody:
+      description: Invalid request body
+    AccessTokenRequired:
+      description: You must provide an active access token
+    TemplateNotFound:
+      description: Template not found
+    UnsupportedContentType:
+      description: Unsupported Content-Type
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     ListOfTemplateEntities:
       type: array
@@ -398,3 +523,19 @@ components:
           type: string
           format: string
           example: John
+          
+    AccessToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+          format: string
+          example: apknfsOJAGjoano23n5pnmPMXPkznmX
+    CreateClientRequest:
+      type: object
+      required:
+        - permissions
+      properties:
+        permissions:
+          type: integer
+          format: int64
