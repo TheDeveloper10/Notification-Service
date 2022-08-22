@@ -303,7 +303,7 @@ paths:
       tags:
         - authentication
       operationId: createAccessToken
-      summary: Create an access token via client id and client secret
+      summary: Create an access token via client id and client secret (encoded via base64)
       responses:
         '201':
           description: Successfully created an access token

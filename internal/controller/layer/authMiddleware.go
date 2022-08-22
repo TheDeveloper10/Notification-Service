@@ -1,6 +1,7 @@
 package layer
 
 import (
+	"encoding/base64"
 	"net/http"
 	"strings"
 
@@ -19,7 +20,15 @@ func ClientInfoMiddleware(clientRepository repository.ClientRepository,
 		res.Status(http.StatusUnauthorized).TextError("You must provide a Client ID and a Client Secret!")
 		return nil
 	}
-	keys := strings.Split(header[len("Basic "):], ":")
+
+	encodedData := header[len("Basic "):]
+	decodedData, err := base64.StdEncoding.DecodeString(encodedData)
+	if err != nil {
+		res.Status(http.StatusUnauthorized).TextError("Failed to decode Client ID and Client Secret from base64.")
+		return nil
+	}
+
+	keys := strings.Split(string(decodedData), ":")
 
 	reqObj := dto.AuthRequest{
 		ClientId:     &keys[0],

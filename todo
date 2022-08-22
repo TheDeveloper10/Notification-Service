@@ -1,5 +1,2 @@
-1. Add documentation about auth
-2. Add documentation about new endpoints (/v1/oauth/*)
-3. Add cache cleaning for templates (when over K)
-4. Make creation of client require permissions in string form
-5. Make user data in /v1/oauth/token be base64
+1. Make creation of client require permissions in string form
+2. Add cache cleaning for templates (when over K)
