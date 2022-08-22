@@ -26,3 +26,8 @@ CREATE TABLE IF NOT EXISTS `Clients`(
     `Permissions`  INTEGER      NOT NULL,
     `CreationTime` INTEGER      NOT NULL DEFAULT(UNIX_TIMESTAMP())
 );
+
+CREATE TABLE IF NOT EXISTS `AccessTokens`(
+    `AccessToken` VARCHAR(40) PRIMARY KEY,
+    `Permissions` INTEGER     NOT NULL
+) ENGINE = MEMORY;

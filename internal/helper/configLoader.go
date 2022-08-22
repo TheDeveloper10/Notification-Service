@@ -17,13 +17,12 @@ type config struct {
 		UseSMS      string `yaml:"use_sms"`
 	}
 	HTTPServer struct {
-		Addr 				        string
-		AccessTokenExpiryTime       int	   `yaml:"access_token_expiry_time"`
-		AccessTokenKeyLen           int    `yaml:"access_token_key_length"`
-		AccessTokenEncryptionKeyLen int    `yaml:"access_token_encryption_key_length"`
+		Addr                  string
+		AccessTokenExpiryTime int `yaml:"access_token_expiry_time"`
+		AccessTokenKeyLen     int `yaml:"access_token_key_length"`
 	} `yaml:"http_server"`
 	RabbitMQ struct {
-		URL string
+		URL                   string
 		TemplatesQueueMax     int `yaml:"templates_queue_max"`
 		NotificationsQueueMax int `yaml:"notifications_queue_max"`
 	}
@@ -43,8 +42,8 @@ type config struct {
 	}
 	Twillio struct {
 		MessagingServiceSID string `yaml:"messaging_service_sid"`
-		AccountSID string `yaml:"account_sid"`
-		AuthToken string `yaml:"authentication_token"`
+		AccountSID          string `yaml:"account_sid"`
+		AuthToken           string `yaml:"authentication_token"`
 	}
 }
 

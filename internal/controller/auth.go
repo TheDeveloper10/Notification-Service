@@ -6,6 +6,7 @@ import (
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
+	"strings"
 )
 
 type AuthV1Controller interface {
@@ -22,9 +23,6 @@ func NewAuthV1Controller(repository repository.ClientRepository) AuthV1Controlle
 	}
 }
 
-
-
-
 func (boac *basicAuthV1Controller) HandleToken(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
@@ -38,9 +36,16 @@ func (boac *basicAuthV1Controller) HandleToken(res http.ResponseWriter, req *htt
 
 func (boac *basicAuthV1Controller) token(res iface.IResponseWriter, req *http.Request) {
 	// TODO: move AuthRequest to header Authentication
-	reqObj := dto.AuthRequest{}
-	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
+	auth := req.Header.Get("Authentication")
+	if auth == "" || len(auth) < len("Basic ") {
+		res.Status(http.StatusBadRequest)
 		return
+	}
+	keys := strings.Split(auth[len("Basic "):], ":")
+
+	reqObj := dto.AuthRequest{
+		ClientId:     &keys[0],
+		ClientSecret: &keys[1],
 	}
 
 	client := boac.repository.GetClient(reqObj.ToEntity())

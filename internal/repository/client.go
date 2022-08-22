@@ -1,49 +1,34 @@
 package repository
 
 import (
-	"github.com/golang-jwt/jwt"
-	log "github.com/sirupsen/logrus"
 	"notification-service/internal/client"
 	"notification-service/internal/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/util"
-	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type ClientRepository interface {
-	GetClient(*entity.ClientCredentials) 	  *entity.ClientEntity
+	GetClient(*entity.ClientCredentials) *entity.ClientEntity
 	GenerateAccessToken(*entity.ClientEntity) *entity.AccessToken
-	ValidateAccessToken(*entity.AccessToken)  bool
+	GetClientFromAccessToken(*entity.AccessToken) *entity.ClientEntity
 }
 
-type basicClientRepository struct{
-	keyManager 	  util.KeyManager
-	cryptoManager util.CryptoManager
+type basicClientRepository struct {
+	sg *util.StringGenerator
 }
-
 
 func NewClientRepository() ClientRepository {
-	repo := basicClientRepository{
-		keyManager:    util.KeyManager{},
-		cryptoManager: util.CryptoManager{},
+	sg := util.StringGenerator{}
+	sg.Init()
+	return &basicClientRepository{
+		sg: &util.StringGenerator{},
 	}
-	repo.init()
-	return &repo
-}
-
-const (
-	JWTSigningKey 	 = "jwt_signing_key"
-	JWTEncryptionKey = "jwt_enc_key"
-)
-
-func (bcr *basicClientRepository) init() {
-	bcr.keyManager.Init()
-	bcr.keyManager.GenerateKey(JWTSigningKey, 	 helper.Config.HTTPServer.AccessTokenKeyLen)
-	bcr.keyManager.GenerateKey(JWTEncryptionKey, helper.Config.HTTPServer.AccessTokenEncryptionKeyLen)
 }
 
 func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredentials) *entity.ClientEntity {
-	stmt, err := client.SQLClient.Prepare("select * from Clients where Id=? and Secret=?")
+	stmt, err := client.SQLClient.Prepare("select Permissions from Clients where Id=? and Secret=?")
 	if helper.IsError(err) {
 		return nil
 	}
@@ -56,7 +41,7 @@ func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredential
 
 	for rows.Next() {
 		record := entity.ClientEntity{}
-		err3 := rows.Scan(&record.Id, &record.Secret, &record.Permissions, &record.CreationTime)
+		err3 := rows.Scan(&record.Permissions)
 		if helper.IsError(err3) {
 			return nil
 		}
@@ -69,42 +54,48 @@ func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredential
 }
 
 func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) *entity.AccessToken {
-	expirationTime := time.Now().Add(time.Minute * time.Duration(helper.Config.HTTPServer.AccessTokenExpiryTime))
+	token := bcr.sg.GenerateString(helper.Config.HTTPServer.AccessTokenKeyLen)
 
-	claims := entity.ClientClaims{
-		ClientId: 	 clientEntity.Id,
-		Permissions: clientEntity.Permissions,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
+	stmt, err1 := client.SQLClient.Prepare("insert into AccessTokens(AccessToken, Permissions) values(?, ?)")
+	if helper.IsError(err1) {
+		return nil
+	}
+	defer helper.HandledClose(stmt)
+
+	_, err2 := stmt.Exec(token, clientEntity.Permissions)
+	if helper.IsError(err2) {
+		return nil
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(*bcr.keyManager.GetKey(JWTSigningKey)))
+	return &entity.AccessToken{
+		AccessToken: token,
+	}
+}
+
+func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) *entity.ClientEntity {
+	// Perhaps replace the memory table with a Redis Cache
+
+	stmt, err := client.SQLClient.Prepare("select Permissions from AccessTokens where AccessToken=?")
 	if helper.IsError(err) {
 		return nil
 	}
 
-	encryptedToken := bcr.cryptoManager.Encrypt(&tokenString, bcr.keyManager.GetKey(JWTEncryptionKey))
-	if encryptedToken != nil {
-		log.Info("Generated a new access token")
+	rows, err2 := stmt.Query(token.AccessToken)
+	if helper.IsError(err2) {
+		return nil
 	}
-	return &entity.AccessToken{
-		AccessToken: *encryptedToken,
+	defer helper.HandledClose(rows)
+
+	for rows.Next() {
+		record := entity.ClientEntity{}
+		err3 := rows.Scan(&record.Permissions)
+		if helper.IsError(err3) {
+			return nil
+		}
+
+		log.Info("Fetched client with from access token " + token.AccessToken)
+		return &record
 	}
-}
 
-func (bcr *basicClientRepository) ValidateAccessToken(token *entity.AccessToken) bool {
-	jwtToken := bcr.cryptoManager.Decrypt(&token.AccessToken, bcr.keyManager.GetKey(JWTEncryptionKey))
-	if jwtToken == nil {
-		return false
-	}
-	claims := entity.ClientClaims{}
-
-	resToken, err := jwt.ParseWithClaims(*jwtToken, &claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return bcr.keyManager.GetKey(JWTSigningKey), nil
-	})
-
-	return !helper.IsError(err) && resToken.Valid
+	return nil
 }
