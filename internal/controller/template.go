@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
 	"notification-service/internal/entity"
 	"notification-service/internal/repository"
@@ -19,31 +20,28 @@ type TemplateV1Controller interface {
 }
 
 type basicTemplateV1Controller struct {
-	repository repository.TemplateRepository
+	templateRepository repository.TemplateRepository
+	clientRepository   repository.ClientRepository
 }
 
-func NewTemplateV1Controller(repository repository.TemplateRepository) TemplateV1Controller {
+func NewTemplateV1Controller(templateRepository repository.TemplateRepository,
+	clientRepository repository.ClientRepository) TemplateV1Controller {
 	return &basicTemplateV1Controller{
-		repository,
+		templateRepository,
+		clientRepository,
 	}
 }
 
-
-
-
 func (btc *basicTemplateV1Controller) CreateTemplateFromBytes(bytes []byte) bool {
 	reqObj := dto.CreateTemplateRequest{}
-	if !util.ConvertFromJsonBytes(bytes, &reqObj) {
+	if !layer.JSONBytesConverterMiddleware(bytes, &reqObj) {
 		return false
 	}
 
 	templateEntity := reqObj.ToEntity()
-	id := btc.repository.Insert(templateEntity)
+	id := btc.templateRepository.Insert(templateEntity)
 	return id != -1
 }
-
-
-
 
 func (btc *basicTemplateV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
@@ -68,7 +66,7 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 		return
 	}
 
-	templates := btc.repository.GetBulk(filter)
+	templates := btc.templateRepository.GetBulk(filter)
 	if templates == nil {
 		res.Status(http.StatusBadRequest).TextError("Failed to get anything")
 	} else if len(*templates) > 0 {
@@ -79,13 +77,17 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 }
 
 func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *http.Request) {
+	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionCreateTemplates) {
+		return
+	}
+
 	reqObj := dto.CreateTemplateRequest{}
-	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
+	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
 	}
 
 	templateEntity := reqObj.ToEntity()
-	id := btc.repository.Insert(templateEntity)
+	id := btc.templateRepository.Insert(templateEntity)
 	if id == -1 {
 		res.Status(http.StatusBadRequest).TextError("Failed to add template to the database. Try again!")
 	} else {
@@ -97,9 +99,6 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 		res.Status(http.StatusCreated).Json(metadata)
 	}
 }
-
-
-
 
 func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
@@ -118,7 +117,7 @@ func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *h
 }
 
 func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templateId int) {
-	record, statusCode := btc.repository.Get(templateId)
+	record, statusCode := btc.templateRepository.Get(templateId)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
 		return
@@ -132,11 +131,11 @@ func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templat
 
 func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req *http.Request, templateId int) {
 	reqObj := dto.UpdateTemplateRequest{Id: &templateId}
-	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
+	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
 	}
 
-	status := btc.repository.Update(reqObj.ToEntity())
+	status := btc.templateRepository.Update(reqObj.ToEntity())
 	if status == 0 {
 		res.Status(http.StatusOK).Text("Updated successfully!")
 	} else if status == 1 {
@@ -147,7 +146,7 @@ func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req 
 }
 
 func (btc *basicTemplateV1Controller) deleteById(res iface.IResponseWriter, templateId int) {
-	status := btc.repository.Delete(templateId)
+	status := btc.templateRepository.Delete(templateId)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")
 	} else {

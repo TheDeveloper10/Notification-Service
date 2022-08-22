@@ -38,7 +38,7 @@ func (boac *basicAuthV1Controller) token(res iface.IResponseWriter, req *http.Re
 	// TODO: move AuthRequest to header Authentication
 	auth := req.Header.Get("Authentication")
 	if auth == "" || len(auth) < len("Basic ") {
-		res.Status(http.StatusBadRequest)
+		res.Status(http.StatusUnauthorized)
 		return
 	}
 	keys := strings.Split(auth[len("Basic "):], ":")

@@ -5,6 +5,7 @@ import (
 	"notification-service/internal/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/util"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -35,6 +36,7 @@ func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredential
 	if rows == nil {
 		return nil
 	}
+	defer helper.HandledClose(rows)
 
 	if rows.Next() {
 		record := entity.ClientEntity{}
@@ -54,8 +56,8 @@ func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.Clien
 	token := bcr.sg.GenerateString(128)
 
 	res := client.SQLClient.Exec(
-		"insert into AccessTokens(AccessToken, Permissions) values(?, ?)",
-		token, clientEntity.Permissions,
+		"insert into AccessTokens(AccessToken, Permissions, ExpiryTime) values(?, ?, unix_timestamp() + ?)",
+		token, clientEntity.Permissions, helper.Config.HTTPServer.AccessTokenExpiryTime,
 	)
 	if res == nil {
 		return nil
@@ -70,16 +72,21 @@ func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.Clien
 func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) *entity.ClientEntity {
 	// Perhaps replace the memory table with a Redis Cache
 
-	rows := client.SQLClient.Query("select Permissions from AccessTokens where AccessToken=?", token.AccessToken)
+	rows := client.SQLClient.Query("select ExpiryTime, Permissions from AccessTokens where AccessToken=?", token.AccessToken)
+	if rows == nil {
+		return nil
+	}
+	defer helper.HandledClose(rows)
 
 	if rows.Next() {
+		expiryTime := int64(0)
 		record := entity.ClientEntity{}
-		err3 := rows.Scan(&record.Permissions)
-		if helper.IsError(err3) {
+		err3 := rows.Scan(&expiryTime, &record.Permissions)
+		if helper.IsError(err3) || expiryTime < time.Now().Unix() {
 			return nil
 		}
 
-		log.Info("Fetched client with from access token " + token.AccessToken)
+		log.Info("Fetched client with from access token")
 		return &record
 	}
 

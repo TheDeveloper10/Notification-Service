@@ -1,4 +1,4 @@
-package util
+package layer
 
 import (
 	"notification-service/internal/helper"
@@ -10,12 +10,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ConvertFromJsonBytes(bytes []byte, out iface.IRequest) bool {
+func JSONBytesConverterMiddleware(bytes []byte, out iface.IRequest) bool {
 	err := json.Unmarshal(bytes, &out)
 	return !helper.IsError(err)
 }
 
-func ConvertFromJsonRequest(res iface.IResponseWriter, req *http.Request, out iface.IRequest) bool {
+func JSONConverterMiddleware(res iface.IResponseWriter, req *http.Request, out iface.IRequest) bool {
 	if req.Header.Get("Content-Type") != "application/json" {
 		log.Error("Unsupported Content-Type")
 		res.Status(http.StatusUnsupportedMediaType)

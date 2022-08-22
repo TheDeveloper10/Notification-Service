@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
 	"notification-service/internal/entity"
 	"notification-service/internal/repository"
@@ -29,12 +30,9 @@ func NewNotificationV1Controller(templateRepository repository.TemplateRepositor
 	}
 }
 
-
-
-
 func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []byte) bool {
 	reqObj := dto.SendNotificationRequest{}
-	if !util.ConvertFromJsonBytes(bytes, &reqObj) {
+	if !layer.JSONBytesConverterMiddleware(bytes, &reqObj) {
 		return false
 	}
 
@@ -42,9 +40,6 @@ func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []by
 	bnc.internalSend(&reqObj, &res)
 	return res.StatusCode != nil && (*res.StatusCode) == 200
 }
-
-
-
 
 func (bnc *basicNotificationV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
@@ -85,7 +80,7 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 
 func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
 	reqObj := dto.SendNotificationRequest{}
-	if !util.ConvertFromJsonRequest(res, req, &reqObj) {
+	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
 	}
 
@@ -191,12 +186,12 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 	}
 }
 
-func (bnc *basicNotificationV1Controller) processNotificationEntity(outsourceNotification func(*entity.NotificationEntity)bool,
-																	notificationEntity *entity.NotificationEntity,
-																	processId int,
-																	failures **string,
-																	failedCount *int,
-																	wg *sync.WaitGroup) {
+func (bnc *basicNotificationV1Controller) processNotificationEntity(outsourceNotification func(*entity.NotificationEntity) bool,
+	notificationEntity *entity.NotificationEntity,
+	processId int,
+	failures **string,
+	failedCount *int,
+	wg *sync.WaitGroup) {
 	defer wg.Done()
 	if outsourceNotification(notificationEntity) &&
 		bnc.notificationRepository.Insert(notificationEntity) {
