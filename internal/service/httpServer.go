@@ -1,11 +1,12 @@
 package service
 
 import (
-	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"notification-service/internal/controller"
 	"notification-service/internal/helper"
+
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 type HTTPServer struct {
@@ -26,6 +27,7 @@ func (s *HTTPServer) Init(testController *controller.TestV1Controller,
 
 	s.router.HandleFunc("/v1/test", (*testController).Handle)
 
+	s.router.HandleFunc("/v1/oauth/client", (*authController).HandleClient)
 	s.router.HandleFunc("/v1/oauth/token", (*authController).HandleToken)
 
 	s.router.HandleFunc("/v1/templates", (*templateController).HandleAll)

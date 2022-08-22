@@ -14,6 +14,7 @@ type ClientRepository interface {
 	GetClient(*entity.ClientCredentials) *entity.ClientEntity
 	GenerateAccessToken(*entity.ClientEntity) *entity.AccessToken
 	GetClientFromAccessToken(*entity.AccessToken) (*entity.ClientEntity, int)
+	CreateClient(*entity.ClientEntity) *entity.ClientCredentials
 }
 
 type basicClientRepository struct {
@@ -72,7 +73,6 @@ func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.Clien
 func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) (*entity.ClientEntity, int) {
 	// Perhaps replace the memory table with a Redis Cache
 
-	log.Info(token.AccessToken)
 	rows := client.SQLClient.Query("select ExpiryTime, Permissions from AccessTokens where AccessToken=?", token.AccessToken)
 	if rows == nil {
 		return nil, 1
@@ -82,8 +82,9 @@ func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessT
 	if rows.Next() {
 		expiryTime := int64(0)
 		record := entity.ClientEntity{}
-		err3 := rows.Scan(&expiryTime, &record.Permissions)
-		if helper.IsError(err3) {
+
+		err := rows.Scan(&expiryTime, &record.Permissions)
+		if helper.IsError(err) {
 			return nil, 2
 		} else if expiryTime < time.Now().Unix() {
 			return nil, 3
@@ -94,4 +95,25 @@ func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessT
 	}
 
 	return nil, 2
+}
+
+func (bcr *basicClientRepository) CreateClient(clientEntity *entity.ClientEntity) *entity.ClientCredentials {
+	sg := util.StringGenerator{}
+	sg.Init()
+
+	clientId := sg.GenerateString(16)
+	clientSecret := sg.GenerateString(128)
+
+	res := client.SQLClient.Exec(
+		"insert into Clients(Id, Secret, Permissions) values(?, ?, ?)", 
+		clientId, clientSecret, clientEntity.Permissions,
+	)
+	if res == nil {
+		return nil
+	}
+
+	return &entity.ClientCredentials{
+		Id: clientId, 
+		Secret: clientSecret,
+	}
 }

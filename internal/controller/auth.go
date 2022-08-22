@@ -2,15 +2,16 @@ package controller
 
 import (
 	"net/http"
+	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
-	"strings"
 )
 
 type AuthV1Controller interface {
 	HandleToken(http.ResponseWriter, *http.Request)
+	HandleClient(http.ResponseWriter, *http.Request)
 }
 
 type basicAuthV1Controller struct {
@@ -28,29 +29,15 @@ func (boac *basicAuthV1Controller) HandleToken(res http.ResponseWriter, req *htt
 
 	switch req.Method {
 	case http.MethodPost:
-		boac.token(brw, req)
+		boac.createAccessToken(brw, req)
 	default:
 		brw.Status(http.StatusMethodNotAllowed)
 	}
 }
 
-func (boac *basicAuthV1Controller) token(res iface.IResponseWriter, req *http.Request) {
-	// TODO: move AuthRequest to header Authentication
-	auth := req.Header.Get("Authentication")
-	if auth == "" || len(auth) < len("Basic ") {
-		res.Status(http.StatusUnauthorized)
-		return
-	}
-	keys := strings.Split(auth[len("Basic "):], ":")
-
-	reqObj := dto.AuthRequest{
-		ClientId:     &keys[0],
-		ClientSecret: &keys[1],
-	}
-
-	client := boac.repository.GetClient(reqObj.ToEntity())
+func (boac *basicAuthV1Controller) createAccessToken(res iface.IResponseWriter, req *http.Request) {
+	client := layer.ClientInfoMiddleware(boac.repository, res, req)
 	if client == nil {
-		res.Status(http.StatusUnauthorized)
 		return
 	}
 
@@ -61,4 +48,31 @@ func (boac *basicAuthV1Controller) token(res iface.IResponseWriter, req *http.Re
 	}
 
 	res.Status(http.StatusOK).Json(*accessToken)
+}
+
+func (boac *basicAuthV1Controller) HandleClient(res http.ResponseWriter, req *http.Request) {
+	brw := util.WrapResponseWriter(&res)
+
+	switch req.Method {
+	case http.MethodPost:
+		boac.createClient(brw, req)
+	default:
+		brw.Status(http.StatusMethodNotAllowed)
+	}
+}
+
+func (boac *basicAuthV1Controller) createClient(res iface.IResponseWriter, req *http.Request) {
+	if !layer.MasterTokenMiddleware(res, req) {
+		return
+	}
+
+	reqObj := dto.CreateClientRequest{}
+	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
+		return
+	}
+
+	clientEntity := reqObj.ToEntity()
+	credentials := boac.repository.CreateClient(clientEntity)
+
+	res.Status(http.StatusCreated).Json(credentials)
 }

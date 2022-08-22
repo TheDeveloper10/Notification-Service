@@ -65,7 +65,7 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 	// GET /notifications?templateId=45
 	// GET /notifications?startTime=17824254
 	// GET /notifications?endTime=17824254
-	if !layer.AuthMiddleware(bnc.clientRepository, res, req, entity.PermissionReadSentNotifications) {
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionReadSentNotifications) {
 		return
 	}
 
@@ -85,7 +85,7 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 }
 
 func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
-	if !layer.AuthMiddleware(bnc.clientRepository, res, req, entity.PermissionSendNotifications) {
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionSendNotifications) {
 		return
 	}
 

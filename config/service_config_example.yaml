@@ -9,6 +9,7 @@ service:
 # needed only if `use_http` is yes
 http_server:
   addr: :80
+  master_access_token: 4Ox0MfUgDkOuWFi9XAtwTMxe2SuvYcW7VNHbUopJCXvQk6a1aI0biwmfRq7jKMCNh37fiS1dNyo5SOyWyk7qKBD9w02c7BpreJ14qKUty1Rfl2VBzDAULcUpIVAj2ekG
   access_token_expiry_time: 300 # in seconds
 
 # needed only if `use_rabbitmq` is yes

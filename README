@@ -1,5 +1,5 @@
 # Description
-This is a notification service. You can create templates and send notifications using these templates. The currently supported notification types are email, push notifications and SMS. The service is using a database to store all templates and already sent notifications. It's also using RabbitMQ *(OPTIONAL)* to manage heavier loads.
+This is a notification service. You can create templates and send notifications using these templates. Currently you can send Push notifications, Email notifications and SMS notifications. The service is using a database to store all templates and already sent notifications. It's also using RabbitMQ *(OPTIONAL)* to manage heavier loads.
 
 ___
 # How to start?

@@ -60,7 +60,7 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 	// GET /templates
 	// GET /templates?page=24 (size = default = 20)
 	// GET /templates?size=50 (page = default = 1)
-	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
 		return
 	}
 
@@ -80,7 +80,7 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 }
 
 func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *http.Request) {
-	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionCreateTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionCreateTemplates) {
 		return
 	}
 
@@ -120,7 +120,7 @@ func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *h
 }
 
 func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, req *http.Request, templateId int) {
-	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
 		return
 	}
 
@@ -137,7 +137,7 @@ func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, req *ht
 }
 
 func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req *http.Request, templateId int) {
-	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionUpdateTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionUpdateTemplates) {
 		return
 	}
 
@@ -157,7 +157,7 @@ func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req 
 }
 
 func (btc *basicTemplateV1Controller) deleteById(res iface.IResponseWriter, req *http.Request, templateId int) {
-	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionDeleteTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionDeleteTemplates) {
 		return
 	}
 

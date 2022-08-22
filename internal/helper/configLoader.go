@@ -18,7 +18,8 @@ type config struct {
 	}
 	HTTPServer struct {
 		Addr                  string
-		AccessTokenExpiryTime int `yaml:"access_token_expiry_time"`
+		MasterAccessToken     string `yaml:"master_access_token"`
+		AccessTokenExpiryTime int    `yaml:"access_token_expiry_time"`
 	} `yaml:"http_server"`
 	RabbitMQ struct {
 		URL                   string
