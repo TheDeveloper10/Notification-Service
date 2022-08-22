@@ -67,6 +67,7 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 
 		log.Info("Fetched template with id " + strconv.Itoa(id))
 
+		go btr.clearCache()
 		btr.cache[id] = &record
 		return &record, 0
 	} else {
@@ -138,4 +139,22 @@ func (btr *basicTemplateRepository) Delete(id int) bool {
 	log.Info("Deleted template from the database with id " + strconv.Itoa(id))
 	delete(btr.cache, id)
 	return true
+}
+
+func (btr *basicTemplateRepository) clearCache() {
+	cacheSize := len(btr.cache)
+	maxCacheSize := helper.Config.Service.TemplateCacheSize
+	if cacheSize < maxCacheSize { 
+		return
+	}
+	
+	for key := range btr.cache {
+		if cacheSize < maxCacheSize {
+			return
+		}
+
+		delete(btr.cache, key)
+		cacheSize--
+		break
+	}
 }

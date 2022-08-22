@@ -10,11 +10,12 @@ import (
 
 type config struct {
 	Service struct {
-		UseHTTP     string `yaml:"use_http"`
-		UseRabbitMQ string `yaml:"use_rabbitmq"`
-		UseSMTP     string `yaml:"use_smtp"`
-		UsePush     string `yaml:"use_push"`
-		UseSMS      string `yaml:"use_sms"`
+		UseHTTP     	  string `yaml:"use_http"`
+		UseRabbitMQ 	  string `yaml:"use_rabbitmq"`
+		UseSMTP     	  string `yaml:"use_smtp"`
+		UsePush     	  string `yaml:"use_push"`
+		UseSMS      	  string `yaml:"use_sms"`
+		TemplateCacheSize int `yaml:"template_cache_size"`
 	}
 	HTTPServer struct {
 		Addr                  string

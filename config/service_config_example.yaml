@@ -6,6 +6,8 @@ service:
   use_push: yes
   use_sms: yes
 
+  template_cache_size: 1000
+
 # needed only if `use_http` is yes
 http_server:
   addr: :80
