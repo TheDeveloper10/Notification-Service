@@ -27,4 +27,4 @@ services:
     command: bash ./scripts/build/build-and-run.sh
     depends_on:
       - database
-      - rabbitmq
+      # - rabbitmq

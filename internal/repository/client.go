@@ -23,7 +23,7 @@ func NewClientRepository() ClientRepository {
 	sg := util.StringGenerator{}
 	sg.Init()
 	return &basicClientRepository{
-		sg: &util.StringGenerator{},
+		sg: &sg,
 	}
 }
 
@@ -36,7 +36,7 @@ func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredential
 		return nil
 	}
 
-	for rows.Next() {
+	if rows.Next() {
 		record := entity.ClientEntity{}
 		err3 := rows.Scan(&record.Permissions)
 		if helper.IsError(err3) {
@@ -51,16 +51,17 @@ func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredential
 }
 
 func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) *entity.AccessToken {
-	token := bcr.sg.GenerateString(helper.Config.HTTPServer.AccessTokenKeyLen)
+	token := bcr.sg.GenerateString(128)
 
 	res := client.SQLClient.Exec(
-		"insert into AccessTokens(AccessTokens, Permissions) values(?, ?)",
+		"insert into AccessTokens(AccessToken, Permissions) values(?, ?)",
 		token, clientEntity.Permissions,
 	)
 	if res == nil {
 		return nil
 	}
 
+	log.Info("Generated a new access token")
 	return &entity.AccessToken{
 		AccessToken: token,
 	}
@@ -71,7 +72,7 @@ func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessT
 
 	rows := client.SQLClient.Query("select Permissions from AccessTokens where AccessToken=?", token.AccessToken)
 
-	for rows.Next() {
+	if rows.Next() {
 		record := entity.ClientEntity{}
 		err3 := rows.Scan(&record.Permissions)
 		if helper.IsError(err3) {

@@ -3,14 +3,15 @@ package client
 import (
 	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
-var SMSClient iface.ISMSClient
+var SMSClient iface.ISMSClient = nil
 
 func InitializeSMSClient() {
 	if SMSClient != nil {
@@ -26,7 +27,6 @@ func InitializeSMSClient() {
 		SMSClient = &emptySMSClient{}
 	}
 }
-
 
 type smsClient struct {
 	iface.ISMSClient
@@ -45,10 +45,10 @@ func (sc *smsClient) init(accountSID string, messagingServiceSID string, authTok
 	}
 
 	sc.httpClient = &http.Client{}
-	sc.endpoint   = fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", accountSID)
+	sc.endpoint = fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json", accountSID)
 	sc.parameters = "MessagingServiceSid=" + messagingServiceSID + "&To=%s&Body=%s"
 	sc.accountSID = accountSID
-	sc.authToken  = authToken
+	sc.authToken = authToken
 }
 
 func (sc *smsClient) SendSMS(title string, body string, to string) error {
@@ -73,7 +73,6 @@ func (sc *smsClient) SendSMS(title string, body string, to string) error {
 
 	return nil
 }
-
 
 type emptySMSClient struct {
 	iface.IMailClient

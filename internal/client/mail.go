@@ -2,14 +2,15 @@ package client
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/smtp"
 	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
-var MailClient iface.IMailClient
+var MailClient iface.IMailClient = nil
 
 func InitializeMailClient() {
 	if MailClient != nil {
@@ -25,7 +26,6 @@ func InitializeMailClient() {
 		MailClient = &emptyMailClient{}
 	}
 }
-
 
 type mailClient struct {
 	iface.IMailClient
@@ -52,8 +52,6 @@ func (mw *mailClient) Mail(subject string, message string, to []string) error {
 func (mw *mailClient) MailSingle(subject string, message string, to string) error {
 	return mw.Mail(subject, message, []string{to})
 }
-
-
 
 type emptyMailClient struct {
 	iface.IMailClient

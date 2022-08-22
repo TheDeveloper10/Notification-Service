@@ -28,6 +28,6 @@ CREATE TABLE IF NOT EXISTS `Clients`(
 );
 
 CREATE TABLE IF NOT EXISTS `AccessTokens`(
-    `AccessToken` VARCHAR(40) PRIMARY KEY,
-    `Permissions` INTEGER     NOT NULL
+    `AccessToken` VARCHAR(128) PRIMARY KEY,
+    `Permissions` INTEGER      NOT NULL
 ) ENGINE = MEMORY;

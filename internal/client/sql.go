@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var SQLClient iface.ISQLClient
+var SQLClient iface.ISQLClient = nil
 
 func InitializeSQLClient() {
 	if SQLClient != nil {
@@ -22,8 +22,9 @@ func InitializeSQLClient() {
 	dbConfig := &helper.Config.Database
 	conn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Name)
 
-	SQLClient := &sqlClient{}
-	SQLClient.Init(dbConfig.Driver, conn, dbConfig.PoolSize)
+	client := sqlClient{}
+	client.Init(dbConfig.Driver, conn, dbConfig.PoolSize)
+	SQLClient = &client
 }
 
 type sqlClient struct {
@@ -45,7 +46,7 @@ func (c *sqlClient) Init(driver string, connection string, poolSize int) {
 	c.client = client
 }
 
-func (c *sqlClient) Exec(query string, args ...any) *sql.Result {
+func (c *sqlClient) Exec(query string, args ...any) sql.Result {
 	stmt, err := c.client.Prepare(query)
 	if helper.IsError(err) {
 		return nil
@@ -57,7 +58,7 @@ func (c *sqlClient) Exec(query string, args ...any) *sql.Result {
 		return nil
 	}
 
-	return &res
+	return res
 }
 
 func (c *sqlClient) Query(query string, args ...any) *sql.Rows {

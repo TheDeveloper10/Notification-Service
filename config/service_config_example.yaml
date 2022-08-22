@@ -10,7 +10,6 @@ service:
 http_server:
   addr: :80
   access_token_expiry_time: 5 # in minutes
-  access_token_key_length: 16
 
 # needed only if `use_rabbitmq` is yes
 rabbitmq:

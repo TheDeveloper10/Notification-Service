@@ -2,16 +2,17 @@ package client
 
 import (
 	"context"
+	"notification-service/internal/helper"
+	"notification-service/internal/util/iface"
+
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
-	"notification-service/internal/helper"
-	"notification-service/internal/util/iface"
 
 	log "github.com/sirupsen/logrus"
 )
 
-var PushClient iface.IPushClient
+var PushClient iface.IPushClient = nil
 
 func InitializePushClient(credentialsFile string) {
 	if PushClient != nil {
@@ -26,7 +27,6 @@ func InitializePushClient(credentialsFile string) {
 		PushClient = &emptyPushClient{}
 	}
 }
-
 
 type pushClient struct {
 	iface.IPushClient
@@ -65,8 +65,6 @@ func (pc *pushClient) SendMessage(title string, body string, token string) error
 	})
 	return err
 }
-
-
 
 type emptyPushClient struct {
 	iface.IPushClient
