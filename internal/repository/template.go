@@ -12,11 +12,11 @@ import (
 )
 
 type TemplateRepository interface {
-	Insert(entity *entity.TemplateEntity)  int
-	Get(id int) 						   (*entity.TemplateEntity, int)
+	Insert(entity *entity.TemplateEntity) int
+	Get(id int) (*entity.TemplateEntity, int)
 	GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity
-	Update(entity *entity.TemplateEntity)  int
-	Delete(id int) 						   bool
+	Update(entity *entity.TemplateEntity) int
+	Delete(id int) bool
 }
 
 type basicTemplateRepository struct {
@@ -30,14 +30,11 @@ func NewTemplateRepository() TemplateRepository {
 }
 
 func (btr *basicTemplateRepository) Insert(entity *entity.TemplateEntity) int {
-	stmt, err1 := client.SQLClient.Prepare("insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)")
-	if helper.IsError(err1) {
-		return -1
-	}
-	defer helper.HandledClose(stmt)
-
-	res, err2 := stmt.Exec(entity.ContactType, entity.Template, entity.Language, entity.Type)
-	if helper.IsError(err2) {
+	res := client.SQLClient.Exec(
+		"insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)",
+		entity.ContactType, entity.Template, entity.Language, entity.Type,
+	)
+	if res == nil {
 		return -1
 	}
 	id, err3 := res.LastInsertId()
@@ -55,14 +52,8 @@ func (btr *basicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 		return result, 0
 	}
 
-	stmt, err1 := client.SQLClient.Prepare("select * from Templates where Id=?")
-	if helper.IsError(err1) {
-		return nil, 1
-	}
-	defer helper.HandledClose(stmt)
-
-	rows, err2 := stmt.Query(id)
-	if helper.IsError(err2) {
+	rows := client.SQLClient.Query("select * from Templates where Id=?", id)
+	if rows == nil {
 		return nil, 1
 	}
 	defer helper.HandledClose(rows)
@@ -90,13 +81,8 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 	offset := (filter.Page - 1) * filter.Size
 	query := builder.End(&filter.Size, &offset)
 
-	stmt, err := client.SQLClient.Prepare(*query)
-	if helper.IsError(err) {
-		return nil
-	}
-
-	rows, err2 := stmt.Query()
-	if helper.IsError(err2) {
+	rows := client.SQLClient.Query(*query)
+	if rows == nil {
 		return nil
 	}
 	defer helper.HandledClose(rows)
@@ -105,7 +91,7 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 	for rows.Next() {
 		record := entity.TemplateEntity{}
 		err3 := rows.Scan(&record.Id, &record.ContactType,
-						  &record.Template, &record.Language, &record.Type)
+			&record.Template, &record.Language, &record.Type)
 		if helper.IsError(err3) {
 			return nil
 		}
@@ -119,18 +105,16 @@ func (btr *basicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 }
 
 func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
-	stmt, err1 := client.SQLClient.Prepare("update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?")
-	if helper.IsError(err1) {
+	res := client.SQLClient.Exec(
+		"update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?",
+		entity.Template, entity.ContactType, entity.Language, entity.Type, entity.Id,
+	)
+	if res == nil {
 		return 1
 	}
-	defer helper.HandledClose(stmt)
 
-	res, err2 := stmt.Exec(entity.Template, entity.ContactType, entity.Language, entity.Type, entity.Id)
-	if helper.IsError(err2) {
-		return 1
-	}
-	affectedRows, err3 := res.RowsAffected() 
-	if helper.IsError(err3) {
+	affectedRows, err := res.RowsAffected()
+	if helper.IsError(err) {
 		return 1
 	}
 
@@ -146,14 +130,8 @@ func (btr *basicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 }
 
 func (btr *basicTemplateRepository) Delete(id int) bool {
-	stmt, err1 := client.SQLClient.Prepare("delete from Templates where Id=?")
-	if helper.IsError(err1) {
-		return false
-	}
-	defer helper.HandledClose(stmt)
-
-	_, err2 := stmt.Exec(id)
-	if helper.IsError(err2) {
+	res := client.SQLClient.Exec("delete from Templates where Id=?", id)
+	if res == nil {
 		return false
 	}
 

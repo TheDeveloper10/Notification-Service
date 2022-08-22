@@ -28,16 +28,13 @@ func NewClientRepository() ClientRepository {
 }
 
 func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredentials) *entity.ClientEntity {
-	stmt, err := client.SQLClient.Prepare("select Permissions from Clients where Id=? and Secret=?")
-	if helper.IsError(err) {
+	rows := client.SQLClient.Query(
+		"select Permissions from Clients where Id=? and Secret=?",
+		credentials.Id, credentials.Secret,
+	)
+	if rows == nil {
 		return nil
 	}
-
-	rows, err2 := stmt.Query(credentials.Id, credentials.Secret)
-	if helper.IsError(err2) {
-		return nil
-	}
-	defer helper.HandledClose(rows)
 
 	for rows.Next() {
 		record := entity.ClientEntity{}
@@ -56,14 +53,11 @@ func (bcr *basicClientRepository) GetClient(credentials *entity.ClientCredential
 func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) *entity.AccessToken {
 	token := bcr.sg.GenerateString(helper.Config.HTTPServer.AccessTokenKeyLen)
 
-	stmt, err1 := client.SQLClient.Prepare("insert into AccessTokens(AccessToken, Permissions) values(?, ?)")
-	if helper.IsError(err1) {
-		return nil
-	}
-	defer helper.HandledClose(stmt)
-
-	_, err2 := stmt.Exec(token, clientEntity.Permissions)
-	if helper.IsError(err2) {
+	res := client.SQLClient.Exec(
+		"insert into AccessTokens(AccessTokens, Permissions) values(?, ?)",
+		token, clientEntity.Permissions,
+	)
+	if res == nil {
 		return nil
 	}
 
@@ -75,16 +69,7 @@ func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.Clien
 func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) *entity.ClientEntity {
 	// Perhaps replace the memory table with a Redis Cache
 
-	stmt, err := client.SQLClient.Prepare("select Permissions from AccessTokens where AccessToken=?")
-	if helper.IsError(err) {
-		return nil
-	}
-
-	rows, err2 := stmt.Query(token.AccessToken)
-	if helper.IsError(err2) {
-		return nil
-	}
-	defer helper.HandledClose(rows)
+	rows := client.SQLClient.Query("select Permissions from AccessTokens where AccessToken=?", token.AccessToken)
 
 	for rows.Next() {
 		record := entity.ClientEntity{}

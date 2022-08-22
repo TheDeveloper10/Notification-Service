@@ -28,19 +28,16 @@ func NewNotificationRepository() NotificationRepository {
 }
 
 func (bnr *basicNotificationRepository) Insert(notification *entity.NotificationEntity) bool {
-	stmt, err1 := client.SQLClient.Prepare("insert into Notifications(AppId, TemplateId, ContactInfo, Title, Message) values(?, ?, ?, ?, ?)")
-	if helper.IsError(err1) {
-		return false
-	}
-	defer helper.HandledClose(stmt)
-
-	res1, err2 := stmt.Exec(notification.AppID, notification.TemplateID, notification.ContactInfo, notification.Title, notification.Message)
-	if helper.IsError(err2) {
+	res := client.SQLClient.Exec(
+		"insert into Notifications(AppId, TemplateId, ContactInfo, Title, Message) values(?, ?, ?, ?, ?)",
+		notification.AppID, notification.TemplateID, notification.ContactInfo, notification.Title, notification.Message,
+	)
+	if res == nil {
 		return false
 	}
 
-	id, err3 := res1.LastInsertId()
-	if helper.IsError(err3) {
+	id, err := res.LastInsertId()
+	if helper.IsError(err) {
 		return false
 	}
 
@@ -89,18 +86,14 @@ func (bnr *basicNotificationRepository) GetBulk(filter *entity.NotificationFilte
 
 	offset := (filter.Page - 1) * filter.Size
 	query := builder.End(&filter.Size, &offset)
-	stmt, err := client.SQLClient.Prepare(*query)
-	if helper.IsError(err) {
-		return nil
-	}
 
 	values := builder.Values()
 	if values == nil {
 		values = &[]any{}
 	}
 
-	rows, err2 := stmt.Query((*values)...)
-	if helper.IsError(err2) {
+	rows := client.SQLClient.Query(*query, (*values)...)
+	if rows == nil {
 		return nil
 	}
 	defer helper.HandledClose(rows)
