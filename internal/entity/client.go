@@ -17,10 +17,11 @@ const (
 	PermissionSendNotifications     = 1
 	PermissionReadSentNotifications = 2
 	PermissionCreateTemplates       = 4
-	PermissionUpdateTemplates       = 8
-	PermissionDeleteTemplates       = 16
+	PermissionReadTemplates         = 8
+	PermissionUpdateTemplates       = 16
+	PermissionDeleteTemplates       = 32
 )
 
 func (ce *ClientEntity) CheckPermission(permission int) bool {
-	return ce.Permissions&permission > 0
+	return ce.Permissions & permission > 0
 }

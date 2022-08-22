@@ -60,6 +60,9 @@ func (btc *basicTemplateV1Controller) getBulk(res iface.IResponseWriter, req *ht
 	// GET /templates
 	// GET /templates?page=24 (size = default = 20)
 	// GET /templates?size=50 (page = default = 1)
+	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
+		return
+	}
 
 	filter := entity.TemplateFilterFromRequest(req, res)
 	if filter == nil {
@@ -106,17 +109,21 @@ func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *h
 
 	switch req.Method {
 	case http.MethodGet:
-		btc.getById(brw, templateId)
+		btc.getById(brw, req, templateId)
 	case http.MethodPut:
 		btc.updateById(brw, req, templateId)
 	case http.MethodDelete:
-		btc.deleteById(brw, templateId)
+		btc.deleteById(brw, req, templateId)
 	default:
 		brw.Status(http.StatusMethodNotAllowed)
 	}
 }
 
-func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templateId int) {
+func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, req *http.Request, templateId int) {
+	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
+		return
+	}
+
 	record, statusCode := btc.templateRepository.Get(templateId)
 	if statusCode == 1 {
 		res.Status(http.StatusBadRequest).Text("Failed to get the requested template. Try again!")
@@ -130,6 +137,10 @@ func (btc *basicTemplateV1Controller) getById(res iface.IResponseWriter, templat
 }
 
 func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req *http.Request, templateId int) {
+	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionUpdateTemplates) {
+		return
+	}
+
 	reqObj := dto.UpdateTemplateRequest{Id: &templateId}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
@@ -145,7 +156,11 @@ func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req 
 	}
 }
 
-func (btc *basicTemplateV1Controller) deleteById(res iface.IResponseWriter, templateId int) {
+func (btc *basicTemplateV1Controller) deleteById(res iface.IResponseWriter, req *http.Request, templateId int) {
+	if !layer.AuthMiddleware(btc.clientRepository, res, req, entity.PermissionDeleteTemplates) {
+		return
+	}
+
 	status := btc.templateRepository.Delete(templateId)
 	if status {
 		res.Status(http.StatusOK).Text("Deleted successfully!")

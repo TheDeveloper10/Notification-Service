@@ -29,7 +29,7 @@ func main() {
 	testV1Controller := controller.NewTestV1Controller()
 	authV1Controller := controller.NewAuthV1Controller(clientRepository)
 	templateV1Controller := controller.NewTemplateV1Controller(templateRepository, clientRepository)
-	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository)
+	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 
 	// HTTP Server
 	if helper.Config.Service.UseHTTP == "yes" {

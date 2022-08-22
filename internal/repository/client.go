@@ -13,7 +13,7 @@ import (
 type ClientRepository interface {
 	GetClient(*entity.ClientCredentials) *entity.ClientEntity
 	GenerateAccessToken(*entity.ClientEntity) *entity.AccessToken
-	GetClientFromAccessToken(*entity.AccessToken) *entity.ClientEntity
+	GetClientFromAccessToken(*entity.AccessToken) (*entity.ClientEntity, int)
 }
 
 type basicClientRepository struct {
@@ -69,12 +69,13 @@ func (bcr *basicClientRepository) GenerateAccessToken(clientEntity *entity.Clien
 	}
 }
 
-func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) *entity.ClientEntity {
+func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) (*entity.ClientEntity, int) {
 	// Perhaps replace the memory table with a Redis Cache
 
+	log.Info(token.AccessToken)
 	rows := client.SQLClient.Query("select ExpiryTime, Permissions from AccessTokens where AccessToken=?", token.AccessToken)
 	if rows == nil {
-		return nil
+		return nil, 1
 	}
 	defer helper.HandledClose(rows)
 
@@ -82,13 +83,15 @@ func (bcr *basicClientRepository) GetClientFromAccessToken(token *entity.AccessT
 		expiryTime := int64(0)
 		record := entity.ClientEntity{}
 		err3 := rows.Scan(&expiryTime, &record.Permissions)
-		if helper.IsError(err3) || expiryTime < time.Now().Unix() {
-			return nil
+		if helper.IsError(err3) {
+			return nil, 2
+		} else if expiryTime < time.Now().Unix() {
+			return nil, 3
 		}
 
 		log.Info("Fetched client with from access token")
-		return &record
+		return &record, 0
 	}
 
-	return nil
+	return nil, 2
 }

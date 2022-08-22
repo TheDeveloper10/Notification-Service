@@ -20,13 +20,16 @@ type NotificationV1Controller interface {
 type basicNotificationV1Controller struct {
 	templateRepository     repository.TemplateRepository
 	notificationRepository repository.NotificationRepository
+	clientRepository       repository.ClientRepository
 }
 
 func NewNotificationV1Controller(templateRepository repository.TemplateRepository,
-	notificationRepository repository.NotificationRepository) NotificationV1Controller {
+								notificationRepository repository.NotificationRepository,
+								clientRepository repository.ClientRepository) NotificationV1Controller {
 	return &basicNotificationV1Controller{
 		templateRepository,
 		notificationRepository,
+		clientRepository,
 	}
 }
 
@@ -62,6 +65,9 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 	// GET /notifications?templateId=45
 	// GET /notifications?startTime=17824254
 	// GET /notifications?endTime=17824254
+	if !layer.AuthMiddleware(bnc.clientRepository, res, req, entity.PermissionReadSentNotifications) {
+		return
+	}
 
 	filter := entity.NotificationFilterFromRequest(req, res)
 	if filter == nil {
@@ -79,6 +85,10 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 }
 
 func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
+	if !layer.AuthMiddleware(bnc.clientRepository, res, req, entity.PermissionSendNotifications) {
+		return
+	}
+
 	reqObj := dto.SendNotificationRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
