@@ -47,7 +47,7 @@ func ClientInfoMiddleware(clientRepository repository.ClientRepository,
 func AccessTokenMiddleware(clientRepository repository.ClientRepository,
 						res iface.IResponseWriter,
 						req *http.Request,
-						permission int) bool {
+						permission int64) bool {
 	header := req.Header.Get("Authentication")
 	if header == "" || len(header) <= len("Bearer ") {
 		res.Status(http.StatusUnauthorized).TextError("You must provide an Access Token!")

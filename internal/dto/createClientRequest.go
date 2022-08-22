@@ -8,7 +8,7 @@ import (
 
 type CreateClientRequest struct {
 	iface.IRequestEntity[entity.ClientEntity]
-	Permissions  *int    `json:"permissions"`
+	Permissions  *[]string `json:"permissions"`
 }
 
 func (ccr *CreateClientRequest) Validate() iface.IErrorList {
@@ -22,7 +22,17 @@ func (ccr *CreateClientRequest) Validate() iface.IErrorList {
 }
 
 func (ccr *CreateClientRequest) ToEntity() *entity.ClientEntity {
+	var permissions int64 = 0
+	
+	for i := 0; i < len(*ccr.Permissions); i++ {
+		permission := entity.PermissionKeyToInt((*ccr.Permissions)[i])
+		if permission == -1 {
+			continue
+		}
+		permissions += int64(permission)
+	}
+
 	return &entity.ClientEntity{
-		Permissions: *ccr.Permissions,
+		Permissions: permissions,
 	}
 }

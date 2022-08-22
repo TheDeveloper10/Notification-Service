@@ -1,2 +1,1 @@
-1. Make creation of client require permissions in string form
-2. Add cache cleaning for templates (when over K)
+1. Add cache cleaning for templates (when over K)

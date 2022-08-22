@@ -10,18 +10,44 @@ type AccessToken struct {
 }
 
 type ClientEntity struct {
-	Permissions int
+	Permissions int64
 }
 
+func (ce *ClientEntity) CheckPermission(permission int64) bool {
+	return ce.Permissions & permission > 0
+}
+
+
 const (
-	PermissionSendNotifications     = 1
-	PermissionReadSentNotifications = 2
-	PermissionCreateTemplates       = 4
-	PermissionReadTemplates         = 8
-	PermissionUpdateTemplates       = 16
-	PermissionDeleteTemplates       = 32
+	PermissionSendNotifications     	= 1
+	PermissionSendNotificationsKey  	= "send_notifications"
+	PermissionReadSentNotifications 	= 2
+	PermissionReadSentNotificationsKey 	= "read_sent_notifications"
+	PermissionCreateTemplates       	= 4
+	PermissionCreateTemplatesKey       	= "create_templates"
+	PermissionReadTemplates         	= 8
+	PermissionReadTemplatesKey         	= "read_templates"
+	PermissionUpdateTemplates       	= 16
+	PermissionUpdateTemplatesKey       	= "update_templates"
+	PermissionDeleteTemplates       	= 32
+	PermissionDeleteTemplatesKey       	= "delete_templates"
 )
 
-func (ce *ClientEntity) CheckPermission(permission int) bool {
-	return ce.Permissions & permission > 0
+func PermissionKeyToInt(key string) int {
+	switch key {
+	case PermissionSendNotificationsKey:
+		return PermissionSendNotifications
+	case PermissionReadSentNotificationsKey:
+		return PermissionReadSentNotifications
+	case PermissionCreateTemplatesKey:
+		return PermissionCreateTemplates
+	case PermissionReadTemplatesKey:
+		return PermissionReadTemplates
+	case PermissionUpdateTemplatesKey:
+		return PermissionUpdateTemplates
+	case PermissionDeleteTemplatesKey:
+		return PermissionDeleteTemplates
+	default:
+		return -1
+	}
 }

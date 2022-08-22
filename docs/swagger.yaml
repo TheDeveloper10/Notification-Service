@@ -537,5 +537,7 @@ components:
         - permissions
       properties:
         permissions:
-          type: integer
-          format: int64
+          type: array
+          items:
+            type: string
+            enum: [send_notifications, read_sent_notifications, create_templates. read_templates, update_templates, delete_templates]
