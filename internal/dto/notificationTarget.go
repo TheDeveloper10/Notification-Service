@@ -15,6 +15,9 @@ type NotificationTarget struct {
 }
 
 func (nt *NotificationTarget) Validate(contactType *string) error {
+	if contactType == nil {
+		return errors.New("'contactType' must be given")
+	}
 	switch *contactType {
 		case entity.ContactTypeEmail: {
 			if nt.Email == nil {

@@ -25,7 +25,7 @@ func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
 		errs.AddErrorFromString("'contactType' must be one of email/sms/push")
 	}
 
-	if ctr.Language == nil {
+	if ctr.Language == nil || len(*ctr.Language) <= 0 {
 		errs.AddErrorFromString("'language' must be given")
 	} else if !validateLanguage(ctr.Language) {
 		errs.AddErrorFromString("'language' must be one of " + allowedLanguages)
