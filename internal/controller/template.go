@@ -141,7 +141,7 @@ func (btc *basicTemplateV1Controller) updateById(res iface.IResponseWriter, req 
 		return
 	}
 
-	reqObj := dto.UpdateTemplateRequest{Id: &templateId}
+	reqObj := dto.UpdateTemplateRequest{TemplateIdRequest: dto.TemplateIdRequest{Id: &templateId}}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
 	}
