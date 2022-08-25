@@ -10,19 +10,14 @@ import (
 type UpdateTemplateRequest struct {
 	iface.IRequestEntity[entity.TemplateEntity]
 	CreateTemplateRequest
-	Id *int
+	TemplateIdRequest
 }
 
 func (utr *UpdateTemplateRequest) Validate() iface.IErrorList {
 	errs := util.NewErrorList()
-	errs2 := utr.CreateTemplateRequest.Validate()
-	errs.Merge(errs2)
 
-	if utr.Id == nil {
-		errs.AddErrorFromString("'id' must be given")
-	} else if (*utr.Id) <= 0 {
-		errs.AddErrorFromString("'id' must be greater than 0")
-	}
+	errs.Merge(utr.CreateTemplateRequest.Validate())
+	errs.Merge(utr.TemplateIdRequest.Validate())
 
 	return errs
 }

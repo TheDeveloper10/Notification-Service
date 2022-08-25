@@ -2,6 +2,7 @@ package dto
 
 import (
 	"errors"
+	"notification-service/internal/entity"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 )
@@ -40,6 +41,8 @@ func (snr *SendNotificationRequest) Validate() iface.IErrorList {
 	err = basicStringValidation("contactType", snr.ContactType)
 	if err != nil {
 		errs.AddError(err)
+	} else if (*snr.ContactType) != entity.ContactTypeEmail && (*snr.ContactType) != entity.ContactTypeSMS && (*snr.ContactType) != entity.ContactTypePush {
+		errs.AddErrorFromString("'contactType' must be one of email/push/sms")
 	}
 
 	if len(snr.Targets) <= 0 {
