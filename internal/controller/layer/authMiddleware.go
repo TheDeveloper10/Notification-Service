@@ -49,8 +49,8 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 						req *http.Request,
 						permission int64) bool {
 	header := req.Header.Get("Authentication")
-	if header == "" || len(header) <= len("Bearer ") {
-		res.Status(http.StatusUnauthorized).TextError("You must provide an Access Token!")
+	if header == "" || !strings.HasPrefix(header, "Bearer ") {
+		res.Status(http.StatusUnauthorized).TextError("You must provide an Access Token via Bearer authentication!")
 		return false
 	}
 	token := header[len("Bearer "):]

@@ -24,8 +24,9 @@ type basicTemplateV1Controller struct {
 	clientRepository   repository.IClientRepository
 }
 
-func NewTemplateV1Controller(templateRepository repository.ITemplateRepository,
-	clientRepository repository.IClientRepository) TemplateV1Controller {
+func NewTemplateV1Controller(
+			templateRepository repository.ITemplateRepository,
+			clientRepository repository.IClientRepository) TemplateV1Controller {
 	return &basicTemplateV1Controller{
 		templateRepository,
 		clientRepository,
