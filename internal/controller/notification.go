@@ -45,7 +45,7 @@ func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []by
 }
 
 func (bnc *basicNotificationV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(&res)
+	brw := util.WrapResponseWriter(res)
 
 	if !layer.AccessTokenMiddleware(bnc.clientRepository, brw, req, entity.PermissionReadSentNotifications) {
 		return

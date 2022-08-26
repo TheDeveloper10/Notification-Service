@@ -7,7 +7,7 @@ import (
 	"notification-service/internal/util/iface"
 )
 
-func WrapResponseWriter(res *http.ResponseWriter) iface.IResponseWriter {
+func WrapResponseWriter(res http.ResponseWriter) iface.IResponseWriter {
 	return &responseWriterWrapper{
 		rw: res,
 	}
@@ -15,16 +15,16 @@ func WrapResponseWriter(res *http.ResponseWriter) iface.IResponseWriter {
 
 type responseWriterWrapper struct {
 	iface.IResponseWriter
-	rw *http.ResponseWriter
+	rw http.ResponseWriter
 }
 
 func (rrw *responseWriterWrapper) Status(statusCode int) iface.IResponseWriter {
-	(*rrw.rw).WriteHeader(statusCode)
+	rrw.rw.WriteHeader(statusCode)
 	return rrw
 }
 
 func (rrw *responseWriterWrapper) Text(text string) iface.IResponseWriter {
-	_, err := (*rrw.rw).Write([]byte(text))
+	_, err := rrw.rw.Write([]byte(text))
 	helper.IsError(err)
 	return rrw
 }
@@ -46,7 +46,7 @@ func (rrw *responseWriterWrapper) Json(data interface{}) iface.IResponseWriter {
 }
 
 func (rrw *responseWriterWrapper) Bytes(data []byte) iface.IResponseWriter {
-	_, err := (*rrw.rw).Write(data)
+	_, err := rrw.rw.Write(data)
 	helper.IsError(err)
 	return rrw
 }

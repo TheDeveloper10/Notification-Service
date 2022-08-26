@@ -31,6 +31,7 @@ const (
 	PermissionUpdateTemplatesKey       	= "update_templates"
 	PermissionDeleteTemplates       	= 32
 	PermissionDeleteTemplatesKey       	= "delete_templates"
+	PermissionAll                       = 63
 )
 
 func PermissionKeyToInt(key string) int {

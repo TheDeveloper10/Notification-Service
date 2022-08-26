@@ -16,7 +16,7 @@ func NewTestV1Controller() TestV1Controller {
 }
 
 func (tc *basicTestV1Controller) Handle(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(&res)
+	brw := util.WrapResponseWriter(res)
 
 	brw.Status(http.StatusOK).Text("Request method: " + req.Method)
 }

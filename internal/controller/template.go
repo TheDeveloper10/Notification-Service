@@ -45,7 +45,7 @@ func (btc *basicTemplateV1Controller) CreateTemplateFromBytes(bytes []byte) bool
 }
 
 func (btc *basicTemplateV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(&res)
+	brw := util.WrapResponseWriter(res)
 
 	switch req.Method {
 	case http.MethodGet:
@@ -105,7 +105,7 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 }
 
 func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(&res)
+	brw := util.WrapResponseWriter(res)
 	vars := mux.Vars(req)
 	if len(vars["templateId"]) <= 0 {
 		brw.Status(http.StatusBadRequest).TextError("You must pass an id as a url parameter!")

@@ -6,7 +6,7 @@ type MockClientRepository struct {}
 
 func (mcr *MockClientRepository) GetClient(credentials *entity.ClientCredentials) *entity.ClientEntity {
 	return &entity.ClientEntity{
-		Permissions: entity.PermissionCreateTemplates,
+		Permissions: entity.PermissionAll,
 	}
 }
 
@@ -18,7 +18,7 @@ func (mcr *MockClientRepository) GenerateAccessToken(clientEntity *entity.Client
 
 func (mcr *MockClientRepository) GetClientFromAccessToken(accessToken *entity.AccessToken) (*entity.ClientEntity, int) {
 	return &entity.ClientEntity{
-		Permissions: entity.PermissionCreateTemplates,
+		Permissions: entity.PermissionAll,
 	}, 0
 }
 

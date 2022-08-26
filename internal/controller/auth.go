@@ -25,7 +25,7 @@ func NewAuthV1Controller(repository repository.IClientRepository) AuthV1Controll
 }
 
 func (boac *basicAuthV1Controller) HandleToken(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(&res)
+	brw := util.WrapResponseWriter(res)
 
 	switch req.Method {
 	case http.MethodPost:
@@ -51,7 +51,7 @@ func (boac *basicAuthV1Controller) createAccessToken(res iface.IResponseWriter, 
 }
 
 func (boac *basicAuthV1Controller) HandleClient(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(&res)
+	brw := util.WrapResponseWriter(res)
 
 	switch req.Method {
 	case http.MethodPost:
