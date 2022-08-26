@@ -106,7 +106,12 @@ func (btc *basicTemplateV1Controller) create(res iface.IResponseWriter, req *htt
 
 func (btc *basicTemplateV1Controller) HandleById(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
-	templateId, _ := strconv.Atoi(mux.Vars(req)["templateId"])
+	vars := mux.Vars(req)
+	if len(vars["templateId"]) <= 0 {
+		brw.Status(http.StatusBadRequest).TextError("You must pass an id as a url parameter!")
+		return
+	}
+	templateId, _ := strconv.Atoi(vars["templateId"])
 
 	switch req.Method {
 	case http.MethodGet:

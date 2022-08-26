@@ -19,6 +19,11 @@ func JSONConverterMiddleware(res iface.IResponseWriter, req *http.Request, out i
 		return false
 	}
 
+	if req.Body == nil {
+		res.Status(http.StatusBadRequest).TextError("Empty body")
+		return false
+	}
+
 	err := json.NewDecoder(req.Body).Decode(&out)
 	if helper.IsError(err) {
 		res.Status(http.StatusBadRequest).TextError("Invalid JSON")

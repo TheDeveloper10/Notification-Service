@@ -23,5 +23,5 @@ func createAccessTokenTest(testId int, t *testing.T, body io.Reader, headers map
 	clientRepository := repository.NewClientRepository(true)
 	bac := NewAuthV1Controller(clientRepository)
 
-	test.ControllerTest(testId, t, body, headers, statusCode, "POST", bac.HandleToken, "")
+	test.ControllerTest(testId, t, body, headers, statusCode, "POST", bac.HandleToken, "", nil)
 }

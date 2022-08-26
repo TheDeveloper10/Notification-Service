@@ -34,7 +34,7 @@ func createTemplateTest(testId int, t *testing.T, body io.Reader, headers map[st
 	clientRepository := repository.NewClientRepository(true)
 	tac := NewTemplateV1Controller(templateRepository, clientRepository)
 
-	test.ControllerTest(testId, t, body, headers, statusCode, "POST", tac.HandleAll, "")
+	test.ControllerTest(testId, t, body, headers, statusCode, "POST", tac.HandleAll, "", nil)
 }
 
 func getBulkTemplatesTest(testId int, t *testing.T, headers map[string]string, statusCode int, url string) {
@@ -42,5 +42,5 @@ func getBulkTemplatesTest(testId int, t *testing.T, headers map[string]string, s
 	clientRepository := repository.NewClientRepository(true)
 	tac := NewTemplateV1Controller(templateRepository, clientRepository)
 
-	test.ControllerTest(testId, t, nil, headers, statusCode, "GET", tac.HandleAll, url)
+	test.ControllerTest(testId, t, nil, headers, statusCode, "GET", tac.HandleAll, url, nil)
 }

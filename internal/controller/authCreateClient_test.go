@@ -45,5 +45,5 @@ func createClientTest(testId int, t *testing.T, body io.Reader, headers map[stri
 	clientRepository := repository.NewClientRepository(true)
 	bac := NewAuthV1Controller(clientRepository)
 
-	test.ControllerTest(testId, t, body, headers, statusCode, "POST", bac.HandleClient, "")
+	test.ControllerTest(testId, t, body, headers, statusCode, "POST", bac.HandleClient, "", nil)
 }
