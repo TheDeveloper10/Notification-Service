@@ -67,3 +67,5 @@ func LoadConfig(fileName string) {
 		log.Fatal(err.Error())
 	}
 }
+
+const ServiceConfigPath = "./config/service_config.yaml"

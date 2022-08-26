@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// Configuration
-	helper.LoadConfig("./config/service_config.yaml")
+	helper.LoadConfig(helper.ServiceConfigPath)
 
 	client.InitializeSQLClient()
 	client.InitializeMailClient()
