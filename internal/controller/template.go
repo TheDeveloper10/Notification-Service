@@ -20,12 +20,12 @@ type TemplateV1Controller interface {
 }
 
 type basicTemplateV1Controller struct {
-	templateRepository repository.TemplateRepository
-	clientRepository   repository.ClientRepository
+	templateRepository repository.ITemplateRepository
+	clientRepository   repository.IClientRepository
 }
 
-func NewTemplateV1Controller(templateRepository repository.TemplateRepository,
-	clientRepository repository.ClientRepository) TemplateV1Controller {
+func NewTemplateV1Controller(templateRepository repository.ITemplateRepository,
+	clientRepository repository.IClientRepository) TemplateV1Controller {
 	return &basicTemplateV1Controller{
 		templateRepository,
 		clientRepository,

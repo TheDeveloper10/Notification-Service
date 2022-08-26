@@ -12,7 +12,7 @@ import (
 	"notification-service/internal/util/iface"
 )
 
-func ClientInfoMiddleware(clientRepository repository.ClientRepository,
+func ClientInfoMiddleware(clientRepository repository.IClientRepository,
 						res iface.IResponseWriter,
 						req *http.Request) *entity.ClientEntity {
 	header := req.Header.Get("Authentication")
@@ -44,7 +44,7 @@ func ClientInfoMiddleware(clientRepository repository.ClientRepository,
 	return client
 }
 
-func AccessTokenMiddleware(clientRepository repository.ClientRepository,
+func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 						res iface.IResponseWriter,
 						req *http.Request,
 						permission int64) bool {

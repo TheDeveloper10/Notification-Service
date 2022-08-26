@@ -18,14 +18,14 @@ type NotificationV1Controller interface {
 }
 
 type basicNotificationV1Controller struct {
-	templateRepository     repository.TemplateRepository
-	notificationRepository repository.NotificationRepository
-	clientRepository       repository.ClientRepository
+	templateRepository     repository.ITemplateRepository
+	notificationRepository repository.INotificationRepository
+	clientRepository       repository.IClientRepository
 }
 
-func NewNotificationV1Controller(templateRepository repository.TemplateRepository,
-								notificationRepository repository.NotificationRepository,
-								clientRepository repository.ClientRepository) NotificationV1Controller {
+func NewNotificationV1Controller(templateRepository repository.ITemplateRepository,
+								notificationRepository repository.INotificationRepository,
+								clientRepository repository.IClientRepository) NotificationV1Controller {
 	return &basicNotificationV1Controller{
 		templateRepository,
 		notificationRepository,

@@ -15,10 +15,10 @@ type AuthV1Controller interface {
 }
 
 type basicAuthV1Controller struct {
-	repository repository.ClientRepository
+	repository repository.IClientRepository
 }
 
-func NewAuthV1Controller(repository repository.ClientRepository) AuthV1Controller {
+func NewAuthV1Controller(repository repository.IClientRepository) AuthV1Controller {
 	return &basicAuthV1Controller{
 		repository,
 	}
