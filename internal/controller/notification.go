@@ -47,6 +47,10 @@ func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []by
 func (bnc *basicNotificationV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
 	brw := util.WrapResponseWriter(&res)
 
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, brw, req, entity.PermissionReadSentNotifications) {
+		return
+	}
+
 	switch req.Method {
 	case http.MethodGet:
 		bnc.getBulk(brw, req)
@@ -65,10 +69,6 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 	// GET /notifications?templateId=45
 	// GET /notifications?startTime=17824254
 	// GET /notifications?endTime=17824254
-	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionReadSentNotifications) {
-		return
-	}
-
 	filter := entity.NotificationFilterFromRequest(req, res)
 	if filter == nil {
 		return
@@ -85,10 +85,6 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 }
 
 func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
-	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionSendNotifications) {
-		return
-	}
-
 	reqObj := dto.SendNotificationRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return
