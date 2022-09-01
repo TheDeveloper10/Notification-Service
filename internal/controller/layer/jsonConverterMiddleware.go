@@ -1,7 +1,9 @@
 package layer
 
 import (
+	"github.com/TheDeveloper10/rem"
 	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 
 	"encoding/json"
@@ -13,26 +15,26 @@ func JSONBytesConverterMiddleware(bytes []byte, out iface.IRequest) bool {
 	return !helper.IsError(err)
 }
 
-func JSONConverterMiddleware(res iface.IResponseWriter, req *http.Request, out iface.IRequest) bool {
-	if req.Header.Get("Content-Type") != "application/json" {
+func JSONConverterMiddleware(res rem.IResponse, req rem.IRequest, out iface.IRequest) bool {
+	if req.GetHeaders().Get("Content-Type") != "application/json" {
 		res.Status(http.StatusUnsupportedMediaType)
 		return false
 	}
 
-	if req.Body == nil {
-		res.Status(http.StatusBadRequest).TextError("Empty body")
+	if req.GetBody() == nil {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Empty body"))
 		return false
 	}
 
-	err := json.NewDecoder(req.Body).Decode(&out)
+	err := json.NewDecoder(req.GetBody()).Decode(&out)
 	if helper.IsError(err) {
-		res.Status(http.StatusBadRequest).TextError("Invalid JSON")
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Invalid JSON"))
 		return false
 	}
 
 	errs := out.Validate()
 	if errs.ErrorsCount() > 0 {
-		res.Status(http.StatusBadRequest).Json(errs)
+		res.Status(http.StatusBadRequest).JSON(errs)
 		return false
 	}
 

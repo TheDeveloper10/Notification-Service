@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/TheDeveloper10/rem"
 	"net/http"
 	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
@@ -13,14 +14,8 @@ import (
 )
 
 type NotificationV1Controller interface {
-	HandleAll(http.ResponseWriter, *http.Request)
-	CreateNotificationFromBytes([]byte) bool
-}
-
-type basicNotificationV1Controller struct {
-	templateRepository     repository.ITemplateRepository
-	notificationRepository repository.INotificationRepository
-	clientRepository       repository.IClientRepository
+	iface.IController
+	CreateNotificationFromBytes(bytes []byte) bool
 }
 
 func NewNotificationV1Controller(templateRepository repository.ITemplateRepository,
@@ -31,6 +26,19 @@ func NewNotificationV1Controller(templateRepository repository.ITemplateReposito
 		notificationRepository,
 		clientRepository,
 	}
+}
+
+type basicNotificationV1Controller struct {
+	templateRepository     repository.ITemplateRepository
+	notificationRepository repository.INotificationRepository
+	clientRepository       repository.IClientRepository
+}
+
+func (bnc *basicNotificationV1Controller) CreateRoutes(router *rem.Router) {
+	router.
+		NewRoute("/v1/notifications").
+		Get(bnc.getBulk).
+		Post(bnc.send)
 }
 
 func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []byte) bool {
@@ -44,24 +52,7 @@ func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []by
 	return res.StatusCode != nil && (*res.StatusCode) == 200
 }
 
-func (bnc *basicNotificationV1Controller) HandleAll(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(res)
-
-	if !layer.AccessTokenMiddleware(bnc.clientRepository, brw, req, entity.PermissionReadSentNotifications) {
-		return
-	}
-
-	switch req.Method {
-	case http.MethodGet:
-		bnc.getBulk(brw, req)
-	case http.MethodPost:
-		bnc.send(brw, req)
-	default:
-		brw.Status(http.StatusMethodNotAllowed)
-	}
-}
-
-func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req *http.Request) {
+func (bnc *basicNotificationV1Controller) getBulk(res rem.IResponse, req rem.IRequest) bool {
 	// GET /notifications
 	// GET /notifications?page=24 (size = default = 20)
 	// GET /notifications?size=50 (page = default = 1)
@@ -71,46 +62,49 @@ func (bnc *basicNotificationV1Controller) getBulk(res iface.IResponseWriter, req
 	// GET /notifications?endTime=17824254
 	filter := entity.NotificationFilterFromRequest(req, res)
 	if filter == nil {
-		return
+		return true
 	}
 
 	notifications := bnc.notificationRepository.GetBulk(filter)
 	if notifications == nil {
-		res.Status(http.StatusBadRequest).TextError("Failed to get anything")
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get anything"))
 	} else if len(*notifications) > 0 {
-		res.Status(http.StatusOK).Json(*notifications)
+		res.Status(http.StatusOK).JSON(*notifications)
 	} else {
 		res.Status(http.StatusOK)
 	}
+
+	return true
 }
 
-func (bnc *basicNotificationV1Controller) send(res iface.IResponseWriter, req *http.Request) {
+func (bnc *basicNotificationV1Controller) send(res rem.IResponse, req rem.IRequest) bool {
 	reqObj := dto.SendNotificationRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
-		return
+		return true
 	}
 
 	bnc.internalSend(&reqObj, res)
+	return true
 }
 
-func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificationRequest, res iface.IResponseWriter) {
+func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificationRequest, res rem.IResponse) {
 	templateEntity, status := bnc.templateRepository.Get(*reqObj.TemplateID)
 	if status == 1 {
-		res.Status(http.StatusNotFound).TextError("Something was wrong with the database. Try again")
+		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Something was wrong with the database. Try again"))
 		return
 	} else if status == 2 {
-		res.Status(http.StatusNotFound).TextError("Template was not found!")
+		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Template was not found!"))
 		return
 	}
 
 	if templateEntity.ContactType != *reqObj.ContactType {
-		res.Status(http.StatusUnprocessableEntity).TextError("'contactType' should be '" + templateEntity.ContactType + "' in order to use this template")
+		res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError("'contactType' should be '" + templateEntity.ContactType + "' in order to use this template"))
 		return
 	}
 
 	universalText, err := dto.FillPlaceholders(templateEntity.Template, &reqObj.UniversalPlaceholders)
 	if err != nil {
-		res.Status(http.StatusUnprocessableEntity).Error(err)
+		res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
 		return
 	}
 	universallyUnfilledPlaceholders := dto.GetPlaceholders(&templateEntity.Template)
@@ -182,7 +176,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 		if failures != nil {
 			err1 = "Failed to send the following notifications: " + (*failures)
 		}
-		res.Status(http.StatusBadRequest).Json(dto.SentNotificationsError{
+		res.Status(http.StatusBadRequest).JSON(dto.SentNotificationsError{
 			SentNotifications: currentTarget - failedCount,
 			Error1:            err1,
 			Error2:            additionalError,

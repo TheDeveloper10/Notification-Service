@@ -2,15 +2,21 @@ package util
 
 import "notification-service/internal/util/iface"
 
-type ErrorList struct {
-	iface.IErrorList `json:"-"`
-	Errors           []string `json:"errors"`
-}
-
 func NewErrorList() iface.IErrorList {
 	return &ErrorList{
 		Errors: []string{},
 	}
+}
+
+func ErrorListFromTextError(err string) iface.IErrorList {
+	return &ErrorList{
+		Errors: []string{err},
+	}
+}
+
+type ErrorList struct {
+	iface.IErrorList `json:"-"`
+	Errors           []string `json:"errors"`
 }
 
 func (el *ErrorList) Merge(errs iface.IErrorList) iface.IErrorList {

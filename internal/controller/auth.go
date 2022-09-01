@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/TheDeveloper10/rem"
 	"net/http"
 	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
@@ -9,70 +10,55 @@ import (
 	"notification-service/internal/util/iface"
 )
 
-type AuthV1Controller interface {
-	HandleToken(http.ResponseWriter, *http.Request)
-	HandleClient(http.ResponseWriter, *http.Request)
+func NewAuthV1Controller(repository repository.IClientRepository) iface.IController {
+	return &basicAuthV1Controller{
+		repository,
+	}
 }
 
 type basicAuthV1Controller struct {
 	repository repository.IClientRepository
 }
 
-func NewAuthV1Controller(repository repository.IClientRepository) AuthV1Controller {
-	return &basicAuthV1Controller{
-		repository,
-	}
+func (boac *basicAuthV1Controller) CreateRoutes(router *rem.Router) {
+	router.
+		NewRoute("/v1/oauth/client").
+		Post(boac.createClient)
+
+	router.
+		NewRoute("/v1/oauth/token").
+		Post(boac.createAccessToken)
 }
 
-func (boac *basicAuthV1Controller) HandleToken(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(res)
-
-	switch req.Method {
-	case http.MethodPost:
-		boac.createAccessToken(brw, req)
-	default:
-		brw.Status(http.StatusMethodNotAllowed)
-	}
-}
-
-func (boac *basicAuthV1Controller) createAccessToken(res iface.IResponseWriter, req *http.Request) {
-	client := layer.ClientInfoMiddleware(boac.repository, res, req)
-	if client == nil {
-		return
-	}
-
-	accessToken := boac.repository.GenerateAccessToken(client)
-	if accessToken == nil {
-		res.Status(http.StatusBadRequest).TextError("Failed to generate a token!")
-		return
-	}
-
-	res.Status(http.StatusOK).Json(*accessToken)
-}
-
-func (boac *basicAuthV1Controller) HandleClient(res http.ResponseWriter, req *http.Request) {
-	brw := util.WrapResponseWriter(res)
-
-	switch req.Method {
-	case http.MethodPost:
-		boac.createClient(brw, req)
-	default:
-		brw.Status(http.StatusMethodNotAllowed)
-	}
-}
-
-func (boac *basicAuthV1Controller) createClient(res iface.IResponseWriter, req *http.Request) {
+func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequest) bool {
 	if !layer.MasterTokenMiddleware(res, req) {
-		return
+		return true
 	}
 
 	reqObj := dto.CreateClientRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
-		return
+		return true
 	}
 
 	clientEntity := reqObj.ToEntity()
 	credentials := boac.repository.CreateClient(clientEntity)
 
-	res.Status(http.StatusCreated).Json(credentials)
+	res.Status(http.StatusCreated).JSON(credentials)
+	return true
+}
+
+func (boac *basicAuthV1Controller) createAccessToken(res rem.IResponse, req rem.IRequest) bool {
+	client := layer.ClientInfoMiddleware(boac.repository, res, req)
+	if client == nil {
+		return true
+	}
+
+	accessToken := boac.repository.GenerateAccessToken(client)
+	if accessToken == nil {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to generate a token!"))
+		return true
+	}
+
+	res.Status(http.StatusOK).JSON(*accessToken)
+	return true
 }

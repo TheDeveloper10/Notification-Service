@@ -35,10 +35,10 @@ func main() {
 	if helper.Config.Service.UseHTTP == "yes" {
 		httpServer := service.HTTPServer{}
 		httpServer.Init(
-			&testV1Controller,
-			&authV1Controller,
-			&templateV1Controller,
-			&notificationV1Controller,
+			testV1Controller,
+			authV1Controller,
+			templateV1Controller,
+			notificationV1Controller,
 		)
 		wg.Add(1)
 		go httpServer.Run()

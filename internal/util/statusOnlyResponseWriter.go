@@ -1,21 +1,31 @@
 package util
 
 import (
-	"notification-service/internal/util/iface"
+	"github.com/TheDeveloper10/rem"
 )
 
 type StatusOnlyResponseWriter struct {
-	iface.IResponseWriter
+	rem.IResponse
 	StatusCode *int
 }
 
-func (sorw *StatusOnlyResponseWriter) Status(statusCode int) iface.IResponseWriter {
+func (sorw *StatusOnlyResponseWriter) Status(statusCode int) rem.IResponse {
 	sorw.StatusCode = &statusCode
 	return sorw
 }
 
-func (sorw *StatusOnlyResponseWriter) Text(text string) iface.IResponseWriter      { return sorw }
-func (sorw *StatusOnlyResponseWriter) Error(err error) iface.IResponseWriter       { return sorw }
-func (sorw *StatusOnlyResponseWriter) TextError(err string) iface.IResponseWriter  { return sorw }
-func (sorw *StatusOnlyResponseWriter) Json(data interface{}) iface.IResponseWriter { return sorw }
-func (sorw *StatusOnlyResponseWriter) Bytes(data []byte) iface.IResponseWriter     { return sorw }
+func (sorw *StatusOnlyResponseWriter) Header(key string, value string) rem.IResponse {
+	return sorw
+}
+
+func (sorw *StatusOnlyResponseWriter) Bytes(data []byte) rem.IResponse {
+	return sorw
+}
+
+func (sorw *StatusOnlyResponseWriter) Text(text string) rem.IResponse {
+	return sorw
+}
+
+func (sorw *StatusOnlyResponseWriter) JSON(data interface{}) rem.IResponse {
+	return sorw
+}

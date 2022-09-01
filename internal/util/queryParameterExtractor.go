@@ -1,14 +1,14 @@
 package util
 
 import (
+	"github.com/TheDeveloper10/rem"
 	"notification-service/internal/util/iface"
 
 	"errors"
-	"net/url"
 	"strconv"
 )
 
-func NewQueryParameterExtractor(values url.Values) iface.IQueryParameterExtractor {
+func NewQueryParameterExtractor(values rem.KeyValues) iface.IQueryParameterExtractor {
 	return &queryParameterExtractor{
 		values: &values,
 	}
@@ -16,7 +16,7 @@ func NewQueryParameterExtractor(values url.Values) iface.IQueryParameterExtracto
 
 type queryParameterExtractor struct {
 	iface.IQueryParameterExtractor
-	values *url.Values
+	values *rem.KeyValues
 }
 
 func (qpe *queryParameterExtractor) GetPositiveInteger(key string, defaultValue int) (*int, error) {
