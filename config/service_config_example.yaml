@@ -1,20 +1,22 @@
 service:
-  use_http: yes
-  use_rabbitmq: yes
+  services:
+    - http
+    - rabbitmq
 
-  use_smtp: yes
-  use_push: yes
-  use_sms: yes
+  clients:
+    - smtp
+    - push
+    - sms
 
   template_cache_size: 1000
 
-# needed only if `use_http` is yes
+# needed only if 'http' is included in `service.services`
 http_server:
   addr: :80
   master_access_token: 4Ox0MfUgDkOuWFi9XAtwTMxe2SuvYcW7VNHbUopJCXvQk6a1aI0biwmfRq7jKMCNh37fiS1dNyo5SOyWyk7qKBD9w02c7BpreJ14qKUty1Rfl2VBzDAULcUpIVAj2ekG
   access_token_expiry_time: 300 # in seconds
 
-# needed only if `use_rabbitmq` is yes
+# needed only if 'rabbitmq' is included in `service.services`
 rabbitmq:
   url: amqp://guest:guest@ns-rabbitmq:5672
   # the maximum amount of requests the service is going to process simultaneously from the respective queue
@@ -30,14 +32,14 @@ database:
   name: TestDatabase
   pool_size: 5
 
-# needed only if `use_smtp` is yes
+# needed only if 'smtp' is included in `service.clients`
 smtp:
   from_email: your-email@gmail.com
   from_password: your-password
   host: smtp.gmail.com
   port: 587
 
-# needed only if `use_sms` is yes
+# needed only if 'sms' is included in `service.clients`
 twillio:
   messaging_service_sid:
   account_sid:

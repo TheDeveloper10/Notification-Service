@@ -17,7 +17,7 @@ func InitializeMailClient() {
 		return
 	}
 
-	if helper.Config.Service.UseSMTP == "yes" {
+	if helper.Config.Service.Clients.Has("smtp") {
 		client := &mailClient{}
 		client.init(helper.Config.SMTP.Host, helper.Config.SMTP.Port, helper.Config.SMTP.FromEmail, helper.Config.SMTP.FromPassword)
 

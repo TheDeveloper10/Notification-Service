@@ -18,7 +18,7 @@ func InitializeSMSClient() {
 		return
 	}
 
-	if helper.Config.Service.UseSMS == "yes" {
+	if helper.Config.Service.Clients.Has("sms") {
 		client := &smsClient{}
 		client.init(helper.Config.Twillio.AccountSID, helper.Config.Twillio.MessagingServiceSID, helper.Config.Twillio.AuthToken)
 

@@ -19,7 +19,7 @@ func InitializePushClient(credentialsFile string) {
 		return
 	}
 
-	if helper.Config.Service.UsePush == "yes" {
+	if helper.Config.Service.Clients.Has("push") {
 		client := &pushClient{}
 		client.init(credentialsFile)
 		PushClient = client

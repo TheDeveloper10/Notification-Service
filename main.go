@@ -32,7 +32,7 @@ func main() {
 	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 
 	// HTTP Server
-	if helper.Config.Service.UseHTTP == "yes" {
+	if helper.Config.Service.Services.Has("http") {
 		httpServer := service.HTTPServer{}
 		httpServer.Init(
 			testV1Controller,
@@ -45,7 +45,7 @@ func main() {
 	}
 
 	// RabbitMQ Listener
-	if helper.Config.Service.UseRabbitMQ == "yes" {
+	if helper.Config.Service.Services.Has("rabbitmq") {
 		rabbitMQListener := service.RabbitMQListener{}
 		rabbitMQListener.Init(&templateV1Controller, &notificationV1Controller)
 		wg.Add(1)
