@@ -40,7 +40,7 @@ func TestBasicAuthV1Controller_CreateClient(t *testing.T) {
 }
 
 func createClientTest(testId int, t *testing.T, body io.Reader, headers map[string]string, statusCode int) {
-	//clientRepository := repository.NewClientRepository(true)
+	//clientRepository := repository.NewMockClientRepository()
 	//bac := NewAuthV1Controller(clientRepository)
 
 	//test.ControllerTest(testId, t, body, headers, statusCode, "POST", bac.HandleClient, "", nil)

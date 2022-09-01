@@ -33,8 +33,8 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 }
 
 func templateByIdTest(testId int, t *testing.T, body io.Reader, headers map[string]string, statusCode int, setUrl bool, method string) {
-	//templateRepository := repository.NewTemplateRepository(true)
-	//clientRepository := repository.NewClientRepository(true)
+	//templateRepository := repository.NewMockTemplateRepository()
+	//clientRepository := repository.NewMockClientRepository()
 	//tac := NewTemplateV1Controller(templateRepository, clientRepository)
 	//
 	//url := ""

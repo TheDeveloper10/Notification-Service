@@ -13,12 +13,16 @@ type ITemplateRepository interface {
 	Delete(id int) bool
 }
 
-func NewTemplateRepository(isMock bool) ITemplateRepository {
-	if isMock {
-		return &impl.MockTemplateRepository{}
-	} else {
-		repo := impl.BasicTemplateRepository{}
-		repo.Init()
-		return &repo
-	}
+// ----------------------------------
+// Template Repository Factories
+// ----------------------------------
+
+func NewTemplateRepository() ITemplateRepository {
+	repo := impl.BasicTemplateRepository{}
+	repo.Init()
+	return &repo
+}
+
+func NewMockTemplateRepository() ITemplateRepository {
+	return &impl.MockTemplateRepository{}
 }

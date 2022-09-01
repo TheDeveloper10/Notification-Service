@@ -28,16 +28,16 @@ func TestBasicTemplateV1Controller_HandleAll(t *testing.T) {
 }
 
 func createTemplateTest(testId int, t *testing.T, body io.Reader, headers map[string]string, statusCode int) {
-	//templateRepository := repository.NewTemplateRepository(true)
-	//clientRepository := repository.NewClientRepository(true)
+	//templateRepository := repository.NewMockTemplateRepository()
+	//clientRepository := repository.NewMockClientRepository()
 	//tac := NewTemplateV1Controller(templateRepository, clientRepository)
 
 	//test.ControllerTest(testId, t, body, headers, statusCode, "POST", tac.HandleAll, "", nil)
 }
 
 func getBulkTemplatesTest(testId int, t *testing.T, headers map[string]string, statusCode int, url string) {
-	//templateRepository := repository.NewTemplateRepository(true)
-	//clientRepository := repository.NewClientRepository(true)
+	//templateRepository := repository.NewMockTemplateRepository()
+	//clientRepository := repository.NewMockClientRepository()
 	//tac := NewTemplateV1Controller(templateRepository, clientRepository)
 
 	//test.ControllerTest(testId, t, nil, headers, statusCode, "GET", tac.HandleAll, url, nil)

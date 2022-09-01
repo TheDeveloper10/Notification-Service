@@ -15,10 +15,14 @@ type INotificationRepository interface {
 	GetBulk(*entity.NotificationFilter) *[]entity.NotificationEntity
 }
 
-func NewNotificationRepository(isMock bool) INotificationRepository {
-	if isMock {
-		return &impl.MockNotificationRepository{}
-	} else {
-		return &impl.BasicNotificationRepository{}
-	}
+// ----------------------------------
+// Notification Repository Factories
+// ----------------------------------
+
+func NewNotificationRepository() INotificationRepository {
+	return &impl.BasicNotificationRepository{}
+}
+
+func NewMockNotificationRepository() INotificationRepository {
+	return &impl.MockNotificationRepository{}
 }

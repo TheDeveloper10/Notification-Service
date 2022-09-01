@@ -1,6 +1,4 @@
-1. Fix routing
-2. Remove isMock
-3. Group boolean configurations together (use_http and use_rabbitmq)
-4. Use Firebase Cloud Messaging bulk sending
-5. Add templates with same placeholders for email/sms/push
-6. Fix ALL unit tests
+1. Group boolean configurations together (use_http and use_rabbitmq)
+2. Use Firebase Cloud Messaging bulk sending
+3. Add templates with same placeholders for email/sms/push
+4. Fix ALL unit tests

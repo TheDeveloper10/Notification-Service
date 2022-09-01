@@ -19,9 +19,9 @@ func main() {
 	client.InitializeSMSClient()
 
 	// Repositories
-	clientRepository := repository.NewClientRepository(false)
-	templateRepository := repository.NewTemplateRepository(false)
-	notificationRepository := repository.NewNotificationRepository(false)
+	clientRepository := repository.NewClientRepository()
+	templateRepository := repository.NewTemplateRepository()
+	notificationRepository := repository.NewNotificationRepository()
 
 	var wg sync.WaitGroup
 

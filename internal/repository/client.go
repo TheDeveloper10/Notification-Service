@@ -12,12 +12,17 @@ type IClientRepository interface {
 	CreateClient(*entity.ClientEntity) *entity.ClientCredentials
 }
 
-func NewClientRepository(isMock bool) IClientRepository {
-	if isMock {
-		return &impl.MockClientRepository{}
-	} else {
-		repo := impl.BasicClientRepository{}
-		repo.Init()
-		return &repo
-	}
+// ----------------------------------
+// Client Repository Factories
+// ----------------------------------
+
+
+func NewClientRepository() IClientRepository {
+	repo := impl.BasicClientRepository{}
+	repo.Init()
+	return &repo
+}
+
+func NewMockClientRepository() IClientRepository {
+	return &impl.MockClientRepository{}
 }

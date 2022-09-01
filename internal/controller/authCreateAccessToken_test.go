@@ -18,7 +18,7 @@ func TestBasicAuthV1Controller_HandleToken(t *testing.T) {
 }
 
 func createAccessTokenTest(testId int, t *testing.T, body io.Reader, headers map[string]string, statusCode int) {
-	//clientRepository := repository.NewClientRepository(true)
+	//clientRepository := repository.NewMockClientRepository()
 	//bac := NewAuthV1Controller(clientRepository)
 
 	//test.ControllerTest(testId, t, body, headers, statusCode, "POST", bac.HandleToken, "", nil)

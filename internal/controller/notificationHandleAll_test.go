@@ -36,9 +36,9 @@ func TestBasicNotificationV1Controller_HandleAll(t *testing.T) {
 }
 
 func notificationsTest(testId int, t *testing.T, body io.Reader, headers map[string]string, statusCode int, method string) {
-	//templateRepository := repository.NewTemplateRepository(true)
-	//notificationRepository := repository.NewNotificationRepository(true)
-	//clientRepository := repository.NewClientRepository(true)
+	//templateRepository := repository.NewMockTemplateRepository()
+	//notificationRepository := repository.NewMockNotificationRepository()
+	//clientRepository := repository.NewMockClientRepository()
 	//tac := NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 
 	//test.ControllerTest(testId, t, body, headers, statusCode, method, tac.HandleAll, "", nil)
