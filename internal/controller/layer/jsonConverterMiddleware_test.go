@@ -3,57 +3,85 @@ package layer
 import (
 	"encoding/json"
 	"net/http"
-	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
-	"strings"
+	"notification-service/internal/util/test"
+	"reflect"
+	"strconv"
 	"testing"
 )
 
-type JsonTestStruct struct {
-	iface.IRequest
-	Id *int `json:"id"`
-	Name *string `json:"string"`
-	Arr []string `json:"arr"`
+type testData struct {
+	Id int `json:"id_2"`
+	Text string `json:"TEXT"`
+	Arr1 []string `json:"ar1r"`
+	Arr2 []int `json:"arr2"`
 }
 
-func Validate(testStruct JsonTestStruct) iface.IErrorList {
+func (td *testData) Validate() iface.IErrorList {
 	return nil
 }
 
 func TestJSONConverterMiddleware(t *testing.T) {
-	id := 0
-	name := "test"
-	arr := []string{"123", "234"}
+	testCases := []test.LayerTestCase{
+		{ http.StatusUnsupportedMediaType, false, nil },
+		{ http.StatusBadRequest, true, nil },
+		{ http.StatusUnsupportedMediaType, false, &testData{Text: "H123I"} },
 
-	PerformJsonConverterMiddlewareTest(0, t, nil, nil)
-	PerformJsonConverterMiddlewareTest(1, t, nil, JsonTestStruct{})
-	PerformJsonConverterMiddlewareTest(2, t, nil, JsonTestStruct{Id: &id})
-	PerformJsonConverterMiddlewareTest(3, t, nil, JsonTestStruct{Name: &name})
-	PerformJsonConverterMiddlewareTest(4, t, nil, JsonTestStruct{Arr: arr})
-	PerformJsonConverterMiddlewareTest(5, t, nil, JsonTestStruct{Id: &id, Name: &name, Arr: arr})
+
+		{ http.StatusOK, true, &testData{} },
+		{ http.StatusOK, true, &testData{Id: 1} },
+		{ http.StatusOK, true, &testData{Text: "H123I"} },
+		{ http.StatusOK, true, &testData{Arr1: []string{} } },
+		{ http.StatusOK, true, &testData{Arr1: []string{""} } },
+		{ http.StatusOK, true, &testData{Arr1: []string{"t1e2s3t"} } },
+		{ http.StatusOK, true, &testData{Arr1: []string{"t1e2s3t", "q2f3w4e5q"} } },
+		{ http.StatusOK, true, &testData{Arr2: []int{} } },
+		{ http.StatusOK, true, &testData{Arr2: []int{1} } },
+		{ http.StatusOK, true, &testData{Arr2: []int{45, 54} } },
+		{ http.StatusOK, true, &testData{Arr2: []int{45, 54, 66} } },
+		{ http.StatusOK, true, &testData{Arr1: []string{"t1e2s3t", "q2f3w4e5q"}, Arr2: []int{45, 54, 66} } },
+	}
+
+	for testId, testCase := range testCases {
+		performJSONConverterMiddlewareTest(t, testId, testCase)
+	}
+
+	//id := 0
+	//name := "test"
+	//arr := []string{"123", "234"}
+	//
+	//PerformJsonConverterMiddlewareTest(0, t, nil, nil)
+	//PerformJsonConverterMiddlewareTest(1, t, nil, JsonTestStruct{})
+	//PerformJsonConverterMiddlewareTest(2, t, nil, JsonTestStruct{Id: &id})
+	//PerformJsonConverterMiddlewareTest(3, t, nil, JsonTestStruct{Name: &name})
+	//PerformJsonConverterMiddlewareTest(4, t, nil, JsonTestStruct{Arr: arr})
+	//PerformJsonConverterMiddlewareTest(5, t, nil, JsonTestStruct{Id: &id, Name: &name, Arr: arr})
 }
 
-func PerformJsonConverterMiddlewareTest(testId int, t *testing.T, headers map[string]string, data iface.IRequest) {
-	dataText, _ := json.Marshal(data)
+func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase test.LayerTestCase) {
+	req, res := testCase.PrepareTest(t)
 
-	req, err := http.NewRequest("POST", "", strings.NewReader(string(dataText)))
-	if helper.IsError(err) {
-		t.Fatal(err.Error())
+	before := ""
+	if testCase.Body != nil {
+		beforeBytes, _ := json.Marshal(testCase.Body)
+		before = string(beforeBytes)
 	}
 
-	if headers != nil {
-		for k, v := range headers {
-			req.Header.Add(k, v)
-		}
+	JSONConverterMiddleware(res, req, testCase.Body)
+	statusCode := reflect.ValueOf(res).Elem().FieldByName("statusCode").Int()
+
+	if testCase.ExpectedStatus != int(statusCode) {
+		t.Error(strconv.Itoa(testId) + ": Status Code of Response is " + strconv.Itoa(int(statusCode)) + " and not " + strconv.Itoa(testCase.ExpectedStatus))
+		return
 	}
 
-	//rec := httptest.NewRecorder()
-	//brw := util.WrapResponseWriter(rec)
-	//
-	//JSONConverterMiddleware(brw, req, data)
-	//dataText2, _ := json.Marshal(data)
-	//
-	//if string(dataText2) != string(dataText) {
-	//	t.Error(strconv.Itoa(testId))
-	//}
+	after := ""
+	if testCase.Body != nil {
+		afterBytes, _ := json.Marshal(testCase.Body)
+		after = string(afterBytes)
+	}
+
+	if after != before {
+		t.Error(strconv.Itoa(testId) + ":   Before: " + before + "   After: " + after)
+	}
 }
