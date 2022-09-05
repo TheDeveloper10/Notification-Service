@@ -9,39 +9,39 @@ import (
 
 type SendNotificationRequest struct {
 	iface.IRequest
-	AppID       *string `json:"appId"`
-	TemplateID  *int    `json:"templateId"`
-	ContactType *string `json:"contactType"`
+	AppID       string `json:"appId"`
+	TemplateID  int    `json:"templateId"`
+	ContactType string `json:"contactType"`
 
 	Targets []NotificationTarget `json:"targets"`
 
-	Title                 *string               `json:"title"`
+	Title                 string               `json:"title"`
 	UniversalPlaceholders []TemplatePlaceholder `json:"universalPlaceholders"`
 }
 
 func (snr *SendNotificationRequest) Validate() iface.IErrorList {
 	errs := util.NewErrorList()
 
-	if snr.TemplateID == nil {
-		errs.AddErrorFromString("'templateId' must be given")
-	} else if (*snr.TemplateID) <= 0 {
+	if snr.TemplateID <= 0 {
 		errs.AddErrorFromString("'templateId' must be greater than 0")
 	}
 
-	err := basicStringValidation("appId", snr.AppID)
+	err := basicStringValidation("appId", &snr.AppID)
 	if err != nil {
 		errs.AddError(err)
 	}
 
-	err = basicStringValidation("title", snr.Title)
+	err = basicStringValidation("title", &snr.Title)
 	if err != nil {
 		errs.AddError(err)
 	}
 
-	err = basicStringValidation("contactType", snr.ContactType)
+	err = basicStringValidation("contactType", &snr.ContactType)
 	if err != nil {
 		errs.AddError(err)
-	} else if (*snr.ContactType) != entity.ContactTypeEmail && (*snr.ContactType) != entity.ContactTypeSMS && (*snr.ContactType) != entity.ContactTypePush {
+	} else if snr.ContactType != entity.ContactTypeEmail &&
+			snr.ContactType != entity.ContactTypeSMS &&
+			snr.ContactType != entity.ContactTypePush {
 		errs.AddErrorFromString("'contactType' must be one of email/push/sms")
 	}
 

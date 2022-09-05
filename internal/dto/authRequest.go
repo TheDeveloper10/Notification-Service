@@ -8,22 +8,22 @@ import (
 
 type AuthRequest struct {
 	iface.IRequestEntity[entity.ClientCredentials]
-	ClientId 	 *string `json:"clientId"`
-	ClientSecret *string `json:"clientSecret"`
+	ClientId 	 string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
 }
 
 func (ar *AuthRequest) Validate() iface.IErrorList {
 	errs := util.NewErrorList()
 
-	if ar.ClientId == nil || len(*ar.ClientId) <= 0 {
+	if ar.ClientId == "" {
 		errs.AddErrorFromString("'clientId' must be given")
-	} else if len(*ar.ClientId) != 16 {
+	} else if len(ar.ClientId) != 16 {
 		errs.AddErrorFromString("'clientId' must be exactly 16 characters long")
 	}
 
-	if ar.ClientSecret == nil || len(*ar.ClientSecret) <= 0 {
+	if ar.ClientSecret == "" {
 		errs.AddErrorFromString("'clientSecret' must be given")
-	} else if len(*ar.ClientSecret) != 128 {
+	} else if len(ar.ClientSecret) != 128 {
 		errs.AddErrorFromString("'clientSecret' must be exactly 128 characters")
 	}
 
@@ -32,7 +32,7 @@ func (ar *AuthRequest) Validate() iface.IErrorList {
 
 func (ar *AuthRequest) ToEntity() *entity.ClientCredentials {
 	return &entity.ClientCredentials{
-		Id: *ar.ClientId,
-		Secret: *ar.ClientSecret,
+		Id:     ar.ClientId,
+		Secret: ar.ClientSecret,
 	}
 }

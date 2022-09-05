@@ -5,61 +5,24 @@ import (
 	"testing"
 )
 
-type SendNotificationRequestTest struct {
-	AppID 	   	   		  string
-	TemplateID     		  int
-	ContactType    		  string
-	Title 				  string
-	ExpectedErrors 		  int
-}
-
 func TestSendNotificationRequest_Validate(t *testing.T) {
-	testCases := []SendNotificationRequestTest {
-		{ "", 0, "", "", 4 },
-		{ "q", 0, "", "", 3 },
-		{ "w", -5, "", "", 3 },
-		{ "w", 5, "", "", 2 },
-		{ "w", 5, "r", "", 2 },
-		{ "w", 5, "email", "", 1 },
-		{ "w", 5, "sms", "", 1 },
-		{ "w", 5, "push", "", 1 },
-		{ "w", 5, "push", "rt", 0 },
+	targets := []NotificationTarget{
+		{ Email: "test@example.com" },
 	}
 
-	RunSendNotificationRequestTest(0, nil, nil, nil, nil, 4, t)
-
-	ranTests := 0
-	for _, testCase := range testCases {
-		ranTests++
-		RunSendNotificationRequestTest(
-			ranTests,
-			&testCase.AppID,
-			&testCase.TemplateID,
-			&testCase.ContactType,
-			&testCase.Title,
-			testCase.ExpectedErrors,
-			t,
-		)
-	}
-}
-
-func RunSendNotificationRequestTest(id int,
-									appID *string,
-									templateID *int,
-									contactType *string,
-									title *string,
-									expectedErrors int, t *testing.T) {
-	m := "test@example.com"
-	req := SendNotificationRequest{
-		AppID: appID,
-		TemplateID: templateID,
-		ContactType: contactType,
-		Title: title,
-		Targets: []NotificationTarget{
-			{Email: &m},
-		},
-		UniversalPlaceholders: []TemplatePlaceholder{},
+	testCases := []test.Case {
+		{ 5, &SendNotificationRequest{}},
+		{ 4, &SendNotificationRequest{Targets: targets}},
+		{ 4, &SendNotificationRequest{ AppID: "", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
+		{ 3, &SendNotificationRequest{ AppID: "q", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
+		{ 3, &SendNotificationRequest{ AppID: "w", TemplateID: -5, ContactType: "", Title: "", Targets: targets } },
+		{ 2, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "", Title: "", Targets: targets } },
+		{ 2, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "r", Title: "", Targets: targets } },
+		{ 1, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "email", Title: "", Targets: targets } },
+		{ 1, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "sms", Title: "", Targets: targets } },
+		{ 1, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "", Targets: targets } },
+		{ 0, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "rt", Targets: targets } },
 	}
 
-	test.RunTest(&req, id, expectedErrors, t)
+	test.RunTestCases(&testCases, t)
 }

@@ -1,50 +1,34 @@
 package dto
 
 import (
+	"notification-service/internal/util"
+	"notification-service/internal/util/iface"
 	"notification-service/internal/util/test"
 	"testing"
 )
 
 type TemplatePlaceholderTest struct {
-	Key 	   	   string
-	Val            string
-	ExpectedErrors int
+	Key string
+	Val string
+}
+
+func (tpt *TemplatePlaceholderTest) Validate() iface.IErrorList {
+	errs := util.NewErrorList()
+	tp := TemplatePlaceholder{
+		Key: tpt.Key,
+		Value: tpt.Val,
+	}
+	errs.AddError(tp.Validate())
+	return errs
 }
 
 func TestTemplatePlaceholder_Validate(t *testing.T) {
-	testCases := []TemplatePlaceholderTest {
-		{ "", "", 1},
-		{ "j", "", 0 },
-		{ "j", "a", 0 },
+	testCases := []test.Case {
+		{ 1, &TemplatePlaceholderTest{} },
+		{ 1, &TemplatePlaceholderTest{"", ""} },
+		{ 0, &TemplatePlaceholderTest{"j", ""} },
+		{ 0, &TemplatePlaceholderTest{"j", "a"} },
 	}
 
-	RunTemplatePlaceholderTest(0, nil, nil, 1, t)
-
-	ranTests := 0
-	for _, testCase := range testCases {
-		ranTests++
-		RunTemplatePlaceholderTest(
-			ranTests,
-			&testCase.Key,
-			&testCase.Val,
-			testCase.ExpectedErrors,
-			t,
-		)
-	}
-}
-
-func RunTemplatePlaceholderTest(id int, key *string, val *string, expectedErrors int, t *testing.T) {
-	req := TemplatePlaceholder{
-		Key: key,
-		Value: val,
-	}
-
-	err := req.Validate()
-	actualErrors := 0
-	if err != nil {
-		actualErrors++
-	}
-	if expectedErrors != actualErrors {
-		test.LogError(id, expectedErrors, actualErrors, t)
-	}
+	test.RunTestCases(&testCases, t)
 }

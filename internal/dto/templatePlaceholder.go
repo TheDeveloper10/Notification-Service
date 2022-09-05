@@ -8,13 +8,13 @@ import (
 )
 
 type TemplatePlaceholder struct {
-	Key   *string `json:"key"`
-	Value *string `json:"val"`
+	Key   string `json:"key"`
+	Value string `json:"val"`
 }
 
 func (tp *TemplatePlaceholder) Validate() error {
-	if tp.Key == nil || len(*tp.Key) <= 0 || tp.Value == nil {
-		return errors.New("'key' and 'val' must be given on each placeholder")
+	if tp.Key == "" {
+		return errors.New("'key' must be given on each placeholder")
 	}
 
 	return nil
@@ -63,8 +63,8 @@ func FillPlaceholders(text string, placeholders *[]TemplatePlaceholder) (*string
 			return nil, err
 		}
 
-		key := "@{" + (*placeholder.Key) + "}"
-		text = strings.ReplaceAll(text, key, *placeholder.Value)
+		key := "@{" + placeholder.Key + "}"
+		text = strings.ReplaceAll(text, key, placeholder.Value)
 	}
 
 	return &text, nil

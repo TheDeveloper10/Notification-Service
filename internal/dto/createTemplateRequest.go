@@ -10,36 +10,36 @@ import (
 
 type CreateTemplateRequest struct {
 	iface.IRequestEntity[entity.TemplateEntity]
-	ContactType *string `json:"contactType"`
-	Template    *string `json:"template"`
-	Language    *string `json:"language"`
-	Type        *string `json:"type"`
+	ContactType string `json:"contactType"`
+	Template    string `json:"template"`
+	Language    string `json:"language"`
+	Type        string `json:"type"`
 }
 
 func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
 	errs := util.NewErrorList()
 
-	if ctr.ContactType == nil {
+	if ctr.ContactType == "" {
 		errs.AddErrorFromString("'contactType' must be given")
-	} else if !validateContactType(ctr.ContactType) {
+	} else if !validateContactType(&ctr.ContactType) {
 		errs.AddErrorFromString("'contactType' must be one of email/sms/push")
 	}
 
-	if ctr.Language == nil || len(*ctr.Language) <= 0 {
+	if ctr.Language == "" {
 		errs.AddErrorFromString("'language' must be given")
-	} else if !validateLanguage(ctr.Language) {
+	} else if !validateLanguage(&ctr.Language) {
 		errs.AddErrorFromString("'language' must be one of " + allowedLanguages)
 	}
 
-	if ctr.Type == nil || len(*ctr.Type) <= 0 {
+	if ctr.Type == "" {
 		errs.AddErrorFromString("'type' must be given")
-	} else if len(*ctr.Type) > 8 {
+	} else if len(ctr.Type) > 8 {
 		errs.AddErrorFromString("'type' must be at max 8 characters long")
 	}
 
-	if ctr.Template == nil {
+	if ctr.Template == "" {
 		errs.AddErrorFromString("'template' must be given")
-	} else if len(*ctr.Template) <= 0 || len(*ctr.Template) > 2048 {
+	} else if len(ctr.Template) > 2048 {
 		errs.AddErrorFromString("'template' must have a length greater than 0 and lesser than 2048")
 	}
 
@@ -48,10 +48,10 @@ func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
 
 func (ctr *CreateTemplateRequest) ToEntity() *entity.TemplateEntity {
 	return &entity.TemplateEntity{
-		ContactType: *ctr.ContactType,
-		Template:    *ctr.Template,
-		Language:    *ctr.Language,
-		Type:        *ctr.Type,
+		ContactType: ctr.ContactType,
+		Template:    ctr.Template,
+		Language:    ctr.Language,
+		Type:        ctr.Type,
 	}
 }
 

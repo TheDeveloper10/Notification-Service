@@ -24,10 +24,10 @@ func (utr *UpdateTemplateRequest) Validate() iface.IErrorList {
 
 func (utr *UpdateTemplateRequest) ToEntity() *entity.TemplateEntity {
 	return &entity.TemplateEntity{
-		Id:          *utr.Id,
-		ContactType: *utr.ContactType,
-		Template:    *utr.Template,
-		Language:    *utr.Language,
-		Type:        *utr.Type,
+		Id:          utr.Id,
+		ContactType: utr.ContactType,
+		Template:    utr.Template,
+		Language:    utr.Language,
+		Type:        utr.Type,
 	}
 }
