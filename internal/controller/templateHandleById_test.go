@@ -28,19 +28,22 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 
 	s := func(str string) *string { return &str }
 
-	urlVariable := "1"
 	testCases := []test.ControllerTestCase{
-		newTestCase(http.MethodGet, urlVariable, nil, nil, http.StatusUnauthorized),
-		newTestCase(http.MethodGet, urlVariable, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(http.MethodGet, urlVariable, nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
+		newTestCase(http.MethodGet, "", nil, nil, http.StatusUnauthorized),
 
-		newTestCase(http.MethodDelete, urlVariable, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(http.MethodDelete, urlVariable, nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
+		newTestCase(http.MethodGet, "1", nil, nil, http.StatusUnauthorized),
+		newTestCase(http.MethodGet, "1", nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(http.MethodGet, "1", nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
+		newTestCase(http.MethodGet, "a", nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusBadRequest),
+		newTestCase(http.MethodGet, "1a", nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusBadRequest),
 
-		newTestCase(http.MethodPut, urlVariable, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(http.MethodDelete, "1", nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(http.MethodDelete, "1", nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
+
+		newTestCase(http.MethodPut, "1", nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase(
 			http.MethodPut,
-			urlVariable,
+			"1",
 			s("{ \"id\": 1, \"contactType\": \"email\", \"template\": \"Hello, @{secondName}\", \"language\": \"EN\", \"type\": \"test2\" }"),
 			map[string]string{
 				"Authentication": "Bearer 13124",
