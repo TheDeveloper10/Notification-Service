@@ -1,3 +1,4 @@
 1. Fix ALL unit tests
 2. Add templates with same placeholders for email/sms/push
 3. Use Firebase Cloud Messaging bulk sending
+4. Add CircleCI to perform the unit tests

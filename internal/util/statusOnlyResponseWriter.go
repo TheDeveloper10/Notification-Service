@@ -14,18 +14,7 @@ func (sorw *StatusOnlyResponseWriter) Status(statusCode int) rem.IResponse {
 	return sorw
 }
 
-func (sorw *StatusOnlyResponseWriter) Header(key string, value string) rem.IResponse {
-	return sorw
-}
-
-func (sorw *StatusOnlyResponseWriter) Bytes(data []byte) rem.IResponse {
-	return sorw
-}
-
-func (sorw *StatusOnlyResponseWriter) Text(text string) rem.IResponse {
-	return sorw
-}
-
-func (sorw *StatusOnlyResponseWriter) JSON(data interface{}) rem.IResponse {
-	return sorw
-}
+func (sorw *StatusOnlyResponseWriter) Header(key string, value string) rem.IResponse { return sorw }
+func (sorw *StatusOnlyResponseWriter) Bytes(data []byte) rem.IResponse { return sorw }
+func (sorw *StatusOnlyResponseWriter) Text(text string) rem.IResponse { return sorw }
+func (sorw *StatusOnlyResponseWriter) JSON(data interface{}) rem.IResponse { return sorw }
