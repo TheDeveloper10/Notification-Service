@@ -14,8 +14,7 @@ type BasicClientRepository struct {
 }
 
 func (bcr *BasicClientRepository) Init() {
-	bcr.sg = &util.StringGenerator{}
-	bcr.sg.Init()
+	bcr.sg = util.NewStringGenerator()
 }
 
 func (bcr *BasicClientRepository) GetClient(credentials *entity.ClientCredentials) *entity.ClientEntity {
@@ -87,8 +86,7 @@ func (bcr *BasicClientRepository) GetClientFromAccessToken(token *entity.AccessT
 }
 
 func (bcr *BasicClientRepository) CreateClient(clientEntity *entity.ClientEntity) *entity.ClientCredentials {
-	sg := util.StringGenerator{}
-	sg.Init()
+	sg := util.NewStringGenerator()
 
 	clientId := sg.GenerateString(16)
 	clientSecret := sg.GenerateString(128)

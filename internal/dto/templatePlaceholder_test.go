@@ -23,12 +23,12 @@ func (tpt *TemplatePlaceholderTest) Validate() iface.IErrorList {
 }
 
 func TestTemplatePlaceholder_Validate(t *testing.T) {
-	testCases := []test.Case {
+	testCases := []test.RequestTestCase{
 		{ 1, &TemplatePlaceholderTest{} },
 		{ 1, &TemplatePlaceholderTest{"", ""} },
 		{ 0, &TemplatePlaceholderTest{"j", ""} },
 		{ 0, &TemplatePlaceholderTest{"j", "a"} },
 	}
 
-	test.RunTestCases(&testCases, t)
+	test.RunRequestTestCases(&testCases, t)
 }

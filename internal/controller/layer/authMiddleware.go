@@ -32,8 +32,8 @@ func ClientInfoMiddleware(clientRepository repository.IClientRepository,
 	keys := strings.Split(string(decodedData), ":")
 
 	reqObj := dto.AuthRequest{
-		ClientId:     &keys[0],
-		ClientSecret: &keys[1],
+		ClientId:     keys[0],
+		ClientSecret: keys[1],
 	}
 
 	client := clientRepository.GetClient(reqObj.ToEntity())

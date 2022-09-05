@@ -3,8 +3,7 @@ package util
 import "testing"
 
 func TestStringGenerator_GenerateString(t *testing.T) {
-	sg := StringGenerator{}
-	sg.Init()
+	sg := NewStringGenerator()
 
 	const lengthOfStringToGenerate = 64
 

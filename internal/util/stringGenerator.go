@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+func NewStringGenerator() *StringGenerator {
+	sg := StringGenerator{}
+	sg.Init()
+	return &sg
+}
+
 type StringGenerator struct {
 	allowedRunes *string
 }

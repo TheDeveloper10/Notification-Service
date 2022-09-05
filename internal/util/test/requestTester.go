@@ -5,18 +5,31 @@ import (
 	"testing"
 )
 
+type RequestTestCase struct {
+	ExpectedErrors int
+	Data iface.IRequest
+}
 
-func RunTest(req iface.IRequest, testId int, expectedErrors int, t *testing.T) {
-	errors := req.Validate()
-	actualErrors := errors.ErrorsCount()
-	if expectedErrors != actualErrors {
-		LogError(testId, expectedErrors, actualErrors, t)
+func (rtc *RequestTestCase) RunTest(testId int, t *testing.T) {
+	errs := rtc.Data.Validate()
+	errCount := 0
+	if errs != nil {
+		errCount = errs.ErrorsCount()
+	}
+	if errCount != rtc.ExpectedErrors {
+		rtc.LogError(testId, errCount, t)
 	}
 }
 
-func LogError(testId int, expected int, actual int, t *testing.T) {
+func (rtc *RequestTestCase) LogError(testId int, actual int, t *testing.T) {
 	t.Errorf(
 		"Error: expected %d errors but got %d on test %d",
-		expected, actual, testId,
+		rtc.ExpectedErrors, actual, testId,
 	)
+}
+
+func RunRequestTestCases(cases *[]RequestTestCase, t *testing.T) {
+	for testId, testCase := range *cases {
+		testCase.RunTest(testId + 1, t)
+	}
 }

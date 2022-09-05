@@ -10,7 +10,7 @@ func TestSendNotificationRequest_Validate(t *testing.T) {
 		{ Email: "test@example.com" },
 	}
 
-	testCases := []test.Case {
+	testCases := []test.RequestTestCase{
 		{ 5, &SendNotificationRequest{}},
 		{ 4, &SendNotificationRequest{Targets: targets}},
 		{ 4, &SendNotificationRequest{ AppID: "", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
@@ -24,5 +24,5 @@ func TestSendNotificationRequest_Validate(t *testing.T) {
 		{ 0, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "rt", Targets: targets } },
 	}
 
-	test.RunTestCases(&testCases, t)
+	test.RunRequestTestCases(&testCases, t)
 }

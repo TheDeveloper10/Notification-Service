@@ -3,26 +3,23 @@ package controller
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
-	"notification-service/internal/helper"
 	"notification-service/internal/repository"
 	"notification-service/internal/util/test"
 	"testing"
 )
 
-func TestBasicAuthV1Controller_CreateClient(t *testing.T) {
-	// TODO: fix this path*
-	helper.LoadConfig("../../" + helper.ServiceConfigPath)
-
+func TestBasicTemplateV1Controller_Create(t *testing.T) {
+	templateRepository := repository.NewMockTemplateRepository()
 	clientRepository := repository.NewMockClientRepository()
-	bac := NewAuthV1Controller(clientRepository)
+	tac := NewTemplateV1Controller(templateRepository, clientRepository)
 	router := rem.NewRouter()
-	bac.CreateRoutes(router)
+	tac.CreateRoutes(router)
 
 	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
 		return test.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodPost,
-			ReqURL:          "/v1/oauth/client",
+			ReqURL:          "/v1/templates",
 			ReqHeaders:      reqHeaders,
 			ReqBody:         reqBody,
 			ExpectedStatus:  expectedStatusCode,
@@ -33,24 +30,14 @@ func TestBasicAuthV1Controller_CreateClient(t *testing.T) {
 
 	testCases := []test.ControllerTestCase{
 		newTestCase(nil, nil, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authentication": "Basic test:13124" }, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authentication": "Bearer 1234" }, http.StatusForbidden),
+		newTestCase(nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase(
-			s("{}"),
+			s("{ \"contactType\": \"email\", \"template\": \"Hi @{firstName}\", \"language\": \"EN\", \"Type\": \"test\" }"),
 			map[string]string{
-				"Authentication": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
+				"Authentication": "Bearer 1234",
 				"Content-Type": "application/json",
 			},
-			http.StatusCreated,
-		),
-		newTestCase(
-			s("{ \"permissions\": [ \"read_templates\" ] }"),
-			map[string]string{
-				"Authentication": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
-				"Content-Type": "application/json",
-			},
-			http.StatusCreated,
-		),
+			http.StatusCreated),
 	}
 
 	test.RunControllerTestCases(&testCases, t)

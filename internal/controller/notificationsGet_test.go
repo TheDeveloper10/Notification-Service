@@ -3,36 +3,35 @@ package controller
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
-	"notification-service/internal/helper"
 	"notification-service/internal/repository"
 	"notification-service/internal/util/test"
+
 	"testing"
 )
 
-func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
-	helper.LoadConfig("../../" + helper.ServiceConfigPath)
-
+func TestBasicNotificationV1Controller_Get(t *testing.T) {
+	templateRepository := repository.NewMockTemplateRepository()
+	notificationRepository := repository.NewMockNotificationRepository()
 	clientRepository := repository.NewMockClientRepository()
-	bac := NewAuthV1Controller(clientRepository)
+	tac := NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 	router := rem.NewRouter()
-	bac.CreateRoutes(router)
+	tac.CreateRoutes(router)
 
 	newTestCase := func(reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
 		return test.ControllerTestCase{
-			Router: router,
-			ReqMethod: http.MethodPost,
-			ReqURL: "/v1/oauth/token",
-			ReqHeaders: reqHeaders,
-			ReqBody: nil,
-			ExpectedStatus: expectedStatusCode,
+			Router:          router,
+			ReqMethod:       http.MethodGet,
+			ReqURL:          "/v1/notifications",
+			ReqHeaders:      reqHeaders,
+			ReqBody:         nil,
+			ExpectedStatus:  expectedStatusCode,
 		}
 	}
 
 	testCases := []test.ControllerTestCase{
 		newTestCase(nil, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Bearer 13124" }, http.StatusUnauthorized),
 		newTestCase(map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Basic aWQ6c2VjcmV0" }, http.StatusOK),
+		newTestCase(map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
 	}
 
 	test.RunControllerTestCases(&testCases, t)

@@ -6,7 +6,7 @@ import (
 )
 
 func TestTemplateIdRequest_Validate(t *testing.T) {
-	testCases := []test.Case {
+	testCases := []test.RequestTestCase{
 		{ 1, &TemplateIdRequest{} },
 		{ 1, &TemplateIdRequest{Id: 0} },
 		{ 1, &TemplateIdRequest{Id: -1} },
@@ -14,5 +14,5 @@ func TestTemplateIdRequest_Validate(t *testing.T) {
 		{ 0, &TemplateIdRequest{Id: 15250} },
 	}
 
-	test.RunTestCases(&testCases, t)
+	test.RunRequestTestCases(&testCases, t)
 }

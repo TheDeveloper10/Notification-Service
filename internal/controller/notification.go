@@ -60,6 +60,10 @@ func (bnc *basicNotificationV1Controller) getBulk(res rem.IResponse, req rem.IRe
 	// GET /notifications?templateId=45
 	// GET /notifications?startTime=17824254
 	// GET /notifications?endTime=17824254
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionReadSentNotifications) {
+		return true
+	}
+
 	filter := entity.NotificationFilterFromRequest(req, res)
 	if filter == nil {
 		return true
@@ -78,6 +82,10 @@ func (bnc *basicNotificationV1Controller) getBulk(res rem.IResponse, req rem.IRe
 }
 
 func (bnc *basicNotificationV1Controller) send(res rem.IResponse, req rem.IRequest) bool {
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionSendNotifications) {
+		return true
+	}
+
 	reqObj := dto.SendNotificationRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
@@ -88,7 +96,7 @@ func (bnc *basicNotificationV1Controller) send(res rem.IResponse, req rem.IReque
 }
 
 func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificationRequest, res rem.IResponse) {
-	templateEntity, status := bnc.templateRepository.Get(*reqObj.TemplateID)
+	templateEntity, status := bnc.templateRepository.Get(reqObj.TemplateID)
 	if status == 1 {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Something was wrong with the database. Try again"))
 		return
@@ -97,7 +105,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 		return
 	}
 
-	if templateEntity.ContactType != *reqObj.ContactType {
+	if templateEntity.ContactType != reqObj.ContactType {
 		res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError("'contactType' should be '" + templateEntity.ContactType + "' in order to use this template"))
 		return
 	}
@@ -151,9 +159,9 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 		}
 
 		notificationEntity := entity.NotificationEntity{
-			TemplateID:  *reqObj.TemplateID,
-			AppID:       *reqObj.AppID,
-			Title:       *reqObj.Title,
+			TemplateID:  reqObj.TemplateID,
+			AppID:       reqObj.AppID,
+			Title:       reqObj.Title,
 			ContactInfo: *target.GetContactInfo(),
 			Message:     *specificText,
 		}

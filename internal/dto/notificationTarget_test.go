@@ -27,7 +27,7 @@ func (ntt *NotificationTargetTest) Validate() iface.IErrorList {
 }
 
 func TestNotificationTarget_Validate(t *testing.T) {
-	testCases := []test.Case{
+	testCases := []test.RequestTestCase{
 		{1, &NotificationTargetTest{}},
 		{1, &NotificationTargetTest{ContactType: "", Email: "", PhoneNumber: "", FCMRegistrationToken: ""}},
 		{1, &NotificationTargetTest{ContactType: "email", Email: "john", PhoneNumber: "", FCMRegistrationToken: ""}},
@@ -40,5 +40,5 @@ func TestNotificationTarget_Validate(t *testing.T) {
 		{0, &NotificationTargetTest{ContactType: "push", Email: "", PhoneNumber: "", FCMRegistrationToken: "PIAHgfousdghouewht"}},
 	}
 
-	test.RunTestCases(&testCases, t)
+	test.RunRequestTestCases(&testCases, t)
 }

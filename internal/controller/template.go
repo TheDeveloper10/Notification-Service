@@ -160,7 +160,7 @@ func (btc *basicTemplateV1Controller) updateById(res rem.IResponse, req rem.IReq
 		return true
 	}
 
-	reqObj := dto.UpdateTemplateRequest{TemplateIdRequest: dto.TemplateIdRequest{Id: &templateId}}
+	reqObj := dto.UpdateTemplateRequest{TemplateIdRequest: dto.TemplateIdRequest{Id: templateId}}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
 	}

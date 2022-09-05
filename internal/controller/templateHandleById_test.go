@@ -1,47 +1,54 @@
 package controller
 
 import (
-	"io"
+	"github.com/TheDeveloper10/rem"
 	"net/http"
-	"strings"
+	"notification-service/internal/repository"
+	"notification-service/internal/util/test"
 	"testing"
 )
 
 func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
-	templateByIdTest(0, t, nil, nil, http.StatusBadRequest, false, "GET")
-	templateByIdTest(1, t, nil, nil, http.StatusUnauthorized, true, "GET")
+	templateRepository := repository.NewMockTemplateRepository()
+	clientRepository := repository.NewMockClientRepository()
+	tac := NewTemplateV1Controller(templateRepository, clientRepository)
+	router := rem.NewRouter()
+	tac.CreateRoutes(router)
 
-	templateByIdTest(2, t, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized, true, "GET")
-	templateByIdTest(3, t, nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK, true, "GET")
+	newTestCase := func(reqMethod string, reqURLVariable string, reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
+		return test.ControllerTestCase{
+			Router:          router,
+			ReqMethod:       reqMethod,
+			ReqURL:          "/v1/templates/" + reqURLVariable,
+			ReqHeaders:      reqHeaders,
+			ReqBody:         reqBody,
+			ExpectedStatus:  expectedStatusCode,
+		}
+	}
 
-	templateByIdTest(4, t, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized, true, "DELETE")
-	templateByIdTest(5, t, nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK, true, "DELETE")
+	s := func(str string) *string { return &str }
 
-	templateByIdTest(6, t, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized, true, "PUT")
-	templateByIdTest(
-		7,
-		t,
-		strings.NewReader("{ \"id\": 1, \"contactType\": \"email\", \"template\": \"Hello, @{secondName}\", \"language\": \"EN\", \"type\": \"test2\" }"),
-		map[string]string{
-			"Authentication": "Bearer 13124",
-			"Content-Type": "application/json",
-		},
-		http.StatusOK,
-		true,
-		"PUT",
-		)
-}
+	urlVariable := "1"
+	testCases := []test.ControllerTestCase{
+		newTestCase(http.MethodGet, urlVariable, nil, nil, http.StatusUnauthorized),
+		newTestCase(http.MethodGet, urlVariable, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(http.MethodGet, urlVariable, nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
 
-func templateByIdTest(testId int, t *testing.T, body io.Reader, headers map[string]string, statusCode int, setUrl bool, method string) {
-	//templateRepository := repository.NewMockTemplateRepository()
-	//clientRepository := repository.NewMockClientRepository()
-	//tac := NewTemplateV1Controller(templateRepository, clientRepository)
-	//
-	//url := ""
-	//urlVars := map[string]string{}
-	//if setUrl {
-	//	url = "/v1/templates/"
-	//	urlVars["templateId"] = "1"
-	//}
-	//test.ControllerTest(testId, t, body, headers, statusCode, method, tac.HandleById, url, urlVars)
+		newTestCase(http.MethodDelete, urlVariable, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(http.MethodDelete, urlVariable, nil, map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
+
+		newTestCase(http.MethodPut, urlVariable, nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(
+			http.MethodPut,
+			urlVariable,
+			s("{ \"id\": 1, \"contactType\": \"email\", \"template\": \"Hello, @{secondName}\", \"language\": \"EN\", \"type\": \"test2\" }"),
+			map[string]string{
+				"Authentication": "Bearer 13124",
+				"Content-Type": "application/json",
+			},
+			http.StatusOK,
+		),
+	}
+
+	test.RunControllerTestCases(&testCases, t)
 }

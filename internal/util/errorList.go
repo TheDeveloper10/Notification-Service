@@ -25,6 +25,9 @@ func (el *ErrorList) Merge(errs iface.IErrorList) iface.IErrorList {
 }
 
 func (el *ErrorList) AddError(err error) iface.IErrorList {
+	if err == nil {
+		return el
+	}
 	el.AddErrorFromString(err.Error())
 	return el
 }

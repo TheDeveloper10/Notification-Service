@@ -6,7 +6,7 @@ import (
 )
 
 func TestCreateTemplateRequest_Validate(t *testing.T) {
-	testCases := []test.Case {
+	testCases := []test.RequestTestCase{
 		{ 4, &CreateTemplateRequest{} },
 		{ 4, &CreateTemplateRequest{ContactType: "", Template: "", Language: "", Type: "" } },
 		{ 4, &CreateTemplateRequest{ContactType: "john", Template: "", Language: "", Type: "" } },
@@ -17,5 +17,5 @@ func TestCreateTemplateRequest_Validate(t *testing.T) {
 		{ 0, &CreateTemplateRequest{ContactType: "email", Template: "1", Language: "EN", Type: "type" } },
 	}
 
-	test.RunTestCases(&testCases, t)
+	test.RunRequestTestCases(&testCases, t)
 }

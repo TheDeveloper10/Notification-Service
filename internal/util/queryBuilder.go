@@ -11,7 +11,7 @@ import (
 
 func NewQueryBuilder(queryCore string) iface.IQueryBuilder {
 	qb := queryBuilder{}
-	qb.initialize(&queryCore)
+	qb.init(&queryCore)
 	return &qb
 }
 
@@ -22,7 +22,7 @@ type queryBuilder struct {
 	placeholderValues *[]any
 }
 
-func (qb *queryBuilder) initialize(queryCore *string) {
+func (qb *queryBuilder) init(queryCore *string) {
 	loweredQuery := strings.ToLower(*queryCore)
 
 	if strings.Contains(loweredQuery, " where ") || strings.Contains(loweredQuery, " limit ") || strings.Contains(loweredQuery, " offset ") {

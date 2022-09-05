@@ -1,48 +1,59 @@
 package test
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/TheDeveloper10/rem"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"notification-service/internal/helper"
 	"strconv"
+	"strings"
 	"testing"
 )
 
-func ControllerTest(
-		testId int,
-		t *testing.T,
-		body io.Reader,
-		headers map[string]string,
-		statusCode int,
-		method string,
-		ctrl func(http.ResponseWriter, *http.Request),
-		url string,
-		urlVars map[string]string,
-	) {
-	req, err := http.NewRequest(method, url, body)
+// Controller Test Case
+
+type ControllerTestCase struct {
+	Router *rem.Router
+
+	ReqMethod 		string
+	ReqURL 			string
+	ReqHeaders 		map[string]string
+	ReqBody 		*string
+
+	ExpectedStatus int
+}
+
+func (ctc *ControllerTestCase) RunTest(testId int, t *testing.T) {
+	var body io.Reader = nil
+	if ctc.ReqBody != nil {
+		body = strings.NewReader(*ctc.ReqBody)
+	}
+
+	req, err := http.NewRequest(ctc.ReqMethod, ctc.ReqURL, body)
 	if helper.IsError(err) {
 		t.Fatal(err.Error())
 	}
 
-	if urlVars != nil {
-		req = mux.SetURLVars(req, urlVars)
-	}
-
-	if headers != nil {
-		for k, v := range headers {
+	if ctc.ReqHeaders != nil {
+		for k, v := range ctc.ReqHeaders {
 			req.Header.Add(k, v)
 		}
 	}
 
 	rec := httptest.NewRecorder()
 
-	ctrl(rec, req)
+	ctc.Router.ServeHTTP(rec, req)
 
 	res := rec.Result()
 
-	if res.StatusCode != statusCode {
-		t.Error(strconv.Itoa(testId) + ": Status Code of Response is " + strconv.Itoa(res.StatusCode) + " and not " + strconv.Itoa(statusCode))
+	if res.StatusCode != ctc.ExpectedStatus {
+		t.Error(strconv.Itoa(testId) + ": Status Code of Response is " + strconv.Itoa(res.StatusCode) + " and not " + strconv.Itoa(ctc.ExpectedStatus))
+	}
+}
+
+func RunControllerTestCases(cases *[]ControllerTestCase, t *testing.T) {
+	for testId, testCase := range *cases {
+		testCase.RunTest(testId + 1, t)
 	}
 }

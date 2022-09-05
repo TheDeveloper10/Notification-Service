@@ -33,7 +33,7 @@ func JSONConverterMiddleware(res rem.IResponse, req rem.IRequest, out iface.IReq
 	}
 
 	errs := out.Validate()
-	if errs.ErrorsCount() > 0 {
+	if errs != nil && errs.ErrorsCount() > 0 {
 		res.Status(http.StatusBadRequest).JSON(errs)
 		return false
 	}
