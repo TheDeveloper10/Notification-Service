@@ -1,5 +1,6 @@
 1. Add templates with same placeholders for email/sms/push
 
+2. Add patch and delete operations to /v1/oauth/client
 2. Improve docs
 3. Use Firebase Cloud Messaging bulk sending
 4. Create a Docker Image

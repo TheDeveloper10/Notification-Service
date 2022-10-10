@@ -43,7 +43,11 @@ func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequ
 	clientEntity := reqObj.ToEntity()
 	credentials := boac.repository.CreateClient(clientEntity)
 
-	res.Status(http.StatusCreated).JSON(credentials)
+	if credentials == nil {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to create user!"))
+	} else {
+		res.Status(http.StatusCreated).JSON(credentials)
+	}
 	return true
 }
 
