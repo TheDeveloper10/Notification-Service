@@ -31,9 +31,11 @@ type config struct {
 		AccessTokenExpiryTime int    `yaml:"access_token_expiry_time"`
 	} `yaml:"http_server"`
 	RabbitMQ struct {
-		URL                   string
-		TemplatesQueueMax     int `yaml:"templates_queue_max"`
-		NotificationsQueueMax int `yaml:"notifications_queue_max"`
+		URL                    string
+		TemplatesQueueName     string `yaml:"templates_queue_name"`
+		TemplatesQueueMax      int 	  `yaml:"templates_queue_max"`
+		NotificationsQueueName string `yaml:"notifications_queue_name"`
+		NotificationsQueueMax  int 	  `yaml:"notifications_queue_max"`
 	}
 	Database struct {
 		Driver   string

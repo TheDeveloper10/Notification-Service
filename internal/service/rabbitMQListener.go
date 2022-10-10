@@ -43,12 +43,12 @@ func (l *RabbitMQListener) Close() {
 
 func (l *RabbitMQListener) Run() {
 	l.handleQueue(
-		"templates",
+		helper.Config.RabbitMQ.TemplatesQueueName,
 		(*l.templateController).CreateTemplateFromBytes,
 		helper.Config.RabbitMQ.TemplatesQueueMax,
 	)
 	l.handleQueue(
-		"notifications",
+		helper.Config.RabbitMQ.NotificationsQueueName,
 		(*l.notificationController).CreateNotificationFromBytes,
 		helper.Config.RabbitMQ.NotificationsQueueMax,
 	)

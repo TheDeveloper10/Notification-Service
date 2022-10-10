@@ -20,7 +20,9 @@ http_server:
 rabbitmq:
   url: amqp://guest:guest@ns-rabbitmq:5672
   # the maximum amount of requests the service is going to process simultaneously from the respective queue
+  templates_queue_name: templates
   templates_queue_max: 20
+  notifications_queue_name: notifications
   notifications_queue_max: 200
 
 # required

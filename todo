@@ -1,6 +1,4 @@
-1. Add CircleCI to perform the unit tests
-2. RabbitMQ names should be configurable
-3. Add templates with same placeholders for email/sms/push
+1. Add templates with same placeholders for email/sms/push
 
-4. Use Firebase Cloud Messaging bulk sending
-5. Create a Docker Image
+2. Use Firebase Cloud Messaging bulk sending
+3. Create a Docker Image
