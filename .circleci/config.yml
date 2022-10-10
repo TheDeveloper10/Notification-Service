@@ -1,0 +1,33 @@
+version: 2.1
+
+jobs:
+  "test":
+    parameters:
+      version:
+        type: string
+        default: "1.18"
+    docker:
+      - image: "cimg/go:<< parameters.version >>"
+    working_directory: ~/Notification-Service
+    steps:
+      - checkout
+      - run:
+          name: "Print go version"
+          command: go version
+      - run:
+          name: "Fetch dependencies"
+          command: go get -v ./...
+      - run:
+          name: "Run go build"
+          command: go build .
+      - run:
+          name: "Run go vet"
+          command: go vet -v ./...
+      - run:
+          name: "Run go test (+ race detector)"
+          command: go test -v -race ./...
+
+workflows:
+  tests:
+    jobs:
+      - test
