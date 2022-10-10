@@ -45,17 +45,6 @@ func TestJSONConverterMiddleware(t *testing.T) {
 	for testId, testCase := range testCases {
 		performJSONConverterMiddlewareTest(t, testId, testCase)
 	}
-
-	//id := 0
-	//name := "test"
-	//arr := []string{"123", "234"}
-	//
-	//PerformJsonConverterMiddlewareTest(0, t, nil, nil)
-	//PerformJsonConverterMiddlewareTest(1, t, nil, JsonTestStruct{})
-	//PerformJsonConverterMiddlewareTest(2, t, nil, JsonTestStruct{Id: &id})
-	//PerformJsonConverterMiddlewareTest(3, t, nil, JsonTestStruct{Name: &name})
-	//PerformJsonConverterMiddlewareTest(4, t, nil, JsonTestStruct{Arr: arr})
-	//PerformJsonConverterMiddlewareTest(5, t, nil, JsonTestStruct{Id: &id, Name: &name, Arr: arr})
 }
 
 func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase test.LayerTestCase) {
