@@ -30,11 +30,11 @@ func TestBasicTemplateV1Controller_Create(t *testing.T) {
 
 	testCases := []test.ControllerTestCase{
 		newTestCase(nil, nil, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(nil, map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase(
 			s("{ \"contactType\": \"email\", \"template\": \"Hi @{firstName}\", \"language\": \"EN\", \"Type\": \"test\" }"),
 			map[string]string{
-				"Authentication": "Bearer 1234",
+				"Authorization": "Bearer 1234",
 				"Content-Type": "application/json",
 			},
 			http.StatusCreated),

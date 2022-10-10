@@ -30,8 +30,8 @@ func TestBasicNotificationV1Controller_Get(t *testing.T) {
 
 	testCases := []test.ControllerTestCase{
 		newTestCase(nil, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Bearer 13124" }, http.StatusOK),
+		newTestCase(map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
 	}
 
 	test.RunControllerTestCases(&testCases, t)

@@ -16,7 +16,7 @@ import (
 func ClientInfoMiddleware(clientRepository repository.IClientRepository,
 						res rem.IResponse,
 						req rem.IRequest) *entity.ClientEntity {
-	header := req.GetHeaders().Get("Authentication")
+	header := req.GetHeaders().Get("Authorization")
 	if header == "" || len(header) < len("Basic ") {
 		res.Status(http.StatusUnauthorized).JSON(util.ErrorListFromTextError("You must provide a Client ID and a Client Secret!"))
 		return nil
@@ -49,9 +49,9 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 						res rem.IResponse,
 						req rem.IRequest,
 						permission int64) bool {
-	header := req.GetHeaders().Get("Authentication")
+	header := req.GetHeaders().Get("Authorization")
 	if header == "" || !strings.HasPrefix(header, "Bearer ") {
-		res.Status(http.StatusUnauthorized).JSON(util.ErrorListFromTextError("You must provide an Access Token via Bearer authentication!"))
+		res.Status(http.StatusUnauthorized).JSON(util.ErrorListFromTextError("You must provide an Access Token via Bearer authorization!"))
 		return false
 	}
 	token := header[len("Bearer "):]
@@ -78,9 +78,9 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 // TODO: Perhaps move "Master Token" to be an Access Token with no Expiry Time (null or MAX_INT) 
 //       and add a new permission to create clients
 func MasterTokenMiddleware(res rem.IResponse, req rem.IRequest) bool {
-	header := req.GetHeaders().Get("Authentication")
+	header := req.GetHeaders().Get("Authorization")
 	if header == "" || !strings.HasPrefix(header, "Bearer ") {
-		res.Status(http.StatusUnauthorized).JSON(util.ErrorListFromTextError("You must provide an Access Token via Bearer authentication!"))
+		res.Status(http.StatusUnauthorized).JSON(util.ErrorListFromTextError("You must provide an Access Token via Bearer authorization!"))
 		return false
 	}
 	token := header[len("Bearer "):]

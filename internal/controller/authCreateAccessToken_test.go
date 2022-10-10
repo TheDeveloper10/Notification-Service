@@ -30,9 +30,9 @@ func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
 
 	testCases := []test.ControllerTestCase{
 		newTestCase(nil, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Bearer 13124" }, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authentication": "Basic aWQ6c2VjcmV0" }, http.StatusOK),
+		newTestCase(map[string]string{ "Authorization": "Bearer 13124" }, http.StatusUnauthorized),
+		newTestCase(map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
+		newTestCase(map[string]string{ "Authorization": "Basic aWQ6c2VjcmV0" }, http.StatusOK),
 	}
 
 	test.RunControllerTestCases(&testCases, t)

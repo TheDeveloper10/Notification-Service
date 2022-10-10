@@ -33,12 +33,12 @@ func TestBasicAuthV1Controller_CreateClient(t *testing.T) {
 
 	testCases := []test.ControllerTestCase{
 		newTestCase(nil, nil, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authentication": "Basic test:13124" }, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authentication": "Bearer 1234" }, http.StatusForbidden),
+		newTestCase(nil, map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
+		newTestCase(nil, map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
 		newTestCase(
 			s("{}"),
 			map[string]string{
-				"Authentication": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
+				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",
 			},
 			http.StatusCreated,
@@ -46,7 +46,7 @@ func TestBasicAuthV1Controller_CreateClient(t *testing.T) {
 		newTestCase(
 			s("{ \"permissions\": [ \"read_templates\" ] }"),
 			map[string]string{
-				"Authentication": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
+				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",
 			},
 			http.StatusCreated,

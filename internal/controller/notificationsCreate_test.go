@@ -40,7 +40,7 @@ func TestBasicNotificationV1Controller_Create(t *testing.T) {
 			" \"placeholders\": [ { \"key\": \"firstName\", \"val\": \"John\" } ]" +
 			"} ] }"),
 			map[string]string{
-				"Authentication": "Bearer 13124",
+				"Authorization": "Bearer 13124",
 				"Content-Type": "application/json",
 			},
 			http.StatusCreated),

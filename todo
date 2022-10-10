@@ -1,4 +1,5 @@
 1. Add templates with same placeholders for email/sms/push
 
-2. Use Firebase Cloud Messaging bulk sending
-3. Create a Docker Image
+2. Improve docs
+3. Use Firebase Cloud Messaging bulk sending
+4. Create a Docker Image
