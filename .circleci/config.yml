@@ -25,8 +25,8 @@ jobs:
           command: go vet -v ./...
       - run:
           name: "Run go test (+ race detector)"
-          command: >
-            cp ./config/service_config_example.yaml ./config/service_config.yaml && \
+          command: |
+            cp ./config/service_config_example.yaml ./config/service_config.yaml
             go test -v -race ./...
 
 workflows:
