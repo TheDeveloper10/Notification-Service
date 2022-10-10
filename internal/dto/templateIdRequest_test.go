@@ -7,11 +7,11 @@ import (
 
 func TestTemplateIdRequest_Validate(t *testing.T) {
 	testCases := []test.RequestTestCase{
-		{ 1, &TemplateIdRequest{} },
-		{ 1, &TemplateIdRequest{Id: 0} },
-		{ 1, &TemplateIdRequest{Id: -1} },
-		{ 1, &TemplateIdRequest{Id: -15250} },
-		{ 0, &TemplateIdRequest{Id: 15250} },
+		{ ExpectedErrors: 1, Data: &TemplateIdRequest{} },
+		{ ExpectedErrors: 1, Data: &TemplateIdRequest{Id: 0} },
+		{ ExpectedErrors: 1, Data: &TemplateIdRequest{Id: -1} },
+		{ ExpectedErrors: 1, Data: &TemplateIdRequest{Id: -15250} },
+		{ ExpectedErrors: 0, Data: &TemplateIdRequest{Id: 15250} },
 	}
 
 	test.RunRequestTestCases(&testCases, t)

@@ -23,23 +23,23 @@ func (td *testData) Validate() iface.IErrorList {
 
 func TestJSONConverterMiddleware(t *testing.T) {
 	testCases := []test.LayerTestCase{
-		{ http.StatusUnsupportedMediaType, false, nil },
-		{ http.StatusBadRequest, true, nil },
-		{ http.StatusUnsupportedMediaType, false, &testData{Text: "H123I"} },
+		{ ExpectedStatus: http.StatusUnsupportedMediaType, SetHeader: false, Body: nil },
+		{ ExpectedStatus: http.StatusBadRequest, SetHeader: true, Body: nil },
+		{ ExpectedStatus: http.StatusUnsupportedMediaType, SetHeader: false, Body: &testData{Text: "H123I"} },
 
 
-		{ http.StatusOK, true, &testData{} },
-		{ http.StatusOK, true, &testData{Id: 1} },
-		{ http.StatusOK, true, &testData{Text: "H123I"} },
-		{ http.StatusOK, true, &testData{Arr1: []string{} } },
-		{ http.StatusOK, true, &testData{Arr1: []string{""} } },
-		{ http.StatusOK, true, &testData{Arr1: []string{"t1e2s3t"} } },
-		{ http.StatusOK, true, &testData{Arr1: []string{"t1e2s3t", "q2f3w4e5q"} } },
-		{ http.StatusOK, true, &testData{Arr2: []int{} } },
-		{ http.StatusOK, true, &testData{Arr2: []int{1} } },
-		{ http.StatusOK, true, &testData{Arr2: []int{45, 54} } },
-		{ http.StatusOK, true, &testData{Arr2: []int{45, 54, 66} } },
-		{ http.StatusOK, true, &testData{Arr1: []string{"t1e2s3t", "q2f3w4e5q"}, Arr2: []int{45, 54, 66} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{} },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Id: 1} },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Text: "H123I"} },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr1: []string{} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr1: []string{""} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr1: []string{"t1e2s3t"} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr1: []string{"t1e2s3t", "q2f3w4e5q"} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr2: []int{} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr2: []int{1} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr2: []int{45, 54} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr2: []int{45, 54, 66} } },
+		{ ExpectedStatus: http.StatusOK, SetHeader: true, Body: &testData{Arr1: []string{"t1e2s3t", "q2f3w4e5q"}, Arr2: []int{45, 54, 66} } },
 	}
 
 	for testId, testCase := range testCases {

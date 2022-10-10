@@ -11,17 +11,17 @@ func TestSendNotificationRequest_Validate(t *testing.T) {
 	}
 
 	testCases := []test.RequestTestCase{
-		{ 5, &SendNotificationRequest{}},
-		{ 4, &SendNotificationRequest{Targets: targets}},
-		{ 4, &SendNotificationRequest{ AppID: "", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
-		{ 3, &SendNotificationRequest{ AppID: "q", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
-		{ 3, &SendNotificationRequest{ AppID: "w", TemplateID: -5, ContactType: "", Title: "", Targets: targets } },
-		{ 2, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "", Title: "", Targets: targets } },
-		{ 2, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "r", Title: "", Targets: targets } },
-		{ 1, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "email", Title: "", Targets: targets } },
-		{ 1, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "sms", Title: "", Targets: targets } },
-		{ 1, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "", Targets: targets } },
-		{ 0, &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "rt", Targets: targets } },
+		{ ExpectedErrors: 5, Data: &SendNotificationRequest{}},
+		{ ExpectedErrors: 4, Data: &SendNotificationRequest{Targets: targets}},
+		{ ExpectedErrors: 4, Data: &SendNotificationRequest{ AppID: "", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
+		{ ExpectedErrors: 3, Data: &SendNotificationRequest{ AppID: "q", TemplateID: 0, ContactType: "", Title: "", Targets: targets } },
+		{ ExpectedErrors: 3, Data: &SendNotificationRequest{ AppID: "w", TemplateID: -5, ContactType: "", Title: "", Targets: targets } },
+		{ ExpectedErrors: 2, Data: &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "", Title: "", Targets: targets } },
+		{ ExpectedErrors: 2, Data: &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "r", Title: "", Targets: targets } },
+		{ ExpectedErrors: 1, Data: &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "email", Title: "", Targets: targets } },
+		{ ExpectedErrors: 1, Data: &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "sms", Title: "", Targets: targets } },
+		{ ExpectedErrors: 1, Data: &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "", Targets: targets } },
+		{ ExpectedErrors: 0, Data: &SendNotificationRequest{ AppID: "w", TemplateID: 5, ContactType: "push", Title: "rt", Targets: targets } },
 	}
 
 	test.RunRequestTestCases(&testCases, t)

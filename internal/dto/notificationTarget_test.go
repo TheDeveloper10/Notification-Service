@@ -28,16 +28,16 @@ func (ntt *NotificationTargetTest) Validate() iface.IErrorList {
 
 func TestNotificationTarget_Validate(t *testing.T) {
 	testCases := []test.RequestTestCase{
-		{1, &NotificationTargetTest{}},
-		{1, &NotificationTargetTest{ContactType: "", Email: "", PhoneNumber: "", FCMRegistrationToken: ""}},
-		{1, &NotificationTargetTest{ContactType: "email", Email: "john", PhoneNumber: "", FCMRegistrationToken: ""}},
-		{0, &NotificationTargetTest{ContactType: "email", Email: "john@abv.bg", PhoneNumber: "", FCMRegistrationToken: ""}},
-		{0, &NotificationTargetTest{ContactType: "email", Email: "john@abv.bg", PhoneNumber: "087734125", FCMRegistrationToken: ""}},
-		{1, &NotificationTargetTest{ContactType: "email", Email: "", PhoneNumber: "087734125", FCMRegistrationToken: ""}},
-		{1, &NotificationTargetTest{ContactType: "sms", Email: "", PhoneNumber: "087734125", FCMRegistrationToken: ""}},
-		{0, &NotificationTargetTest{ContactType: "sms", Email: "", PhoneNumber: "+35987734125", FCMRegistrationToken: ""}},
-		{1, &NotificationTargetTest{ContactType: "push", Email: "", PhoneNumber: "+35987734125", FCMRegistrationToken: ""}},
-		{0, &NotificationTargetTest{ContactType: "push", Email: "", PhoneNumber: "", FCMRegistrationToken: "PIAHgfousdghouewht"}},
+		{ExpectedErrors: 1, Data: &NotificationTargetTest{}},
+		{ExpectedErrors: 1, Data: &NotificationTargetTest{ContactType: "", Email: "", PhoneNumber: "", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 1, Data: &NotificationTargetTest{ContactType: "email", Email: "john", PhoneNumber: "", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 0, Data: &NotificationTargetTest{ContactType: "email", Email: "john@abv.bg", PhoneNumber: "", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 0, Data: &NotificationTargetTest{ContactType: "email", Email: "john@abv.bg", PhoneNumber: "087734125", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 1, Data: &NotificationTargetTest{ContactType: "email", Email: "", PhoneNumber: "087734125", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 1, Data: &NotificationTargetTest{ContactType: "sms", Email: "", PhoneNumber: "087734125", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 0, Data: &NotificationTargetTest{ContactType: "sms", Email: "", PhoneNumber: "+35987734125", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 1, Data: &NotificationTargetTest{ContactType: "push", Email: "", PhoneNumber: "+35987734125", FCMRegistrationToken: ""}},
+		{ExpectedErrors: 0, Data: &NotificationTargetTest{ContactType: "push", Email: "", PhoneNumber: "", FCMRegistrationToken: "PIAHgfousdghouewht"}},
 	}
 
 	test.RunRequestTestCases(&testCases, t)
