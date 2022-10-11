@@ -14,7 +14,7 @@ import (
 
 type TemplateV1Controller interface {
 	iface.IController
-	CreateTemplateFromBytes(bytes []byte) bool
+	CreateTemplateFromBytes(bytes []byte)
 }
 
 func NewTemplateV1Controller(
@@ -44,15 +44,14 @@ func (btc *basicTemplateV1Controller) CreateRoutes(router *rem.Router) {
 		Delete(btc.deleteById)
 }
 
-func (btc *basicTemplateV1Controller) CreateTemplateFromBytes(bytes []byte) bool {
+func (btc *basicTemplateV1Controller) CreateTemplateFromBytes(bytes []byte) {
 	reqObj := dto.CreateTemplateRequest{}
 	if !layer.JSONBytesConverterMiddleware(bytes, &reqObj) {
-		return false
+		return
 	}
 
 	templateEntity := reqObj.ToEntity()
-	id := btc.templateRepository.Insert(templateEntity)
-	return id != -1
+	btc.templateRepository.Insert(templateEntity)
 }
 
 
@@ -96,10 +95,8 @@ func (btc *basicTemplateV1Controller) create(res rem.IResponse, req rem.IRequest
 	if id == -1 {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to add template to the database. Try again!"))
 	} else {
-		placeholders := dto.GetPlaceholders(&templateEntity.Template)
 		metadata := dto.TemplateMetadata{
-			Id:           id,
-			Placeholders: placeholders,
+			Id: id,
 		}
 		res.Status(http.StatusCreated).JSON(metadata)
 	}

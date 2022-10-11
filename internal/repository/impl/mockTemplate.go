@@ -9,21 +9,25 @@ func (mtr *MockTemplateRepository) Insert(entity *entity.TemplateEntity) int {
 }
 
 func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
+	template := "Hi, @{firstName}!"
 	return &entity.TemplateEntity{
 		Id: 1,
-		ContactType: "email",
-		Template: "Hi, @{firstName}!",
+		Body: entity.TemplateBody{
+			Email: &template,
+		},
 		Language: "EN",
 		Type: "test",
 	}, 0
 }
 
 func (mtr *MockTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity {
+	template := "Hi, @{firstName}!"
 	return &[]entity.TemplateEntity{
 		{
 			Id: 5,
-			ContactType: "push",
-			Template: "Hi, @{firstName}!",
+			Body: entity.TemplateBody{
+				Push: &template,
+			},
 			Language: "EN",
 			Type: "test",
 		},

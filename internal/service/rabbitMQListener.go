@@ -55,7 +55,7 @@ func (l *RabbitMQListener) Run() {
 	log.Info("RabbitMQ listener is ON...")
 }
 
-func (l *RabbitMQListener) handleQueue(queue string, target func([]byte)bool, maxRunningProcesses int) {
+func (l *RabbitMQListener) handleQueue(queue string, target func([]byte), maxRunningProcesses int) {
 	requests, err := l.channel.Consume(
 		queue,
 		"", false, false, false, false, nil,
@@ -68,7 +68,7 @@ func (l *RabbitMQListener) handleQueue(queue string, target func([]byte)bool, ma
 	go l.processChannel(&requests, target, maxRunningProcesses)
 }
 
-func (l *RabbitMQListener) processChannel(requests *<-chan amqp.Delivery, target func([]byte)bool, maxRunningProcesses int) {
+func (l *RabbitMQListener) processChannel(requests *<-chan amqp.Delivery, target func([]byte), maxRunningProcesses int) {
 	runningProcesses := 0
 
 	for request := range *requests {
@@ -86,14 +86,12 @@ func (l *RabbitMQListener) processChannel(requests *<-chan amqp.Delivery, target
 }
 
 func (l *RabbitMQListener) processRequest(request amqp.Delivery,
-										  target func([]byte)bool,
+										  target func([]byte),
 										  runningProcesses *int) {
-	res := target(request.Body)
-	if res {
-		err := request.Ack(false)
-		if err != nil {
-			log.Error(err.Error())
-		}
+	target(request.Body)
+	err := request.Ack(false)
+	if err != nil {
+		log.Error(err.Error())
 	}
 	(*runningProcesses)--
 }
