@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"database/sql"
 	"github.com/sirupsen/logrus"
 	"notification-service/internal/client"
 	"notification-service/internal/entity"
@@ -19,8 +20,8 @@ func (btr *BasicTemplateRepository) Init() {
 
 func (btr *BasicTemplateRepository) Insert(entity *entity.TemplateEntity) int {
 	res := client.SQLClient.Exec(
-		"insert into Templates(ContactType, Template, Language, Type) values(?, ?, ?, ?)",
-		entity.ContactType, entity.Template, entity.Language, entity.Type,
+		"insert into Templates(EmailBody, SMSBody, PushBody, Language, Type) values(?, ?, ?, ?, ?)",
+		entity.Body.Email, entity.Body.SMS, entity.Body.Push, entity.Language, entity.Type,
 	)
 	if res == nil {
 		return -1
@@ -47,17 +48,16 @@ func (btr *BasicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
 	defer helper.HandledClose(rows)
 
 	if rows.Next() {
-		record := entity.TemplateEntity{}
-		err3 := rows.Scan(&record.Id, &record.ContactType, &record.Template, &record.Language, &record.Type)
-		if helper.IsError(err3) {
+		record := btr.GetTemplateEntityFromSQLRows(rows)
+		if record == nil {
 			return nil, 2
 		}
 
 		logrus.Info("Fetched template with id " + strconv.Itoa(id))
 
 		go btr.clearCache()
-		btr.cache[id] = &record
-		return &record, 0
+		btr.cache[id] = record
+		return record, 0
 	} else {
 		logrus.Warn("Template with id " + strconv.Itoa(id) + " was not found")
 		return nil, 2
@@ -78,25 +78,32 @@ func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 
 	var templates []entity.TemplateEntity
 	for rows.Next() {
-		record := entity.TemplateEntity{}
-		err3 := rows.Scan(&record.Id, &record.ContactType,
-			&record.Template, &record.Language, &record.Type)
-		if helper.IsError(err3) {
+		record := btr.GetTemplateEntityFromSQLRows(rows)
+		if record == nil {
 			return nil
 		}
 
-		btr.cache[record.Id] = &record
-		templates = append(templates, record)
+		templates = append(templates, *record)
 	}
 
 	logrus.Info("Fetched " + strconv.Itoa(len(templates)) + " template(s)")
 	return &templates
 }
 
+func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)  *entity.TemplateEntity{
+	record := entity.TemplateEntity{}
+	record.Body = entity.TemplateBody{}
+	err3 := rows.Scan(&record.Id, record.Body.Email, record.Body.SMS, record.Body.Push, &record.Language, &record.Type)
+	if helper.IsError(err3) {
+		return nil
+	}
+	return &record
+}
+
 func (btr *BasicTemplateRepository) Update(entity *entity.TemplateEntity) int {
 	res := client.SQLClient.Exec(
-		"update Templates set Template=?, ContactType=?, Language=?, Type=? where Id=?",
-		entity.Template, entity.ContactType, entity.Language, entity.Type, entity.Id,
+		"update Templates set EmailBody=?, SMSBody=?, PushBody=?, Language=?, Type=? where Id=?",
+		entity.Body.Email, entity.Body.SMS, entity.Body.Push, entity.Language, entity.Type,
 	)
 	if res == nil {
 		return 1

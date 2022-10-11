@@ -10,20 +10,14 @@ import (
 
 type CreateTemplateRequest struct {
 	iface.IRequestEntity[entity.TemplateEntity]
-	ContactType string `json:"contactType"`
-	Template    string `json:"template"`
-	Language    string `json:"language"`
-	Type        string `json:"type"`
+	Body 	 TemplateBodyRequest `json:"body"`
+	Language string 			 `json:"language"`
+	Type     string 			 `json:"type"`
 }
 
 func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
 	errs := util.NewErrorList()
-
-	if ctr.ContactType == "" {
-		errs.AddErrorFromString("'contactType' must be given")
-	} else if !validateContactType(&ctr.ContactType) {
-		errs.AddErrorFromString("'contactType' must be one of email/sms/push")
-	}
+	errs.Merge(ctr.Body.Validate())
 
 	if ctr.Language == "" {
 		errs.AddErrorFromString("'language' must be given")
@@ -37,27 +31,15 @@ func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
 		errs.AddErrorFromString("'type' must be at max 8 characters long")
 	}
 
-	if ctr.Template == "" {
-		errs.AddErrorFromString("'template' must be given")
-	} else if len(ctr.Template) > 2048 {
-		errs.AddErrorFromString("'template' must have a length greater than 0 and lesser than 2048")
-	}
-
 	return errs
 }
 
 func (ctr *CreateTemplateRequest) ToEntity() *entity.TemplateEntity {
 	return &entity.TemplateEntity{
-		ContactType: ctr.ContactType,
-		Template:    ctr.Template,
-		Language:    ctr.Language,
-		Type:        ctr.Type,
+		Body: 	  ctr.Body.ToEntity(),
+		Language: ctr.Language,
+		Type:     ctr.Type,
 	}
-}
-
-// TODO: Move these validations out of here
-func validateContactType(contactType *string) bool {
-	return *contactType == entity.ContactTypeEmail || *contactType == entity.ContactTypeSMS || *contactType == entity.ContactTypePush
 }
 
 var allowedLanguages = "BG, EN, DE, ES, DA, CS"
