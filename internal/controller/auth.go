@@ -23,7 +23,10 @@ type basicAuthV1Controller struct {
 func (boac *basicAuthV1Controller) CreateRoutes(router *rem.Router) {
 	router.
 		NewRoute("/v1/oauth/client").
-		Post(boac.createClient).
+		Post(boac.createClient)
+
+	router.
+		NewRoute("/v1/oauth/client/:clientId").
 		Put(boac.updateClient).
 		Delete(boac.deleteClient)
 
@@ -37,7 +40,7 @@ func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequ
 		return true
 	}
 
-	reqObj := dto.CreateClientRequest{}
+	reqObj := dto.ClientPermissionsRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
 	}
@@ -58,13 +61,19 @@ func (boac *basicAuthV1Controller) updateClient(res rem.IResponse, req rem.IRequ
 		return true
 	}
 
-	reqObj := dto.UpdateClientRequest{}
+	clientID := req.GetURLParameters().Get("clientId")
+	if clientID == "" {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("'clientId' must be provided via URL"))
+		return true
+	}
+
+	reqObj := dto.ClientPermissionsRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
 	}
 
 	clientEntity := reqObj.ToEntity()
-	status := boac.repository.UpdateClient(&reqObj.ClientID, clientEntity)
+	status := boac.repository.UpdateClient(&clientID, clientEntity)
 	if status == 0 {
 		res.Status(http.StatusOK)
 	} else if status == 1 {
@@ -81,12 +90,13 @@ func (boac *basicAuthV1Controller) deleteClient(res rem.IResponse, req rem.IRequ
 		return true
 	}
 
-	reqObj := dto.ClientIdRequest{}
-	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
+	clientID := req.GetURLParameters().Get("clientId")
+	if clientID == "" {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("'clientId' must be provided via URL"))
 		return true
 	}
 
-	status := boac.repository.DeleteClient(&reqObj.ClientID)
+	status := boac.repository.DeleteClient(&clientID)
 	if status == 0 {
 		res.Status(http.StatusOK)
 	} else if status == 1 {

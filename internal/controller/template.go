@@ -110,7 +110,7 @@ func (btc *basicTemplateV1Controller) getTemplateIDFromURL(res rem.IResponse, re
 	if templateIdStr == "" {
 		res.
 			Status(http.StatusBadRequest).
-			JSON(util.ErrorListFromTextError("You must provide a 'templateId' via URL"))
+			JSON(util.ErrorListFromTextError("'templateId' must be provided via URL"))
 		return -1
 	}
 

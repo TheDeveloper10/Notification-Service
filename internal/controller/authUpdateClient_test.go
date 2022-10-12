@@ -18,11 +18,11 @@ func TestBasicAuthV1Controller_UpdateClient(t *testing.T) {
 	router := rem.NewRouter()
 	bac.CreateRoutes(router)
 
-	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
+	newTestCase := func(id string, reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
 		return test.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodPut,
-			ReqURL:          "/v1/oauth/client",
+			ReqURL:          "/v1/oauth/client/" + id,
 			ReqHeaders:      reqHeaders,
 			ReqBody:         reqBody,
 			ExpectedStatus:  expectedStatusCode,
@@ -32,27 +32,12 @@ func TestBasicAuthV1Controller_UpdateClient(t *testing.T) {
 	s := func(str string) *string { return &str }
 
 	testCases := []test.ControllerTestCase{
-		newTestCase(nil, nil, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
+		newTestCase("aa", nil, nil, http.StatusUnauthorized),
+		newTestCase("aa", nil, map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
+		newTestCase("aa", nil, map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
 		newTestCase(
+			"aa",
 			s("{}"),
-			map[string]string{
-				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
-				"Content-Type": "application/json",
-			},
-			http.StatusBadRequest,
-		),
-		newTestCase(
-			s("{ \"permissions\": [ \"read_templates\" ] }"),
-			map[string]string{
-				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
-				"Content-Type": "application/json",
-			},
-			http.StatusBadRequest,
-		),
-		newTestCase(
-			s("{ \"clientId\": \"aa\", \"permissions\": [ \"read_templates\" ] }"),
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",
@@ -60,7 +45,17 @@ func TestBasicAuthV1Controller_UpdateClient(t *testing.T) {
 			http.StatusOK,
 		),
 		newTestCase(
-			s("{ \"clientId\": \"bb\", \"permissions\": [ \"read_templates\" ] }"),
+			"aa",
+			s("{ \"permissions\": [ \"read_templates\" ] }"),
+			map[string]string{
+				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
+				"Content-Type": "application/json",
+			},
+			http.StatusOK,
+		),
+		newTestCase(
+			"bb",
+			s("{ \"permissions\": [ \"read_templates\" ] }"),
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",
@@ -68,7 +63,8 @@ func TestBasicAuthV1Controller_UpdateClient(t *testing.T) {
 			http.StatusNotFound,
 		),
 		newTestCase(
-			s("{ \"clientId\": \"cc\", \"permissions\": [ \"read_templates\" ] }"),
+			"cc",
+			s("{ \"permissions\": [ \"read_templates\" ] }"),
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",

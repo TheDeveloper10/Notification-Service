@@ -18,33 +18,30 @@ func TestBasicAuthV1Controller_DeleteClient(t *testing.T) {
 	router := rem.NewRouter()
 	bac.CreateRoutes(router)
 
-	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
+	newTestCase := func(id string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
 		return test.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodDelete,
-			ReqURL:          "/v1/oauth/client",
+			ReqURL:          "/v1/oauth/client/" + id,
 			ReqHeaders:      reqHeaders,
-			ReqBody:         reqBody,
+			ReqBody:         nil,
 			ExpectedStatus:  expectedStatusCode,
 		}
 	}
 
-	s := func(str string) *string { return &str }
-
 	testCases := []test.ControllerTestCase{
-		newTestCase(nil, nil, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
+		newTestCase("a", nil, http.StatusUnauthorized),
+		newTestCase("a", map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
+		newTestCase("a", map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
 		newTestCase(
-			s("{}"),
+			"a",
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
-				"Content-Type": "application/json",
 			},
 			http.StatusBadRequest,
 		),
 		newTestCase(
-			s("{ \"clientId\": \"aa\" }"),
+			"aa",
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",
@@ -52,7 +49,7 @@ func TestBasicAuthV1Controller_DeleteClient(t *testing.T) {
 			http.StatusOK,
 		),
 		newTestCase(
-			s("{ \"clientId\": \"bb\" }"),
+			"bb",
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",
@@ -60,7 +57,7 @@ func TestBasicAuthV1Controller_DeleteClient(t *testing.T) {
 			http.StatusNotFound,
 		),
 		newTestCase(
-			s("{ \"clientId\": \"cc\" }"),
+			"cc",
 			map[string]string{
 				"Authorization": "Bearer " + helper.Config.HTTPServer.MasterAccessToken,
 				"Content-Type": "application/json",

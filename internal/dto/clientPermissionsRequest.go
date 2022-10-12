@@ -5,16 +5,16 @@ import (
 	"notification-service/internal/util/iface"
 )
 
-type CreateClientRequest struct {
+type ClientPermissionsRequest struct {
 	iface.IRequestEntity[entity.ClientEntity]
 	Permissions  []string `json:"permissions"`
 }
 
-func (ccr *CreateClientRequest) Validate() iface.IErrorList {
+func (ccr *ClientPermissionsRequest) Validate() iface.IErrorList {
 	return nil
 }
 
-func (ccr *CreateClientRequest) ToEntity() *entity.ClientEntity {
+func (ccr *ClientPermissionsRequest) ToEntity() *entity.ClientEntity {
 	var permissions int64 = 0
 	
 	for i := 0; i < len(ccr.Permissions); i++ {
