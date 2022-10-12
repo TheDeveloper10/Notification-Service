@@ -23,7 +23,9 @@ type basicAuthV1Controller struct {
 func (boac *basicAuthV1Controller) CreateRoutes(router *rem.Router) {
 	router.
 		NewRoute("/v1/oauth/client").
-		Post(boac.createClient)
+		Post(boac.createClient).
+		Put(boac.updateClient).
+		Delete(boac.deleteClient)
 
 	router.
 		NewRoute("/v1/oauth/token").
@@ -48,6 +50,51 @@ func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequ
 	} else {
 		res.Status(http.StatusCreated).JSON(credentials)
 	}
+	return true
+}
+
+func (boac *basicAuthV1Controller) updateClient(res rem.IResponse, req rem.IRequest) bool {
+	if !layer.MasterTokenMiddleware(res, req) {
+		return true
+	}
+
+	reqObj := dto.UpdateClientRequest{}
+	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
+		return true
+	}
+
+	clientEntity := reqObj.ToEntity()
+	status := boac.repository.UpdateClient(&reqObj.ClientID, clientEntity)
+	if status == 0 {
+		res.Status(http.StatusOK)
+	} else if status == 1 {
+		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Client not found!"))
+	} else {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
+	}
+
+	return true
+}
+
+func (boac *basicAuthV1Controller) deleteClient(res rem.IResponse, req rem.IRequest) bool {
+	if !layer.MasterTokenMiddleware(res, req) {
+		return true
+	}
+
+	reqObj := dto.ClientIdRequest{}
+	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
+		return true
+	}
+
+	status := boac.repository.DeleteClient(&reqObj.ClientID)
+	if status == 0 {
+		res.Status(http.StatusOK)
+	} else if status == 1 {
+		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Client not found!"))
+	} else {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
+	}
+
 	return true
 }
 

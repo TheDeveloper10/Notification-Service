@@ -10,6 +10,24 @@ func (mcr *MockClientRepository) GetClient(credentials *entity.ClientCredentials
 	}
 }
 
+func (mcr *MockClientRepository) UpdateClient(clientID *string, client *entity.ClientEntity) int {
+	if *clientID == "aa" {
+		return 0
+	} else if *clientID == "bb" {
+		return 1
+	}
+	return 2
+}
+
+func (mcr *MockClientRepository) DeleteClient(clientID *string) int {
+	if *clientID == "aa" {
+		return 0
+	} else if *clientID == "bb" {
+		return 1
+	}
+	return 2
+}
+
 func (mcr *MockClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) *entity.AccessToken {
 	return &entity.AccessToken{
 		AccessToken: "123",

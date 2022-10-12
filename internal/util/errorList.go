@@ -20,6 +20,9 @@ type ErrorList struct {
 }
 
 func (el *ErrorList) Merge(errs iface.IErrorList) iface.IErrorList {
+	if el.Errors == nil {
+		return el
+	}
 	el.Errors = append(el.Errors, (*errs.GetErrors())...)
 	return el
 }

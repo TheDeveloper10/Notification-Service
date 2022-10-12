@@ -7,6 +7,9 @@ import (
 
 type IClientRepository interface {
 	GetClient(*entity.ClientCredentials) *entity.ClientEntity
+	UpdateClient(*string, *entity.ClientEntity) int
+	DeleteClient(*string) int
+
 	GenerateAccessToken(*entity.ClientEntity) *entity.AccessToken
 	GetClientFromAccessToken(*entity.AccessToken) (*entity.ClientEntity, int)
 	CreateClient(*entity.ClientEntity) *entity.ClientCredentials

@@ -41,6 +41,38 @@ func (bcr *BasicClientRepository) GetClient(credentials *entity.ClientCredential
 	return nil
 }
 
+func (bcr *BasicClientRepository) UpdateClient(clientID *string, clientEntity *entity.ClientEntity) int {
+	res := client.SQLClient.Exec(
+			"update Clients set Permissions=? where Id=?",
+			clientEntity.Permissions, *clientID)
+	if res == nil {
+		return 2
+	}
+	affectedRows, err := res.RowsAffected()
+	if err != nil {
+		return 2
+	} else if affectedRows <= 0 {
+		return 1
+	}
+
+	return 0
+}
+
+func (bcr *BasicClientRepository) DeleteClient(clientID *string) int {
+	res := client.SQLClient.Exec("delete from Clients where Id=?", *clientID)
+	if res == nil {
+		return 2
+	}
+	affectedRows, err := res.RowsAffected()
+	if err != nil {
+		return 2
+	} else if affectedRows <= 0 {
+		return 1
+	}
+
+	return 0
+}
+
 func (bcr *BasicClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) *entity.AccessToken {
 	token := bcr.sg.GenerateString(128)
 

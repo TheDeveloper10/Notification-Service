@@ -1,4 +1,4 @@
-1. Add patch and delete operations to /v1/oauth/client
+1. Make all repositories return status codes: 0 = success, 1 = internal failure, 2 = not found, etc.
 2. Make allowed languages configurable
 3. Improve docs
 4. Use Firebase Cloud Messaging bulk sending
