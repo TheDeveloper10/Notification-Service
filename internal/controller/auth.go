@@ -46,13 +46,14 @@ func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequ
 	}
 
 	clientEntity := reqObj.ToEntity()
-	credentials := boac.repository.CreateClient(clientEntity)
+	credentials, status := boac.repository.CreateClient(clientEntity)
 
-	if credentials == nil {
-		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to create user!"))
-	} else {
+	if status == util.RepoStatusSuccess {
 		res.Status(http.StatusCreated).JSON(credentials)
+	} else if status == util.RepoStatusError {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to create user. Try again!"))
 	}
+
 	return true
 }
 
@@ -74,11 +75,11 @@ func (boac *basicAuthV1Controller) updateClient(res rem.IResponse, req rem.IRequ
 
 	clientEntity := reqObj.ToEntity()
 	status := boac.repository.UpdateClient(&clientID, clientEntity)
-	if status == 0 {
+	if status == util.RepoStatusSuccess {
 		res.Status(http.StatusOK)
-	} else if status == 1 {
+	} else if status == util.RepoStatusNotFound {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Client not found!"))
-	} else {
+	} else if status == util.RepoStatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
 	}
 
@@ -114,12 +115,12 @@ func (boac *basicAuthV1Controller) createAccessToken(res rem.IResponse, req rem.
 		return true
 	}
 
-	accessToken := boac.repository.GenerateAccessToken(client)
-	if accessToken == nil {
+	accessToken, status := boac.repository.GenerateAccessToken(client)
+	if status == util.RepoStatusSuccess {
+		res.Status(http.StatusOK).JSON(*accessToken)
+	} else if status == util.RepoStatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to generate a token!"))
-		return true
 	}
 
-	res.Status(http.StatusOK).JSON(*accessToken)
 	return true
 }

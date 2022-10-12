@@ -17,13 +17,13 @@ func (bcr *BasicClientRepository) Init() {
 	bcr.sg = util.NewStringGenerator()
 }
 
-func (bcr *BasicClientRepository) GetClient(credentials *entity.ClientCredentials) *entity.ClientEntity {
+func (bcr *BasicClientRepository) GetClient(credentials *entity.ClientCredentials) (*entity.ClientEntity, util.RepoStatusCode) {
 	rows := client.SQLClient.Query(
 		"select Permissions from Clients where Id=? and Secret=?",
 		credentials.Id, credentials.Secret,
 	)
 	if rows == nil {
-		return nil
+		return nil, util.RepoStatusError
 	}
 	defer helper.HandledClose(rows)
 
@@ -31,49 +31,49 @@ func (bcr *BasicClientRepository) GetClient(credentials *entity.ClientCredential
 		record := entity.ClientEntity{}
 		err3 := rows.Scan(&record.Permissions)
 		if helper.IsError(err3) {
-			return nil
+			return nil, util.RepoStatusError
 		}
 
 		log.Info("Fetched client with id " + credentials.Id)
-		return &record
+		return &record, util.RepoStatusSuccess
 	}
 
-	return nil
+	return nil, util.RepoStatusNotFound
 }
 
-func (bcr *BasicClientRepository) UpdateClient(clientID *string, clientEntity *entity.ClientEntity) int {
+func (bcr *BasicClientRepository) UpdateClient(clientID *string, clientEntity *entity.ClientEntity) util.RepoStatusCode {
 	res := client.SQLClient.Exec(
 			"update Clients set Permissions=? where Id=?",
 			clientEntity.Permissions, *clientID)
 	if res == nil {
-		return 2
+		return util.RepoStatusError
 	}
 	affectedRows, err := res.RowsAffected()
 	if err != nil {
-		return 2
+		return util.RepoStatusError
 	} else if affectedRows <= 0 {
-		return 1
+		return util.RepoStatusNotFound
 	}
 
-	return 0
+	return util.RepoStatusSuccess
 }
 
-func (bcr *BasicClientRepository) DeleteClient(clientID *string) int {
+func (bcr *BasicClientRepository) DeleteClient(clientID *string) util.RepoStatusCode {
 	res := client.SQLClient.Exec("delete from Clients where Id=?", *clientID)
 	if res == nil {
-		return 2
+		return util.RepoStatusError
 	}
 	affectedRows, err := res.RowsAffected()
 	if err != nil {
-		return 2
+		return util.RepoStatusError
 	} else if affectedRows <= 0 {
-		return 1
+		return util.RepoStatusNotFound
 	}
 
-	return 0
+	return util.RepoStatusSuccess
 }
 
-func (bcr *BasicClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) *entity.AccessToken {
+func (bcr *BasicClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) (*entity.AccessToken, util.RepoStatusCode) {
 	token := bcr.sg.GenerateString(128)
 
 	res := client.SQLClient.Exec(
@@ -81,21 +81,21 @@ func (bcr *BasicClientRepository) GenerateAccessToken(clientEntity *entity.Clien
 		token, clientEntity.Permissions, helper.Config.HTTPServer.AccessTokenExpiryTime,
 	)
 	if res == nil {
-		return nil
+		return nil, util.RepoStatusError
 	}
 
 	log.Info("Generated a new access token")
 	return &entity.AccessToken{
 		AccessToken: token,
-	}
+	}, util.RepoStatusSuccess
 }
 
-func (bcr *BasicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) (*entity.ClientEntity, int) {
+func (bcr *BasicClientRepository) GetClientFromAccessToken(token *entity.AccessToken) (*entity.ClientEntity, util.RepoStatusCode) {
 	// Perhaps replace the memory table with a Redis Cache
 
 	rows := client.SQLClient.Query("select ExpiryTime, Permissions from AccessTokens where AccessToken=?", token.AccessToken)
 	if rows == nil {
-		return nil, 1
+		return nil, util.RepoStatusError
 	}
 	defer helper.HandledClose(rows)
 
@@ -105,19 +105,19 @@ func (bcr *BasicClientRepository) GetClientFromAccessToken(token *entity.AccessT
 
 		err := rows.Scan(&expiryTime, &record.Permissions)
 		if helper.IsError(err) {
-			return nil, 2
+			return nil, util.RepoStatusError
 		} else if expiryTime < time.Now().Unix() {
-			return nil, 3
+			return nil, util.RepoStatusExpired
 		}
 
 		log.Info("Fetched client with from access token")
-		return &record, 0
+		return &record, util.RepoStatusSuccess
 	}
 
-	return nil, 2
+	return nil, util.RepoStatusNotFound
 }
 
-func (bcr *BasicClientRepository) CreateClient(clientEntity *entity.ClientEntity) *entity.ClientCredentials {
+func (bcr *BasicClientRepository) CreateClient(clientEntity *entity.ClientEntity) (*entity.ClientCredentials, util.RepoStatusCode) {
 	sg := util.NewStringGenerator()
 
 	clientId := sg.GenerateString(16)
@@ -128,11 +128,11 @@ func (bcr *BasicClientRepository) CreateClient(clientEntity *entity.ClientEntity
 		clientId, clientSecret, clientEntity.Permissions,
 	)
 	if res == nil {
-		return nil
+		return nil, util.RepoStatusError
 	}
 
 	return &entity.ClientCredentials{
 		Id: clientId,
 		Secret: clientSecret,
-	}
+	}, util.RepoStatusSuccess
 }

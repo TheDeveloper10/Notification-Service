@@ -11,22 +11,22 @@ import (
 
 type BasicNotificationRepository struct{}
 
-func (bnr *BasicNotificationRepository) Insert(notification *entity.NotificationEntity) bool {
+func (bnr *BasicNotificationRepository) Insert(notification *entity.NotificationEntity) util.RepoStatusCode {
 	res := client.SQLClient.Exec(
 		"insert into Notifications(AppId, TemplateId, ContactInfo, Title, Message) values(?, ?, ?, ?, ?)",
 		notification.AppID, notification.TemplateID, notification.ContactInfo, notification.Title, notification.Message,
 	)
 	if res == nil {
-		return false
+		return util.RepoStatusError
 	}
 
 	id, err := res.LastInsertId()
 	if helper.IsError(err) {
-		return false
+		return util.RepoStatusError
 	}
 
 	logrus.Info("Inserted notification into the database with id " + strconv.FormatInt(id, 10))
-	return true
+	return util.RepoStatusSuccess
 }
 
 func (bnr *BasicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool {
@@ -59,7 +59,7 @@ func (bnr *BasicNotificationRepository) SendSMS(notification *entity.Notificatio
 	return true
 }
 
-func (bnr *BasicNotificationRepository) GetBulk(filter *entity.NotificationFilter) *[]entity.NotificationEntity {
+func (bnr *BasicNotificationRepository) GetBulk(filter *entity.NotificationFilter) (*[]entity.NotificationEntity, util.RepoStatusCode) {
 	builder := util.NewQueryBuilder("select * from Notifications")
 
 	builder.
@@ -78,7 +78,7 @@ func (bnr *BasicNotificationRepository) GetBulk(filter *entity.NotificationFilte
 
 	rows := client.SQLClient.Query(*query, (*values)...)
 	if rows == nil {
-		return nil
+		return nil, util.RepoStatusError
 	}
 	defer helper.HandledClose(rows)
 
@@ -88,11 +88,11 @@ func (bnr *BasicNotificationRepository) GetBulk(filter *entity.NotificationFilte
 		err3 := rows.Scan(&record.Id, &record.AppID, &record.TemplateID, &record.ContactInfo,
 			&record.Title, &record.Message, &record.SentTime)
 		if helper.IsError(err3) {
-			return nil
+			return nil, util.RepoStatusError
 		}
 		notifications = append(notifications, record)
 	}
 
 	logrus.Info("Fetched " + strconv.Itoa(len(notifications)) + " template(s)")
-	return &notifications
+	return &notifications, util.RepoStatusSuccess
 }

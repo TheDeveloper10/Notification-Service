@@ -69,13 +69,11 @@ func (btc *basicTemplateV1Controller) getBulk(res rem.IResponse, req rem.IReques
 		return true
 	}
 
-	templates := btc.templateRepository.GetBulk(filter)
-	if templates == nil {
-		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get anything"))
-	} else if len(*templates) > 0 {
+	templates, status := btc.templateRepository.GetBulk(filter)
+	if status == util.RepoStatusSuccess {
 		res.Status(http.StatusOK).JSON(*templates)
 	} else {
-		res.Status(http.StatusOK)
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get anything. Try again!"))
 	}
 	return true
 }
@@ -91,14 +89,14 @@ func (btc *basicTemplateV1Controller) create(res rem.IResponse, req rem.IRequest
 	}
 
 	templateEntity := reqObj.ToEntity()
-	id := btc.templateRepository.Insert(templateEntity)
-	if id == -1 {
-		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to add template to the database. Try again!"))
-	} else {
+	id, status := btc.templateRepository.Insert(templateEntity)
+	if status == util.RepoStatusSuccess {
 		metadata := dto.TemplateMetadata{
 			Id: id,
 		}
 		res.Status(http.StatusCreated).JSON(metadata)
+	} else {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to add template to the database. Try again!"))
 	}
 
 	return true
@@ -135,10 +133,10 @@ func (btc *basicTemplateV1Controller) getById(res rem.IResponse, req rem.IReques
 		return true
 	}
 
-	record, statusCode := btc.templateRepository.Get(templateId)
-	if statusCode == 1 {
+	record, status := btc.templateRepository.Get(templateId)
+	if status == util.RepoStatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get the requested template. Try again!"))
-	} else if statusCode == 2 {
+	} else if status == util.RepoStatusNotFound {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Couldn't find the template you were looking for!"))
 	} else {
 		res.Status(http.StatusOK).JSON(record)
@@ -185,7 +183,7 @@ func (btc *basicTemplateV1Controller) deleteById(res rem.IResponse, req rem.IReq
 	}
 
 	status := btc.templateRepository.Delete(templateId)
-	if status {
+	if status == util.RepoStatusSuccess {
 		res.Status(http.StatusOK)
 	} else {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to delete it. Try again!"))

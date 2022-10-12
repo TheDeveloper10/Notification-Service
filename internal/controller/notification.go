@@ -68,13 +68,11 @@ func (bnc *basicNotificationV1Controller) getBulk(res rem.IResponse, req rem.IRe
 		return true
 	}
 
-	notifications := bnc.notificationRepository.GetBulk(filter)
-	if notifications == nil {
+	notifications, status := bnc.notificationRepository.GetBulk(filter)
+	if status == util.RepoStatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get anything"))
-	} else if len(*notifications) > 0 {
-		res.Status(http.StatusOK).JSON(*notifications)
 	} else {
-		res.Status(http.StatusOK)
+		res.Status(http.StatusOK).JSON(*notifications)
 	}
 
 	return true
@@ -96,10 +94,10 @@ func (bnc *basicNotificationV1Controller) send(res rem.IResponse, req rem.IReque
 
 func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificationRequest, res rem.IResponse) {
 	templateEntity, status := bnc.templateRepository.Get(reqObj.TemplateID)
-	if status == 1 {
-		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Something was wrong with the database. Try again"))
+	if status == util.RepoStatusError {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something was wrong with the database. Try again"))
 		return
-	} else if status == 2 {
+	} else if status == util.RepoStatusNotFound {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Template was not found!"))
 		return
 	}
@@ -178,12 +176,14 @@ func (bnc *basicNotificationV1Controller) sendNotification(
 
 	wg.Add(1)
 	defer wg.Done()
-	if outsourceNotification(&notification) &&
-		bnc.notificationRepository.Insert(&notification) {
-		(*successCount)++
-	} else {
-		(*failedCount)++
+	if outsourceNotification(&notification) {
+		status := bnc.notificationRepository.Insert(&notification)
+		if status == util.RepoStatusSuccess {
+			(*successCount)++
+			return
+		}
 	}
+	(*failedCount)++
 }
 
 func (bnc *basicNotificationV1Controller) toNotificationEntity(

@@ -18,53 +18,53 @@ func (btr *BasicTemplateRepository) Init() {
 	btr.cache = map[int]*entity.TemplateEntity{}
 }
 
-func (btr *BasicTemplateRepository) Insert(entity *entity.TemplateEntity) int {
+func (btr *BasicTemplateRepository) Insert(entity *entity.TemplateEntity) (int, util.RepoStatusCode) {
 	res := client.SQLClient.Exec(
 		"insert into Templates(EmailBody, SMSBody, PushBody, Language, Type) values(?, ?, ?, ?, ?)",
 		entity.Body.Email, entity.Body.SMS, entity.Body.Push, entity.Language, entity.Type,
 	)
 	if res == nil {
-		return -1
+		return -1, util.RepoStatusError
 	}
 	id, err3 := res.LastInsertId()
 	if helper.IsError(err3) {
-		return -1
+		return -1, util.RepoStatusError
 	}
 
 	logrus.Info("Inserted template into the database with id " + strconv.FormatInt(id, 10))
 	btr.cache[int(id)] = entity
-	return int(id)
+	return int(id), util.RepoStatusSuccess
 }
 
-func (btr *BasicTemplateRepository) Get(id int) (*entity.TemplateEntity, int) {
+func (btr *BasicTemplateRepository) Get(id int) (*entity.TemplateEntity, util.RepoStatusCode) {
 	if result, ok := btr.cache[id]; ok {
-		return result, 0
+		return result, util.RepoStatusSuccess
 	}
 
 	rows := client.SQLClient.Query("select * from Templates where Id=?", id)
 	if rows == nil {
-		return nil, 1
+		return nil, util.RepoStatusError
 	}
 	defer helper.HandledClose(rows)
 
 	if rows.Next() {
 		record := btr.GetTemplateEntityFromSQLRows(rows)
 		if record == nil {
-			return nil, 2
+			return nil, util.RepoStatusNotFound
 		}
 
 		logrus.Info("Fetched template with id " + strconv.Itoa(id))
 
 		go btr.clearCache()
 		btr.cache[id] = record
-		return record, 0
+		return record, util.RepoStatusSuccess
 	} else {
 		logrus.Warn("Template with id " + strconv.Itoa(id) + " was not found")
-		return nil, 2
+		return nil, util.RepoStatusNotFound
 	}
 }
 
-func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity {
+func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]entity.TemplateEntity, util.RepoStatusCode) {
 	builder := util.NewQueryBuilder("select * from Templates")
 
 	offset := (filter.Page - 1) * filter.Size
@@ -72,7 +72,7 @@ func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 
 	rows := client.SQLClient.Query(*query)
 	if rows == nil {
-		return nil
+		return nil, util.RepoStatusError
 	}
 	defer helper.HandledClose(rows)
 
@@ -80,14 +80,14 @@ func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 	for rows.Next() {
 		record := btr.GetTemplateEntityFromSQLRows(rows)
 		if record == nil {
-			return nil
+			return nil, util.RepoStatusError
 		}
 
 		templates = append(templates, *record)
 	}
 
 	logrus.Info("Fetched " + strconv.Itoa(len(templates)) + " template(s)")
-	return &templates
+	return &templates, util.RepoStatusSuccess
 }
 
 func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)  *entity.TemplateEntity{
@@ -112,40 +112,29 @@ func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)
 	return &record
 }
 
-func (btr *BasicTemplateRepository) Update(entity *entity.TemplateEntity) int {
+func (btr *BasicTemplateRepository) Update(entity *entity.TemplateEntity) util.RepoStatusCode {
 	res := client.SQLClient.Exec(
 		"update Templates set EmailBody=?, SMSBody=?, PushBody=?, Language=?, Type=? where Id=?",
 		entity.Body.Email, entity.Body.SMS, entity.Body.Push, entity.Language, entity.Type,
 	)
 	if res == nil {
-		return 1
-	}
-
-	affectedRows, err := res.RowsAffected()
-	if helper.IsError(err) {
-		return 1
-	}
-
-	// TODO: it's zero also when template is found but the value you set is the same** FIX IT
-	if affectedRows <= 0 {
-		logrus.Warn("No template was found with id " + strconv.Itoa(entity.Id))
-		return 2
+		return util.RepoStatusError
 	}
 
 	logrus.Info("Updated template in the database with id " + strconv.Itoa(entity.Id))
 	btr.cache[entity.Id] = entity
-	return 0
+	return util.RepoStatusSuccess
 }
 
-func (btr *BasicTemplateRepository) Delete(id int) bool {
+func (btr *BasicTemplateRepository) Delete(id int) util.RepoStatusCode {
 	res := client.SQLClient.Exec("delete from Templates where Id=?", id)
 	if res == nil {
-		return false
+		return util.RepoStatusError
 	}
 
 	logrus.Info("Deleted template from the database with id " + strconv.Itoa(id))
 	delete(btr.cache, id)
-	return true
+	return util.RepoStatusSuccess
 }
 
 func (btr *BasicTemplateRepository) clearCache() {

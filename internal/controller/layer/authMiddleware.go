@@ -36,13 +36,16 @@ func ClientInfoMiddleware(clientRepository repository.IClientRepository,
 		ClientSecret: keys[1],
 	}
 
-	client := clientRepository.GetClient(reqObj.ToEntity())
-	if client == nil {
-		res.Status(http.StatusForbidden).JSON(util.ErrorListFromTextError("You have no permission to access this resource!"))
-		return nil
+	client, status := clientRepository.GetClient(reqObj.ToEntity())
+	if status == util.RepoStatusSuccess {
+		return client
+	} else if status == util.RepoStatusNotFound {
+		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Client not found!"))
+	} else if status == util.RepoStatusError {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
 	}
 
-	return client
+	return nil
 }
 
 func AccessTokenMiddleware(clientRepository repository.IClientRepository,
@@ -60,9 +63,11 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 	if clientEntity == nil {
 		res.Status(http.StatusUnauthorized)
 
-		if status == 1 {
+		if status == util.RepoStatusNotFound {
 			res.JSON(util.ErrorListFromTextError("Access Token not found! Probably expired."))
-		} else if status == 3 {
+		} else if status == util.RepoStatusError {
+			res.JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
+		} else if status == util.RepoStatusExpired {
 			res.JSON(util.ErrorListFromTextError("Access Token has expired!"))
 		}
 

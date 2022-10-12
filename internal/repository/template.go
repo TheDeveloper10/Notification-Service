@@ -3,14 +3,15 @@ package repository
 import (
 	"notification-service/internal/entity"
 	"notification-service/internal/repository/impl"
+	"notification-service/internal/util"
 )
 
 type ITemplateRepository interface {
-	Insert(entity *entity.TemplateEntity) int
-	Get(id int) (*entity.TemplateEntity, int)
-	GetBulk(filter *entity.TemplateFilter) *[]entity.TemplateEntity
-	Update(entity *entity.TemplateEntity) int
-	Delete(id int) bool
+	Insert(entity *entity.TemplateEntity) (int, util.RepoStatusCode)
+	Get(id int) (*entity.TemplateEntity, util.RepoStatusCode)
+	GetBulk(filter *entity.TemplateFilter) (*[]entity.TemplateEntity, util.RepoStatusCode)
+	Update(entity *entity.TemplateEntity) util.RepoStatusCode
+	Delete(id int) util.RepoStatusCode
 }
 
 // ----------------------------------

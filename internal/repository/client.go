@@ -3,16 +3,17 @@ package repository
 import (
 	"notification-service/internal/entity"
 	"notification-service/internal/repository/impl"
+	"notification-service/internal/util"
 )
 
 type IClientRepository interface {
-	GetClient(*entity.ClientCredentials) *entity.ClientEntity
-	UpdateClient(*string, *entity.ClientEntity) int
-	DeleteClient(*string) int
+	CreateClient(*entity.ClientEntity) (*entity.ClientCredentials, util.RepoStatusCode)
+	GetClient(*entity.ClientCredentials) (*entity.ClientEntity, util.RepoStatusCode)
+	UpdateClient(*string, *entity.ClientEntity) util.RepoStatusCode
+	DeleteClient(*string) util.RepoStatusCode
 
-	GenerateAccessToken(*entity.ClientEntity) *entity.AccessToken
-	GetClientFromAccessToken(*entity.AccessToken) (*entity.ClientEntity, int)
-	CreateClient(*entity.ClientEntity) *entity.ClientCredentials
+	GenerateAccessToken(*entity.ClientEntity) (*entity.AccessToken, util.RepoStatusCode)
+	GetClientFromAccessToken(*entity.AccessToken) (*entity.ClientEntity, util.RepoStatusCode)
 }
 
 // ----------------------------------
