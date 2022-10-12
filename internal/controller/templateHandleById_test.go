@@ -33,7 +33,8 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 
 		newTestCase(http.MethodGet, "1", nil, nil, http.StatusUnauthorized),
 		newTestCase(http.MethodGet, "1", nil, map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(http.MethodGet, "1", nil, map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
+		newTestCase(http.MethodGet, "1", nil, map[string]string{ "Authorization": "Bearer 13124" }, http.StatusNotFound),
+		newTestCase(http.MethodGet, "3", nil, map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
 		newTestCase(http.MethodGet, "a", nil, map[string]string{ "Authorization": "Bearer 13124" }, http.StatusBadRequest),
 		newTestCase(http.MethodGet, "1a", nil, map[string]string{ "Authorization": "Bearer 13124" }, http.StatusBadRequest),
 

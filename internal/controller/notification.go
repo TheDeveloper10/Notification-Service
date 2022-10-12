@@ -119,6 +119,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 		target := &(reqObj.Targets[currentTarget])
 
 		targetErrors := target.Validate()
+		targetErrors.Merge(target.ValidateAgainstTemplate(templateEntity))
 		if targetErrors != nil && targetErrors.ErrorsCount() > 0 {
 			errs = append(errs, dto.SendNotificationErrorData{
 				TargetId: currentTarget,
@@ -129,13 +130,6 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 
 		if target.Email != nil {
-			if templateEntity.Body.Email == nil {
-				errs = append(errs, dto.SendNotificationErrorData{
-					TargetId: currentTarget,
-					Messages: []string { "Email template was not set but an email has been provided!" },
-				})
-				continue
-			}
 			notification := bnc.toNotificationEntity(currentTarget, templateEntity, templateEntity.Body.Email, reqObj, &errs)
 			if notification != nil {
 				go bnc.sendNotification(*notification, target.Email, bnc.notificationRepository.SendEmail, &successCount, &failedCount, &wg)
@@ -144,13 +138,6 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 
 		if target.PhoneNumber != nil {
-			if templateEntity.Body.SMS == nil {
-				errs = append(errs, dto.SendNotificationErrorData{
-					TargetId: currentTarget,
-					Messages: []string { "SMS template was not set but a phone number has been provided!" },
-				})
-				continue
-			}
 			notification := bnc.toNotificationEntity(currentTarget, templateEntity, templateEntity.Body.SMS, reqObj, &errs)
 			if notification != nil {
 				go bnc.sendNotification(*notification, target.PhoneNumber, bnc.notificationRepository.SendSMS, &successCount, &failedCount, &wg)
@@ -159,13 +146,6 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 
 		if target.FCMRegistrationToken != nil {
-			if templateEntity.Body.Push == nil {
-				errs = append(errs, dto.SendNotificationErrorData{
-					TargetId: currentTarget,
-					Messages: []string { "Push template was not set but an FCM Registration Token has been provided!" },
-				})
-				continue
-			}
 			notification := bnc.toNotificationEntity(currentTarget, templateEntity, templateEntity.Body.Push, reqObj, &errs)
 			if notification != nil {
 				go bnc.sendNotification(*notification, target.FCMRegistrationToken, bnc.notificationRepository.SendPush, &successCount, &failedCount, &wg)
@@ -206,7 +186,12 @@ func (bnc *basicNotificationV1Controller) sendNotification(
 	}
 }
 
-func (bnc *basicNotificationV1Controller) toNotificationEntity(targetId int, template *entity.TemplateEntity, message *string, request *dto.SendNotificationRequest, errs *[]dto.SendNotificationErrorData) *entity.NotificationEntity {
+func (bnc *basicNotificationV1Controller) toNotificationEntity(
+											targetId int,
+											template *entity.TemplateEntity,
+											message *string,
+											request *dto.SendNotificationRequest,
+											errs *[]dto.SendNotificationErrorData) *entity.NotificationEntity {
 	replaced, err := dto.FillPlaceholders(*message, &request.Targets[targetId].Placeholders)
 	if err != nil {
 		*errs = append(*errs, dto.SendNotificationErrorData{

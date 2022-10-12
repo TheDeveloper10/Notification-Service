@@ -2,6 +2,7 @@ package dto
 
 import (
 	"net/mail"
+	"notification-service/internal/entity"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"regexp"
@@ -33,6 +34,24 @@ func (nt *NotificationTarget) Validate() iface.IErrorList {
 				return errs.AddErrorFromString("'phoneNumber' is invalid")
 			}
 		}
+	}
+
+	return errs
+}
+
+func (nt *NotificationTarget) ValidateAgainstTemplate(template *entity.TemplateEntity) iface.IErrorList {
+	errs := util.NewErrorList()
+
+	if nt.Email != nil && template.Body.Email == nil {
+		errs.AddErrorFromString("Email template is not set but an email was provided!")
+	}
+
+	if nt.PhoneNumber != nil && template.Body.SMS == nil {
+		errs.AddErrorFromString("SMS template is not set but a phone number was provided!")
+	}
+
+	if nt.FCMRegistrationToken != nil && template.Body.Push == nil {
+		errs.AddErrorFromString("Push template is not set but an FCM Registratation Token was provided!")
 	}
 
 	return errs

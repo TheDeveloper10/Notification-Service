@@ -47,7 +47,98 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 				"Authorization": "Bearer 13124",
 				"Content-Type": "application/json",
 			},
-			http.StatusCreated),
+			http.StatusCreated,
+		),
+
+		newTestCase(
+			layer.ToJSONString(
+				&dto.SendNotificationRequest{
+					AppID: "test",
+					TemplateID: 4,
+					Title: "Welcome",
+					Targets: []dto.NotificationTarget{
+						{ PhoneNumber: s("+357123451234"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					},
+				},
+			),
+			map[string]string{
+				"Authorization": "Bearer 13124",
+				"Content-Type": "application/json",
+			},
+			http.StatusBadRequest,
+		),
+
+		newTestCase(
+			layer.ToJSONString(
+				&dto.SendNotificationRequest{
+					AppID: "test",
+					TemplateID: 3,
+					Title: "Welcome",
+					Targets: []dto.NotificationTarget{
+						{ PhoneNumber: s("+357123451234"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					},
+				},
+			),
+			map[string]string{
+				"Authorization": "Bearer 13124",
+				"Content-Type": "application/json",
+			},
+			http.StatusCreated,
+		),
+
+		newTestCase(
+			layer.ToJSONString(
+				&dto.SendNotificationRequest{
+					AppID: "test",
+					TemplateID: 4,
+					Title: "Welcome",
+					Targets: []dto.NotificationTarget{
+						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					},
+				},
+			),
+			map[string]string{
+				"Authorization": "Bearer 13124",
+				"Content-Type": "application/json",
+			},
+			http.StatusBadRequest,
+		),
+
+		newTestCase(
+			layer.ToJSONString(
+				&dto.SendNotificationRequest{
+					AppID: "test",
+					TemplateID: 2,
+					Title: "Welcome",
+					Targets: []dto.NotificationTarget{
+						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					},
+				},
+			),
+			map[string]string{
+				"Authorization": "Bearer 13124",
+				"Content-Type": "application/json",
+			},
+			http.StatusCreated,
+		),
+
+		newTestCase(
+			layer.ToJSONString(
+				&dto.SendNotificationRequest{
+					AppID: "test",
+					TemplateID: 1,
+					Title: "Welcome",
+					Targets: []dto.NotificationTarget{
+						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					},
+				},
+			),
+			map[string]string{
+				"Authorization": "Bearer 13124",
+				"Content-Type": "application/json",
+			},
+			http.StatusNotFound,
+		),
 	}
 
 	test.RunControllerTestCases(&testCases, t)
