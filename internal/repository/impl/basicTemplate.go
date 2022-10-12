@@ -93,9 +93,21 @@ func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) *[]en
 func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)  *entity.TemplateEntity{
 	record := entity.TemplateEntity{}
 	record.Body = entity.TemplateBody{}
-	err3 := rows.Scan(&record.Id, record.Body.Email, record.Body.SMS, record.Body.Push, &record.Language, &record.Type)
+	email := ""
+	sms := ""
+	push := ""
+	err3 := rows.Scan(&record.Id, &email, &sms, &push, &record.Language, &record.Type)
 	if helper.IsError(err3) {
 		return nil
+	}
+	if email != "" {
+		record.Body.Email = &email
+	}
+	if sms != "" {
+		record.Body.SMS = &sms
+	}
+	if push != "" {
+		record.Body.Push = &push
 	}
 	return &record
 }
