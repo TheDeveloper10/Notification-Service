@@ -3,12 +3,14 @@ package controller
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
+	"notification-service/internal/controller/layer"
+	"notification-service/internal/dto"
 	"notification-service/internal/repository"
 	"notification-service/internal/util/test"
 	"testing"
 )
 
-func TestBasicNotificationV1Controller_Create(t *testing.T) {
+func TestBasicNotificationV1Controller_Send(t *testing.T) {
 	templateRepository := repository.NewMockTemplateRepository()
 	notificationRepository := repository.NewMockNotificationRepository()
 	clientRepository := repository.NewMockClientRepository()
@@ -30,15 +32,17 @@ func TestBasicNotificationV1Controller_Create(t *testing.T) {
 	s := func(str string) *string { return &str }
 
 	testCases := []test.ControllerTestCase{
-		newTestCase(s("{ " +
-			"\"appId\": \"test\", " +
-			"\"templateId\": 4, " +
-			"\"contactType\": \"email\"," +
-			"\"Title\": \"Welcome\"," +
-			"\"targets\": [ {" +
-			" \"email\": \"test@example.com\"," +
-			" \"placeholders\": [ { \"key\": \"firstName\", \"val\": \"John\" } ]" +
-			"} ] }"),
+		newTestCase(
+			layer.ToJSONString(
+				&dto.SendNotificationRequest{
+					AppID: "test",
+					TemplateID: 4,
+					Title: "Welcome",
+					Targets: []dto.NotificationTarget{
+						{ Email: s("test@example.com"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					},
+				},
+			),
 			map[string]string{
 				"Authorization": "Bearer 13124",
 				"Content-Type": "application/json",

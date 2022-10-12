@@ -1,41 +1,5 @@
-1. Add templates with same placeholders for email/sms/push
-    - validate before sending notifications
-{
-    "body": {
-        "email": "Hi @{title}!",
-        "sms": "Supp @{title}!",
-        "push": "Wowww! @{title} supp?"
-    },
-    "language": "BG",
-    "type": "abc"
-}
-
-
-{
-    "appId": "test app",
-    "templateId": 2,
-    "targets": [
-        {
-            "email": "john@test.com",
-            "phoneNumber": "+35987123423",
-            "fcmRegistrationToken": "piHFOAIhtoi3hwoihOPIHJFipoashjfpiHWJQPIRjuhPQIWRTjhopiqetnhoajfsn"
-            "placeholders": [
-                { "key": "title", "value": "bob" }
-            ]
-        },
-        {
-            "email": "test2@test.com",
-            "fcmRegistrationToken": "piHFOAIhtoi3hwoihOPIHJFipoashjfpiHWJQPIRjuhPQIWRTjhopiqetnhoajfsn"
-            "placeholders": [
-                { "key": "title", "value": "b02b" }
-            ]
-        }
-    ]
-}
-
-
-2. Add patch and delete operations to /v1/oauth/client
-3. Make allowed languages configurable
-4. Improve docs
-5. Use Firebase Cloud Messaging bulk sending
-6. Create a Docker Image
+1. Add patch and delete operations to /v1/oauth/client
+2. Make allowed languages configurable
+3. Improve docs
+4. Use Firebase Cloud Messaging bulk sending
+5. Create a Docker Image

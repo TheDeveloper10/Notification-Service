@@ -40,3 +40,13 @@ func JSONConverterMiddleware(res rem.IResponse, req rem.IRequest, out iface.IReq
 
 	return true
 }
+
+func ToJSONString(in iface.IRequest) *string {
+	bytes, err := json.Marshal(in)
+	if err != nil {
+		return nil
+	}
+
+	str := string(bytes)
+	return &str
+}

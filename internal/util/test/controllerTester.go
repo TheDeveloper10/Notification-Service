@@ -54,6 +54,6 @@ func (ctc *ControllerTestCase) RunTest(testId int, t *testing.T) {
 
 func RunControllerTestCases(cases *[]ControllerTestCase, t *testing.T) {
 	for testId, testCase := range *cases {
-		testCase.RunTest(testId + 1, t)
+		testCase.RunTest(testId, t)
 	}
 }

@@ -44,7 +44,7 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 		newTestCase(
 			http.MethodPut,
 			"1",
-			s("{ \"id\": 1, \"contactType\": \"email\", \"template\": \"Hello, @{secondName}\", \"language\": \"EN\", \"type\": \"test2\" }"),
+			s("{ \"id\": 1, \"body\": { \"email\": \"Hello, @{secondName}\", \"sms\": \"Hello, @{firstName}\", \"push\": \"Hi, @{username}\" }, \"language\": \"EN\", \"type\": \"test2\" }"),
 			map[string]string{
 				"Authorization": "Bearer 13124",
 				"Content-Type": "application/json",

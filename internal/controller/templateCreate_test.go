@@ -32,7 +32,7 @@ func TestBasicTemplateV1Controller_Create(t *testing.T) {
 		newTestCase(nil, nil, http.StatusUnauthorized),
 		newTestCase(nil, map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase(
-			s("{ \"contactType\": \"email\", \"template\": \"Hi @{firstName}\", \"language\": \"EN\", \"Type\": \"test\" }"),
+			s("{ \"body\": { \"email\": \"Hi, @{firstName}\", \"sms\": \"Hi, @{lastName}\", \"push\": \"Hi, @{username}\" }, \"language\": \"EN\", \"Type\": \"test\" }"),
 			map[string]string{
 				"Authorization": "Bearer 1234",
 				"Content-Type": "application/json",

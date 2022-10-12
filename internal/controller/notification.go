@@ -110,10 +110,10 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 	}
 
 	var wg sync.WaitGroup
-	errs := make([]dto.SendNotificationErrorData, 5)
+	errs := make([]dto.SendNotificationErrorData, 0)
 
-	sentNotifications := 0
-	failedNotifications := 0
+	successCount := 0
+	failedCount := 0
 	targetCount := len(reqObj.Targets)
 	for currentTarget := 0; currentTarget < targetCount; currentTarget++ {
 		target := &(reqObj.Targets[currentTarget])
@@ -127,16 +127,19 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 			continue
 		}
 
-		if target.Email != nil && !bnc.sendEmail(currentTarget, templateEntity, reqObj, &errs, &wg) {
+		notification := bnc.toNotificationEntity(currentTarget, templateEntity, reqObj, &errs)
+		if notification == nil {
 			continue
 		}
 
-		if target.PhoneNumber != nil && !bnc.sendSMS(currentTarget, templateEntity, reqObj, &errs, &wg) {
-			continue
+		if target.Email != nil {
+			go bnc.sendNotification(*notification, target.Email, bnc.notificationRepository.SendEmail, &successCount, &failedCount, &wg)
 		}
-
-		if target.FCMRegistrationToken != nil && !bnc.sendPush(currentTarget, templateEntity, reqObj, &errs, &wg) {
-			continue
+		if target.PhoneNumber != nil {
+			go bnc.sendNotification(*notification, target.PhoneNumber, bnc.notificationRepository.SendSMS, &successCount, &failedCount, &wg)
+		}
+		if target.FCMRegistrationToken != nil {
+			go bnc.sendNotification(*notification, target.FCMRegistrationToken, bnc.notificationRepository.SendPush, &successCount, &failedCount, &wg)
 		}
 	}
 
@@ -144,49 +147,33 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 	if len(errs) > 0 {
 		res.Status(http.StatusBadRequest).JSON(dto.SendNotificationsError{
-			Errors: errs,
-			SuccessfullySentNotifications: sentNotifications,
-			FailedNotifications: failedNotifications,
+			Errors:                        errs,
+			SuccessfullySentNotifications: successCount,
+			FailedNotifications:           failedCount,
 		})
 	} else {
 		res.Status(http.StatusCreated).Text(strconv.Itoa(targetCount) + " notification(s) have been sent successfully!")
 	}
 }
 
-func (bnc *basicNotificationV1Controller) sendEmail(targetId int, template *entity.TemplateEntity, request *dto.SendNotificationRequest, errs *[]dto.SendNotificationErrorData, wg *sync.WaitGroup) bool {
-	notification := bnc.toNotificationEntity(targetId, template, request, errs)
-	if notification == nil {
-		return false
-	}
-	notification.ContactInfo = *request.Targets[targetId].Email
 
-	go bnc.notificationRepository.SendEmail(notification)
+func (bnc *basicNotificationV1Controller) sendNotification(
+											notification entity.NotificationEntity,
+											contactInfo *string,
+											outsourceNotification func(notificationEntity *entity.NotificationEntity)bool,
+											successCount *int,
+											failedCount *int,
+											wg *sync.WaitGroup) {
+	notification.ContactInfo = *contactInfo
+
 	wg.Add(1)
-	return true
-}
-
-func (bnc *basicNotificationV1Controller) sendSMS(targetId int, template *entity.TemplateEntity, request *dto.SendNotificationRequest, errs *[]dto.SendNotificationErrorData, wg *sync.WaitGroup) bool {
-	notification := bnc.toNotificationEntity(targetId, template, request, errs)
-	if notification == nil {
-		return false
+	defer wg.Done()
+	if outsourceNotification(&notification) &&
+		bnc.notificationRepository.Insert(&notification) {
+		(*successCount)++
+	} else {
+		(*failedCount)++
 	}
-	notification.ContactInfo = *request.Targets[targetId].PhoneNumber
-
-	go bnc.notificationRepository.SendSMS(notification)
-	wg.Add(1)
-	return true
-}
-
-func (bnc *basicNotificationV1Controller) sendPush(targetId int, template *entity.TemplateEntity, request *dto.SendNotificationRequest, errs *[]dto.SendNotificationErrorData, wg *sync.WaitGroup) bool {
-	notification := bnc.toNotificationEntity(targetId, template, request, errs)
-	if notification == nil {
-		return false
-	}
-	notification.ContactInfo = *request.Targets[targetId].FCMRegistrationToken
-
-	go bnc.notificationRepository.SendPush(notification)
-	wg.Add(1)
-	return true
 }
 
 func (bnc *basicNotificationV1Controller) toNotificationEntity(targetId int, template *entity.TemplateEntity, request *dto.SendNotificationRequest, errs *[]dto.SendNotificationErrorData) *entity.NotificationEntity {
@@ -247,27 +234,4 @@ func (bnc *basicNotificationV1Controller) fillPlaceholders(template *entity.Temp
 	}
 
 	return true
-}
-
-func (bnc *basicNotificationV1Controller) processNotificationEntity(
-		outsourceNotification func(*entity.NotificationEntity) bool,
-		notificationEntity *entity.NotificationEntity,
-		processId int,
-		failures **string,
-		failedCount *int,
-		wg *sync.WaitGroup) {
-	defer wg.Done()
-	if outsourceNotification(notificationEntity) &&
-		bnc.notificationRepository.Insert(notificationEntity) {
-		return
-	}
-
-	(*failedCount)++
-	if *failures != nil {
-		newFailures := (**failures) + ", " + strconv.Itoa(processId)
-		*failures = &newFailures
-	} else {
-		newFailures := strconv.Itoa(processId)
-		*failures = &newFailures
-	}
 }
