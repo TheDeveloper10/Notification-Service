@@ -8,22 +8,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type ListOfSettings []string
-
-func (los *ListOfSettings) Has(setting string) bool {
-	for _, s := range *los {
-		if s == setting {
-			return true
-		}
-	}
-	return false
-}
-
 type config struct {
 	Service struct {
-		Services          ListOfSettings `yaml:"services"`
-		Clients           ListOfSettings `yaml:"clients"`
-		TemplateCacheSize int 	   		 `yaml:"template_cache_size"`
+		Services          ListOfStrings `yaml:"services"`
+		Clients           ListOfStrings `yaml:"clients"`
+		AllowedLanguages  ListOfStrings `yaml:"allowed_languages"`
+		TemplateCacheSize int           `yaml:"template_cache_size"`
 	}
 	HTTPServer struct {
 		Addr                  string

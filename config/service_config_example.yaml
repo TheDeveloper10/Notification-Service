@@ -8,6 +8,14 @@ service:
     - push
     - sms
 
+  allowed_languages:
+    - BG
+    - EN
+    - DE
+    - ES
+    - DA
+    - CS
+
   template_cache_size: 1000
 
 # needed only if 'http' is included in `service.services`

@@ -1,4 +1,3 @@
-1. Make allowed languages configurable
-2. Improve docs
-3. Use Firebase Cloud Messaging bulk sending
-4. Create a Docker Image
+1. Improve docs
+2. Use Firebase Cloud Messaging bulk sending
+3. Create a Docker Image
