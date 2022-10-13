@@ -3,7 +3,6 @@ package dto
 import (
 	"notification-service/internal/entity"
 	"notification-service/internal/helper"
-	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 )
 
@@ -15,8 +14,7 @@ type CreateTemplateRequest struct {
 }
 
 func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
-	errs := util.NewErrorList()
-	errs.Merge(ctr.Body.Validate())
+	errs := ctr.Body.Validate()
 
 	if ctr.Language == "" {
 		errs.AddErrorFromString("'language' must be given")

@@ -23,13 +23,13 @@ func (rtc *RequestTestCase) RunTest(testId int, t *testing.T) {
 
 func (rtc *RequestTestCase) LogError(testId int, actual int, t *testing.T) {
 	t.Errorf(
-		"Error: expected %d errors but got %d on test %d",
-		rtc.ExpectedErrors, actual, testId,
+		"Test Id: %d\tExpected Errors: %d\tReceived Errors: %d",
+		testId, rtc.ExpectedErrors, actual,
 	)
 }
 
 func RunRequestTestCases(cases *[]RequestTestCase, t *testing.T) {
 	for testId, testCase := range *cases {
-		testCase.RunTest(testId + 1, t)
+		testCase.RunTest(testId, t)
 	}
 }
