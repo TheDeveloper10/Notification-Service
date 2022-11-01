@@ -1,10 +1,9 @@
 package dto
 
 import (
+	"notification-service/internal/data/entity"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
-
-	"notification-service/internal/entity"
 )
 
 type UpdateTemplateRequest struct {

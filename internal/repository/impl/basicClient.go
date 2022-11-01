@@ -3,7 +3,7 @@ package impl
 import (
 	log "github.com/sirupsen/logrus"
 	"notification-service/internal/client"
-	"notification-service/internal/entity"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/util"
 	"time"

@@ -2,7 +2,7 @@ package dto
 
 import (
 	"net/mail"
-	"notification-service/internal/entity"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"regexp"
@@ -12,7 +12,7 @@ type NotificationTarget struct {
 	iface.IRequest
 	Email                *string               `json:"email"`
 	PhoneNumber          *string               `json:"phoneNumber"`
-	FCMRegistrationToken *string       		   `json:"fcmRegistrationToken"`
+	FCMRegistrationToken *string               `json:"fcmRegistrationToken"`
 	Placeholders         []TemplatePlaceholder `json:"placeholders"`
 }
 

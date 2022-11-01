@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"notification-service/internal/entity"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 )

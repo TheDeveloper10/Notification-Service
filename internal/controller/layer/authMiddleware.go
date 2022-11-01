@@ -4,11 +4,11 @@ import (
 	"encoding/base64"
 	"github.com/TheDeveloper10/rem"
 	"net/http"
+	"notification-service/internal/data/dto"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/util"
 	"strings"
 
-	"notification-service/internal/dto"
-	"notification-service/internal/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/repository"
 )

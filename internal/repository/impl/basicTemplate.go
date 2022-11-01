@@ -4,21 +4,21 @@ import (
 	"database/sql"
 	"github.com/sirupsen/logrus"
 	"notification-service/internal/client"
-	"notification-service/internal/entity"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/util"
 	"strconv"
 )
 
 type BasicTemplateRepository struct {
-	cache map[int]*entity.TemplateEntity
+	cache map[int]*entity2.TemplateEntity
 }
 
 func (btr *BasicTemplateRepository) Init() {
-	btr.cache = map[int]*entity.TemplateEntity{}
+	btr.cache = map[int]*entity2.TemplateEntity{}
 }
 
-func (btr *BasicTemplateRepository) Insert(entity *entity.TemplateEntity) (int, util.RepoStatusCode) {
+func (btr *BasicTemplateRepository) Insert(entity *entity2.TemplateEntity) (int, util.RepoStatusCode) {
 	res := client.SQLClient.Exec(
 		"insert into Templates(EmailBody, SMSBody, PushBody, Language, Type) values(?, ?, ?, ?, ?)",
 		entity.Body.Email, entity.Body.SMS, entity.Body.Push, entity.Language, entity.Type,
@@ -36,7 +36,7 @@ func (btr *BasicTemplateRepository) Insert(entity *entity.TemplateEntity) (int, 
 	return int(id), util.RepoStatusSuccess
 }
 
-func (btr *BasicTemplateRepository) Get(id int) (*entity.TemplateEntity, util.RepoStatusCode) {
+func (btr *BasicTemplateRepository) Get(id int) (*entity2.TemplateEntity, util.RepoStatusCode) {
 	if result, ok := btr.cache[id]; ok {
 		return result, util.RepoStatusSuccess
 	}
@@ -64,7 +64,7 @@ func (btr *BasicTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Re
 	}
 }
 
-func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]entity.TemplateEntity, util.RepoStatusCode) {
+func (btr *BasicTemplateRepository) GetBulk(filter *entity2.TemplateFilter) (*[]entity2.TemplateEntity, util.RepoStatusCode) {
 	builder := util.NewQueryBuilder("select * from Templates")
 
 	offset := (filter.Page - 1) * filter.Size
@@ -76,7 +76,7 @@ func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]e
 	}
 	defer helper.HandledClose(rows)
 
-	var templates []entity.TemplateEntity
+	var templates []entity2.TemplateEntity
 	for rows.Next() {
 		record := btr.GetTemplateEntityFromSQLRows(rows)
 		if record == nil {
@@ -90,9 +90,9 @@ func (btr *BasicTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]e
 	return &templates, util.RepoStatusSuccess
 }
 
-func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)  *entity.TemplateEntity{
-	record := entity.TemplateEntity{}
-	record.Body = entity.TemplateBody{}
+func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)  *entity2.TemplateEntity {
+	record := entity2.TemplateEntity{}
+	record.Body = entity2.TemplateBody{}
 	email := ""
 	sms := ""
 	push := ""
@@ -112,7 +112,7 @@ func (btr *BasicTemplateRepository) GetTemplateEntityFromSQLRows(rows *sql.Rows)
 	return &record
 }
 
-func (btr *BasicTemplateRepository) Update(entity *entity.TemplateEntity) util.RepoStatusCode {
+func (btr *BasicTemplateRepository) Update(entity *entity2.TemplateEntity) util.RepoStatusCode {
 	res := client.SQLClient.Exec(
 		"update Templates set EmailBody=?, SMSBody=?, PushBody=?, Language=?, Type=? where Id=?",
 		entity.Body.Email, entity.Body.SMS, entity.Body.Push, entity.Language, entity.Type,

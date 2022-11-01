@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"notification-service/internal/controller"
 	"notification-service/internal/controller/layer"
-	"notification-service/internal/dto"
+	dto2 "notification-service/internal/data/dto"
 	"notification-service/internal/repository"
 	"testing"
 )
@@ -34,12 +34,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 	testCases := []ControllerTestCase{
 		newTestCase(
 			layer.ToJSONString(
-				&dto.SendNotificationRequest{
+				&dto2.SendNotificationRequest{
 					AppID: "test",
 					TemplateID: 4,
 					Title: "Welcome",
-					Targets: []dto.NotificationTarget{
-						{ Email: s("test@example.com"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					Targets: []dto2.NotificationTarget{
+						{ Email: s("test@example.com"), Placeholders: []dto2.TemplatePlaceholder{{ Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -52,12 +52,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 		newTestCase(
 			layer.ToJSONString(
-				&dto.SendNotificationRequest{
+				&dto2.SendNotificationRequest{
 					AppID: "test",
 					TemplateID: 4,
 					Title: "Welcome",
-					Targets: []dto.NotificationTarget{
-						{ PhoneNumber: s("+357123451234"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					Targets: []dto2.NotificationTarget{
+						{ PhoneNumber: s("+357123451234"), Placeholders: []dto2.TemplatePlaceholder{{ Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -70,12 +70,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 		newTestCase(
 			layer.ToJSONString(
-				&dto.SendNotificationRequest{
+				&dto2.SendNotificationRequest{
 					AppID: "test",
 					TemplateID: 3,
 					Title: "Welcome",
-					Targets: []dto.NotificationTarget{
-						{ PhoneNumber: s("+357123451234"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					Targets: []dto2.NotificationTarget{
+						{ PhoneNumber: s("+357123451234"), Placeholders: []dto2.TemplatePlaceholder{{ Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -88,12 +88,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 		newTestCase(
 			layer.ToJSONString(
-				&dto.SendNotificationRequest{
+				&dto2.SendNotificationRequest{
 					AppID: "test",
 					TemplateID: 4,
 					Title: "Welcome",
-					Targets: []dto.NotificationTarget{
-						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					Targets: []dto2.NotificationTarget{
+						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto2.TemplatePlaceholder{{ Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -106,12 +106,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 		newTestCase(
 			layer.ToJSONString(
-				&dto.SendNotificationRequest{
+				&dto2.SendNotificationRequest{
 					AppID: "test",
 					TemplateID: 2,
 					Title: "Welcome",
-					Targets: []dto.NotificationTarget{
-						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					Targets: []dto2.NotificationTarget{
+						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto2.TemplatePlaceholder{{ Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -124,12 +124,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 		newTestCase(
 			layer.ToJSONString(
-				&dto.SendNotificationRequest{
+				&dto2.SendNotificationRequest{
 					AppID: "test",
 					TemplateID: 1,
 					Title: "Welcome",
-					Targets: []dto.NotificationTarget{
-						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+					Targets: []dto2.NotificationTarget{
+						{ FCMRegistrationToken: s("123uji214oiphOUHwouethwoiueth"), Placeholders: []dto2.TemplatePlaceholder{{ Key: "firstName", Value: "John" } } },
 					},
 				},
 			),

@@ -4,7 +4,7 @@ import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
 	"notification-service/internal/controller/layer"
-	"notification-service/internal/dto"
+	"notification-service/internal/data/dto"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"

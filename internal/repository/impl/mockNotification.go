@@ -1,30 +1,30 @@
 package impl
 
 import (
-	"notification-service/internal/entity"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/util"
 )
 
 type MockNotificationRepository struct {}
 
-func (m MockNotificationRepository) Insert(entity *entity.NotificationEntity) util.RepoStatusCode {
+func (m MockNotificationRepository) Insert(entity *entity2.NotificationEntity) util.RepoStatusCode {
 	return util.RepoStatusSuccess
 }
 
-func (m MockNotificationRepository) SendEmail(entity *entity.NotificationEntity) bool {
+func (m MockNotificationRepository) SendEmail(entity *entity2.NotificationEntity) bool {
 	return true
 }
 
-func (m MockNotificationRepository) SendPush(entity *entity.NotificationEntity) bool {
+func (m MockNotificationRepository) SendPush(entity *entity2.NotificationEntity) bool {
 	return true
 }
 
-func (m MockNotificationRepository) SendSMS(entity *entity.NotificationEntity) bool {
+func (m MockNotificationRepository) SendSMS(entity *entity2.NotificationEntity) bool {
 	return true
 }
 
-func (m MockNotificationRepository) GetBulk(filter *entity.NotificationFilter) (*[]entity.NotificationEntity, util.RepoStatusCode) {
-	return &[]entity.NotificationEntity{
+func (m MockNotificationRepository) GetBulk(filter *entity2.NotificationFilter) (*[]entity2.NotificationEntity, util.RepoStatusCode) {
+	return &[]entity2.NotificationEntity{
 		{
 			Id: 1,
 			TemplateID: 2,

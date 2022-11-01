@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"notification-service/internal/entity"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/util"
 )
 

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"notification-service/internal/entity"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/repository/impl"
 	"notification-service/internal/util"
 )

@@ -3,7 +3,7 @@ package impl
 import (
 	"github.com/sirupsen/logrus"
 	"notification-service/internal/client"
-	"notification-service/internal/entity"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/util"
 	"strconv"
@@ -11,7 +11,7 @@ import (
 
 type BasicNotificationRepository struct{}
 
-func (bnr *BasicNotificationRepository) Insert(notification *entity.NotificationEntity) util.RepoStatusCode {
+func (bnr *BasicNotificationRepository) Insert(notification *entity2.NotificationEntity) util.RepoStatusCode {
 	res := client.SQLClient.Exec(
 		"insert into Notifications(AppId, TemplateId, ContactInfo, Title, Message) values(?, ?, ?, ?, ?)",
 		notification.AppID, notification.TemplateID, notification.ContactInfo, notification.Title, notification.Message,
@@ -29,7 +29,7 @@ func (bnr *BasicNotificationRepository) Insert(notification *entity.Notification
 	return util.RepoStatusSuccess
 }
 
-func (bnr *BasicNotificationRepository) SendEmail(notification *entity.NotificationEntity) bool {
+func (bnr *BasicNotificationRepository) SendEmail(notification *entity2.NotificationEntity) bool {
 	err := client.MailClient.MailSingle(notification.Title, notification.Message, notification.ContactInfo)
 	if helper.IsError(err) {
 		return false
@@ -39,7 +39,7 @@ func (bnr *BasicNotificationRepository) SendEmail(notification *entity.Notificat
 	return true
 }
 
-func (bnr *BasicNotificationRepository) SendPush(notification *entity.NotificationEntity) bool {
+func (bnr *BasicNotificationRepository) SendPush(notification *entity2.NotificationEntity) bool {
 	err := client.PushClient.SendMessage(notification.Title, notification.Message, notification.ContactInfo)
 	if helper.IsError(err) {
 		return false
@@ -49,7 +49,7 @@ func (bnr *BasicNotificationRepository) SendPush(notification *entity.Notificati
 	return true
 }
 
-func (bnr *BasicNotificationRepository) SendSMS(notification *entity.NotificationEntity) bool {
+func (bnr *BasicNotificationRepository) SendSMS(notification *entity2.NotificationEntity) bool {
 	err := client.SMSClient.SendSMS(notification.Title, notification.Message, notification.ContactInfo)
 	if helper.IsError(err) {
 		return false
@@ -59,7 +59,7 @@ func (bnr *BasicNotificationRepository) SendSMS(notification *entity.Notificatio
 	return true
 }
 
-func (bnr *BasicNotificationRepository) GetBulk(filter *entity.NotificationFilter) (*[]entity.NotificationEntity, util.RepoStatusCode) {
+func (bnr *BasicNotificationRepository) GetBulk(filter *entity2.NotificationFilter) (*[]entity2.NotificationEntity, util.RepoStatusCode) {
 	builder := util.NewQueryBuilder("select * from Notifications")
 
 	builder.
@@ -82,9 +82,9 @@ func (bnr *BasicNotificationRepository) GetBulk(filter *entity.NotificationFilte
 	}
 	defer helper.HandledClose(rows)
 
-	var notifications []entity.NotificationEntity
+	var notifications []entity2.NotificationEntity
 	for rows.Next() {
-		record := entity.NotificationEntity{}
+		record := entity2.NotificationEntity{}
 		err3 := rows.Scan(&record.Id, &record.AppID, &record.TemplateID, &record.ContactInfo,
 			&record.Title, &record.Message, &record.SentTime)
 		if helper.IsError(err3) {

@@ -4,8 +4,8 @@ import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
 	"notification-service/internal/controller/layer"
-	"notification-service/internal/dto"
-	"notification-service/internal/entity"
+	dto2 "notification-service/internal/data/dto"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
@@ -45,7 +45,7 @@ func (btc *basicTemplateV1Controller) CreateRoutes(router *rem.Router) {
 }
 
 func (btc *basicTemplateV1Controller) CreateTemplateFromBytes(bytes []byte) {
-	reqObj := dto.CreateTemplateRequest{}
+	reqObj := dto2.CreateTemplateRequest{}
 	if !layer.JSONBytesConverterMiddleware(bytes, &reqObj) {
 		return
 	}
@@ -60,11 +60,11 @@ func (btc *basicTemplateV1Controller) getBulk(res rem.IResponse, req rem.IReques
 	// GET /templates
 	// GET /templates?page=24 (size = default = 20)
 	// GET /templates?size=50 (page = default = 1)
-	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity2.PermissionReadTemplates) {
 		return true
 	}
 
-	filter := entity.TemplateFilterFromRequest(req, res)
+	filter := entity2.TemplateFilterFromRequest(req, res)
 	if filter == nil {
 		return true
 	}
@@ -79,11 +79,11 @@ func (btc *basicTemplateV1Controller) getBulk(res rem.IResponse, req rem.IReques
 }
 
 func (btc *basicTemplateV1Controller) create(res rem.IResponse, req rem.IRequest) bool {
-	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionCreateTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity2.PermissionCreateTemplates) {
 		return true
 	}
 
-	reqObj := dto.CreateTemplateRequest{}
+	reqObj := dto2.CreateTemplateRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
 	}
@@ -91,7 +91,7 @@ func (btc *basicTemplateV1Controller) create(res rem.IResponse, req rem.IRequest
 	templateEntity := reqObj.ToEntity()
 	id, status := btc.templateRepository.Insert(templateEntity)
 	if status == util.RepoStatusSuccess {
-		metadata := dto.TemplateMetadata{
+		metadata := dto2.TemplateMetadata{
 			Id: id,
 		}
 		res.Status(http.StatusCreated).JSON(metadata)
@@ -124,7 +124,7 @@ func (btc *basicTemplateV1Controller) getTemplateIDFromURL(res rem.IResponse, re
 }
 
 func (btc *basicTemplateV1Controller) getById(res rem.IResponse, req rem.IRequest) bool {
-	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionReadTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity2.PermissionReadTemplates) {
 		return true
 	}
 
@@ -146,7 +146,7 @@ func (btc *basicTemplateV1Controller) getById(res rem.IResponse, req rem.IReques
 }
 
 func (btc *basicTemplateV1Controller) updateById(res rem.IResponse, req rem.IRequest) bool {
-	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionUpdateTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity2.PermissionUpdateTemplates) {
 		return true
 	}
 
@@ -155,7 +155,7 @@ func (btc *basicTemplateV1Controller) updateById(res rem.IResponse, req rem.IReq
 		return true
 	}
 
-	reqObj := dto.UpdateTemplateRequest{TemplateIdRequest: dto.TemplateIdRequest{Id: templateId}}
+	reqObj := dto2.UpdateTemplateRequest{TemplateIdRequest: dto2.TemplateIdRequest{Id: templateId}}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
 	}
@@ -173,7 +173,7 @@ func (btc *basicTemplateV1Controller) updateById(res rem.IResponse, req rem.IReq
 }
 
 func (btc *basicTemplateV1Controller) deleteById(res rem.IResponse, req rem.IRequest) bool {
-	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity.PermissionDeleteTemplates) {
+	if !layer.AccessTokenMiddleware(btc.clientRepository, res, req, entity2.PermissionDeleteTemplates) {
 		return true
 	}
 

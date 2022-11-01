@@ -2,7 +2,7 @@ package entity
 
 type TemplateEntity struct {
 	Id       int          `json:"id"`
-	Body	 TemplateBody `json:"contents"`
+	Body     TemplateBody `json:"contents"`
 	Language string       `json:"language"`
 	Type     string 	  `json:"type"`
 }

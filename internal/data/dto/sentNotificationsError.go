@@ -7,6 +7,6 @@ type SendNotificationErrorData struct {
 
 type SendNotificationsError struct {
 	Errors 						  []SendNotificationErrorData `json:"errors"`
-	SuccessfullySentNotifications int                         `json:"successfullySentNotifications"`
+	SuccessfullySentNotifications int                           `json:"successfullySentNotifications"`
 	FailedNotifications 		  int 					  	  `json:"failedNotifications"`
 }

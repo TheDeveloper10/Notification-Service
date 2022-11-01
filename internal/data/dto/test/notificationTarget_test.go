@@ -1,7 +1,7 @@
 package test
 
 import (
-	"notification-service/internal/dto"
+	"notification-service/internal/data/dto"
 	"testing"
 )
 

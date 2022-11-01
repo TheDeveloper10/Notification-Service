@@ -4,8 +4,8 @@ import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
 	"notification-service/internal/controller/layer"
-	"notification-service/internal/dto"
-	"notification-service/internal/entity"
+	dto2 "notification-service/internal/data/dto"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
@@ -42,7 +42,7 @@ func (bnc *basicNotificationV1Controller) CreateRoutes(router *rem.Router) {
 }
 
 func (bnc *basicNotificationV1Controller) CreateNotificationFromBytes(bytes []byte) {
-	reqObj := dto.SendNotificationRequest{}
+	reqObj := dto2.SendNotificationRequest{}
 	if !layer.JSONBytesConverterMiddleware(bytes, &reqObj) {
 		return
 	}
@@ -59,11 +59,11 @@ func (bnc *basicNotificationV1Controller) getBulk(res rem.IResponse, req rem.IRe
 	// GET /notifications?templateId=45
 	// GET /notifications?startTime=17824254
 	// GET /notifications?endTime=17824254
-	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionReadSentNotifications) {
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity2.PermissionReadSentNotifications) {
 		return true
 	}
 
-	filter := entity.NotificationFilterFromRequest(req, res)
+	filter := entity2.NotificationFilterFromRequest(req, res)
 	if filter == nil {
 		return true
 	}
@@ -79,11 +79,11 @@ func (bnc *basicNotificationV1Controller) getBulk(res rem.IResponse, req rem.IRe
 }
 
 func (bnc *basicNotificationV1Controller) send(res rem.IResponse, req rem.IRequest) bool {
-	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity.PermissionSendNotifications) {
+	if !layer.AccessTokenMiddleware(bnc.clientRepository, res, req, entity2.PermissionSendNotifications) {
 		return true
 	}
 
-	reqObj := dto.SendNotificationRequest{}
+	reqObj := dto2.SendNotificationRequest{}
 	if !layer.JSONConverterMiddleware(res, req, &reqObj) {
 		return true
 	}
@@ -92,7 +92,7 @@ func (bnc *basicNotificationV1Controller) send(res rem.IResponse, req rem.IReque
 	return true
 }
 
-func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificationRequest, res rem.IResponse) {
+func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto2.SendNotificationRequest, res rem.IResponse) {
 	templateEntity, status := bnc.templateRepository.Get(reqObj.TemplateID)
 	if status == util.RepoStatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something was wrong with the database. Try again"))
@@ -108,7 +108,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 	}
 
 	var wg sync.WaitGroup
-	errs := make([]dto.SendNotificationErrorData, 0)
+	errs := make([]dto2.SendNotificationErrorData, 0)
 
 	successCount := 0
 	failedCount := 0
@@ -119,7 +119,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 		targetErrors := target.Validate()
 		targetErrors.Merge(target.ValidateAgainstTemplate(templateEntity))
 		if targetErrors != nil && targetErrors.ErrorsCount() > 0 {
-			errs = append(errs, dto.SendNotificationErrorData{
+			errs = append(errs, dto2.SendNotificationErrorData{
 				TargetId: currentTarget,
 				Messages: *targetErrors.GetErrors(),
 			})
@@ -154,7 +154,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 	wg.Wait()
 
 	if failedCount > 0 || len(errs) > 0 {
-		res.Status(http.StatusBadRequest).JSON(dto.SendNotificationsError{
+		res.Status(http.StatusBadRequest).JSON(dto2.SendNotificationsError{
 			Errors:                        errs,
 			SuccessfullySentNotifications: successCount,
 			FailedNotifications:           failedCount,
@@ -166,9 +166,9 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 
 
 func (bnc *basicNotificationV1Controller) sendNotification(
-											notification entity.NotificationEntity,
+											notification entity2.NotificationEntity,
 											contactInfo *string,
-											outsourceNotification func(notificationEntity *entity.NotificationEntity)bool,
+											outsourceNotification func(notificationEntity *entity2.NotificationEntity)bool,
 											successCount *int,
 											failedCount *int,
 											wg *sync.WaitGroup) {
@@ -188,23 +188,23 @@ func (bnc *basicNotificationV1Controller) sendNotification(
 
 func (bnc *basicNotificationV1Controller) toNotificationEntity(
 											targetId int,
-											template *entity.TemplateEntity,
+											template *entity2.TemplateEntity,
 											message *string,
-											request *dto.SendNotificationRequest,
-											errs *[]dto.SendNotificationErrorData) *entity.NotificationEntity {
-	replaced, err := dto.FillPlaceholders(*message, &request.Targets[targetId].Placeholders)
+											request *dto2.SendNotificationRequest,
+											errs *[]dto2.SendNotificationErrorData) *entity2.NotificationEntity {
+	replaced, err := dto2.FillPlaceholders(*message, &request.Targets[targetId].Placeholders)
 	if err != nil {
-		*errs = append(*errs, dto.SendNotificationErrorData{
+		*errs = append(*errs, dto2.SendNotificationErrorData{
 			TargetId: targetId,
 			Messages: []string { err.Error() },
 		})
 		return nil
 	}
 
-	unfilledPlaceholders := dto.GetPlaceholders(replaced)
+	unfilledPlaceholders := dto2.GetPlaceholders(replaced)
 
 	if len(unfilledPlaceholders) > 0 {
-		*errs = append(*errs, dto.SendNotificationErrorData{
+		*errs = append(*errs, dto2.SendNotificationErrorData{
 			TargetId: targetId,
 			Messages: []string { "Unfilled placeholders: " + unfilledPlaceholders },
 		})
@@ -212,7 +212,7 @@ func (bnc *basicNotificationV1Controller) toNotificationEntity(
 		return nil
 	}
 
-	return &entity.NotificationEntity{
+	return &entity2.NotificationEntity{
 		TemplateID:  template.Id,
 		AppID:       request.AppID,
 		Title:       request.Title,
@@ -220,9 +220,9 @@ func (bnc *basicNotificationV1Controller) toNotificationEntity(
 	}
 }
 
-func (bnc *basicNotificationV1Controller) fillPlaceholders(template *entity.TemplateEntity, placeholders *[]dto.TemplatePlaceholder, res rem.IResponse) bool {
+func (bnc *basicNotificationV1Controller) fillPlaceholders(template *entity2.TemplateEntity, placeholders *[]dto2.TemplatePlaceholder, res rem.IResponse) bool {
 	if(template.Body.Email != nil) {
-		edited, err := dto.FillPlaceholders(*template.Body.Email, placeholders)
+		edited, err := dto2.FillPlaceholders(*template.Body.Email, placeholders)
 		if err != nil {
 			res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
 			return false
@@ -231,7 +231,7 @@ func (bnc *basicNotificationV1Controller) fillPlaceholders(template *entity.Temp
 	}
 
 	if(template.Body.SMS != nil) {
-		edited, err := dto.FillPlaceholders(*template.Body.SMS, placeholders)
+		edited, err := dto2.FillPlaceholders(*template.Body.SMS, placeholders)
 		if err != nil {
 			res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
 			return false
@@ -240,7 +240,7 @@ func (bnc *basicNotificationV1Controller) fillPlaceholders(template *entity.Temp
 	}
 
 	if(template.Body.Push != nil) {
-		edited, err := dto.FillPlaceholders(*template.Body.Push, placeholders)
+		edited, err := dto2.FillPlaceholders(*template.Body.Push, placeholders)
 		if err != nil {
 			res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
 			return false

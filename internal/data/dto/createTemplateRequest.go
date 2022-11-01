@@ -1,15 +1,15 @@
 package dto
 
 import (
-	"notification-service/internal/entity"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
 )
 
 type CreateTemplateRequest struct {
 	iface.IRequestEntity[entity.TemplateEntity]
-	Body 	 TemplateBodyRequest `json:"body"`
-	Language string 			 `json:"language"`
+	Body     TemplateBodyRequest `json:"body"`
+	Language string              `json:"language"`
 	Type     string 			 `json:"type"`
 }
 

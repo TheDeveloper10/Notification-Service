@@ -13,7 +13,7 @@ type SendNotificationRequest struct {
 
 	Targets []NotificationTarget `json:"targets"`
 
-	Title                 string               `json:"title"`
+	Title                 string                `json:"title"`
 	UniversalPlaceholders []TemplatePlaceholder `json:"universalPlaceholders"`
 }
 

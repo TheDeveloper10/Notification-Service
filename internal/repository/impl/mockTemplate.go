@@ -1,22 +1,22 @@
 package impl
 
 import (
-	"notification-service/internal/entity"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/util"
 )
 
 type MockTemplateRepository struct {}
 
-func (mtr *MockTemplateRepository) Insert(entity *entity.TemplateEntity) (int, util.RepoStatusCode) {
+func (mtr *MockTemplateRepository) Insert(entity *entity2.TemplateEntity) (int, util.RepoStatusCode) {
 	return 0, util.RepoStatusSuccess
 }
 
-func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.RepoStatusCode) {
+func (mtr *MockTemplateRepository) Get(id int) (*entity2.TemplateEntity, util.RepoStatusCode) {
 	if id == 4 {
 		template := "Hi, @{firstName}!"
-		return &entity.TemplateEntity{
+		return &entity2.TemplateEntity{
 			Id: 1,
-			Body: entity.TemplateBody{
+			Body: entity2.TemplateBody{
 				Email: &template,
 			},
 			Language: "EN",
@@ -24,9 +24,9 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Rep
 		}, util.RepoStatusSuccess
 	} else if id == 3 {
 		template := "Hi, @{firstName}!"
-		return &entity.TemplateEntity{
+		return &entity2.TemplateEntity{
 			Id: 1,
-			Body: entity.TemplateBody{
+			Body: entity2.TemplateBody{
 				SMS: &template,
 			},
 			Language: "EN",
@@ -34,9 +34,9 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Rep
 		}, util.RepoStatusSuccess
 	} else if id == 2 {
 		template := "Hi, @{firstName}!"
-		return &entity.TemplateEntity{
+		return &entity2.TemplateEntity{
 			Id: 1,
-			Body: entity.TemplateBody{
+			Body: entity2.TemplateBody{
 				Push: &template,
 			},
 			Language: "EN",
@@ -49,12 +49,12 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Rep
 	return nil, util.RepoStatusError
 }
 
-func (mtr *MockTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]entity.TemplateEntity, util.RepoStatusCode) {
+func (mtr *MockTemplateRepository) GetBulk(filter *entity2.TemplateFilter) (*[]entity2.TemplateEntity, util.RepoStatusCode) {
 	template := "Hi, @{firstName}!"
-	return &[]entity.TemplateEntity{
+	return &[]entity2.TemplateEntity{
 		{
 			Id: 5,
-			Body: entity.TemplateBody{
+			Body: entity2.TemplateBody{
 				Push: &template,
 			},
 			Language: "EN",
@@ -63,7 +63,7 @@ func (mtr *MockTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]en
 	}, util.RepoStatusSuccess
 }
 
-func (mtr *MockTemplateRepository) Update(templateEntity *entity.TemplateEntity) util.RepoStatusCode {
+func (mtr *MockTemplateRepository) Update(templateEntity *entity2.TemplateEntity) util.RepoStatusCode {
 	return util.RepoStatusSuccess
 }
 

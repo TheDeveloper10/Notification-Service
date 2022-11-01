@@ -1,19 +1,19 @@
 package repository
 
 import (
-	"notification-service/internal/entity"
+	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/repository/impl"
 	"notification-service/internal/util"
 )
 
 type INotificationRepository interface {
-	Insert(*entity.NotificationEntity) util.RepoStatusCode
+	Insert(*entity2.NotificationEntity) util.RepoStatusCode
 
-	SendEmail(*entity.NotificationEntity) bool
-	SendPush(*entity.NotificationEntity) bool
-	SendSMS(*entity.NotificationEntity) bool
+	SendEmail(*entity2.NotificationEntity) bool
+	SendPush(*entity2.NotificationEntity) bool
+	SendSMS(*entity2.NotificationEntity) bool
 
-	GetBulk(*entity.NotificationFilter) (*[]entity.NotificationEntity, util.RepoStatusCode)
+	GetBulk(*entity2.NotificationFilter) (*[]entity2.NotificationEntity, util.RepoStatusCode)
 }
 
 // ----------------------------------
