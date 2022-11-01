@@ -1,5 +1,6 @@
 # Description
-This is a notification service. You can create templates and send notifications using these templates. Currently you can send Push notifications, Email notifications and SMS notifications. The service is using a database to store all templates and already sent notifications. It's also using RabbitMQ *(OPTIONAL)* to manage heavier loads.
+This is a notification service. You can create templates and send notifications using these templates. Currently you can send Push notifications, Email notifications and SMS notifications.
+The service is using a database to store all templates and already sent notifications. It's also using RabbitMQ *(OPTIONAL)* to manage heavier loads.
 
 ___
 # How to start?
@@ -11,15 +12,17 @@ If you want to run the full package you will need
 \- docker
 
 ### Commands
+Run the example docker-compose
 ```
 $ git clone https://github.com/TheDeveloper10/Notification-Service
-$ cd ./Notification-Service/scripts/docker
+$ cd ./Notification-Service/example/
 $ sudo docker compose up
 ```
 
 ___
 # Configuration
-You can configure the entire service by cloning `config/service_config_example.yaml` and naming it `config/service_config.yaml`. This is the primary configuration file - you can turn on/off any service from here: HTTP server, RabbitMQ, SMTP client, Push client and perform many more configurations.
+You can configure the entire service by cloning `config/service_config_example.yaml` and naming it `config/service_config.yaml`.
+This is the primary configuration file - you can setup connections to other services, turn on/off services like HTTP server, RabbitMQ, SMTP client, Push client and perform other configurations.
 
 ___
 # Used Services
@@ -27,7 +30,7 @@ ___
 The database is responsible for storing the list of templates and sent notifications. By default the used database is MySQL and you can change that by editing the `scripts/docker/docker-compose.yaml` file and `config/service_config.yaml`. It is being auto-configured by the files in `scripts/sql/`.
 
 ### RabbitMQ
-RabbitMQ was added because it's a good and stable message queue which can help the service scale better. It is auto-configured by the files in `scripts/rabbitmq`. The configuration files create the required queues.
+RabbitMQ was added because it's a good and stable message queue which can help the service scale better.
 
 ### SMTP
 This is used for Email Notifications. You can use any SMTP service but in this case the preconfigured one is GMail. You can change the SMTP configuration or turn it off in `config/service_config.yaml`.
