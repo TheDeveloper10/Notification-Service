@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateTemplateRequest_Validate(t *testing.T) {
-	helper.LoadConfig("../../../" + helper.ServiceConfigPath)
+	helper.LoadConfig("../../../../" + helper.ServiceConfigPath)
 
 	s := func(str string) *string { return &str }
 	testCases := []RequestTestCase{
