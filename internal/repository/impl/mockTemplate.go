@@ -20,7 +20,7 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Rep
 				Email: &template,
 			},
 			Language: "EN",
-			Type:     "test",
+			Type:     "testutils",
 		}, util.RepoStatusSuccess
 	} else if id == 3 {
 		template := "Hi, @{firstName}!"
@@ -30,7 +30,7 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Rep
 				SMS: &template,
 			},
 			Language: "EN",
-			Type:     "test",
+			Type:     "testutils",
 		}, util.RepoStatusSuccess
 	} else if id == 2 {
 		template := "Hi, @{firstName}!"
@@ -40,7 +40,7 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity.TemplateEntity, util.Rep
 				Push: &template,
 			},
 			Language: "EN",
-			Type:     "test",
+			Type:     "testutils",
 		}, util.RepoStatusSuccess
 	} else if id == 1 {
 		return nil, util.RepoStatusNotFound
@@ -58,7 +58,7 @@ func (mtr *MockTemplateRepository) GetBulk(filter *entity.TemplateFilter) (*[]en
 				Push: &template,
 			},
 			Language: "EN",
-			Type: "test",
+			Type: "testutils",
 		},
 	}, util.RepoStatusSuccess
 }

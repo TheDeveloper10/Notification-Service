@@ -1,25 +1,26 @@
-package controller
+package test
 
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
+	"notification-service/internal/controller"
 	"notification-service/internal/helper"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/test"
+	"notification-service/internal/util/testutils"
 	"testing"
 )
 
 func TestBasicAuthV1Controller_DeleteClient(t *testing.T) {
 	// TODO: fix this path*
-	helper.LoadConfig("../../" + helper.ServiceConfigPath)
+	helper.LoadConfig("../../../" + helper.ServiceConfigPath)
 
 	clientRepository := repository.NewMockClientRepository()
-	bac := NewAuthV1Controller(clientRepository)
+	bac := controller.NewAuthV1Controller(clientRepository)
 	router := rem.NewRouter()
 	bac.CreateRoutes(router)
 
-	newTestCase := func(id string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
-		return test.ControllerTestCase{
+	newTestCase := func(id string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
+		return testutils.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodDelete,
 			ReqURL:          "/v1/oauth/client/" + id,
@@ -29,9 +30,9 @@ func TestBasicAuthV1Controller_DeleteClient(t *testing.T) {
 		}
 	}
 
-	testCases := []test.ControllerTestCase{
+	testCases := []testutils.ControllerTestCase{
 		newTestCase("a", nil, http.StatusUnauthorized),
-		newTestCase("a", map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
+		newTestCase("a", map[string]string{ "Authorization": "Basic testutils:13124" }, http.StatusUnauthorized),
 		newTestCase("a", map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
 		newTestCase(
 			"a",
@@ -66,5 +67,5 @@ func TestBasicAuthV1Controller_DeleteClient(t *testing.T) {
 		),
 	}
 
-	test.RunControllerTestCases(&testCases, t)
+	testutils.RunControllerTestCases(&testCases, t)
 }

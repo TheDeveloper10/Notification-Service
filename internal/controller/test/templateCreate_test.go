@@ -1,22 +1,23 @@
-package controller
+package test
 
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
+	"notification-service/internal/controller"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/test"
+	"notification-service/internal/util/testutils"
 	"testing"
 )
 
 func TestBasicTemplateV1Controller_Create(t *testing.T) {
 	templateRepository := repository.NewMockTemplateRepository()
 	clientRepository := repository.NewMockClientRepository()
-	tac := NewTemplateV1Controller(templateRepository, clientRepository)
+	tac := controller.NewTemplateV1Controller(templateRepository, clientRepository)
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 
-	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
-		return test.ControllerTestCase{
+	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
+		return testutils.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodPost,
 			ReqURL:          "/v1/templates",
@@ -28,7 +29,7 @@ func TestBasicTemplateV1Controller_Create(t *testing.T) {
 
 	s := func(str string) *string { return &str }
 
-	testCases := []test.ControllerTestCase{
+	testCases := []testutils.ControllerTestCase{
 		newTestCase(nil, nil, http.StatusUnauthorized),
 		newTestCase(nil, map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase(
@@ -40,5 +41,5 @@ func TestBasicTemplateV1Controller_Create(t *testing.T) {
 			http.StatusCreated),
 	}
 
-	test.RunControllerTestCases(&testCases, t)
+	testutils.RunControllerTestCases(&testCases, t)
 }

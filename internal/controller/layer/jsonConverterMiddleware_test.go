@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"notification-service/internal/util/iface"
-	"notification-service/internal/util/test"
+	"notification-service/internal/util/testutils"
 	"reflect"
 	"strconv"
 	"testing"
@@ -22,7 +22,7 @@ func (td *testData) Validate() iface.IErrorList {
 }
 
 func TestJSONConverterMiddleware(t *testing.T) {
-	testCases := []test.LayerTestCase{
+	testCases := []testutils.LayerTestCase{
 		{ ExpectedStatus: http.StatusUnsupportedMediaType, SetHeader: false, Body: nil },
 		{ ExpectedStatus: http.StatusBadRequest, SetHeader: true, Body: nil },
 		{ ExpectedStatus: http.StatusUnsupportedMediaType, SetHeader: false, Body: &testData{Text: "H123I"} },
@@ -47,7 +47,7 @@ func TestJSONConverterMiddleware(t *testing.T) {
 	}
 }
 
-func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase test.LayerTestCase) {
+func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase testutils.LayerTestCase) {
 	req, res := testCase.PrepareTest(t)
 
 	before := ""

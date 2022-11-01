@@ -1,13 +1,14 @@
-package helper
+package test
 
 import (
+	"notification-service/internal/helper"
 	"strconv"
 	"testing"
 )
 
 type listOfStringsHasTest struct {
-	data 		   ListOfStrings
-	element 	   string
+	data    helper.ListOfStrings
+	element string
 	expectedResult bool
 }
 
@@ -30,7 +31,7 @@ func (losht *listOfStringsHasTest) performTest(testId int, t *testing.T) {
 }
 
 func TestListOfStrings_Has(t *testing.T) {
-	tests := []listOfStringsHasTest {
+	tests := []listOfStringsHasTest{
 		{ data: []string { "a", "b", "c" }, element: "a", expectedResult: true },
 		{ data: []string { "a", "b", "c" }, element: "b", expectedResult: true },
 		{ data: []string { "a", "b", "c" }, element: "c", expectedResult: true },

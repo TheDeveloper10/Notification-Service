@@ -14,7 +14,7 @@ type basicTestV1Controller struct { }
 
 func (btc *basicTestV1Controller) CreateRoutes(router *rem.Router) {
 	router.
-		NewRoute("/v1/test").
+		NewRoute("/v1/testutils").
 		MultiMethod([]string{ http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete }, btc.Handle)
 }
 

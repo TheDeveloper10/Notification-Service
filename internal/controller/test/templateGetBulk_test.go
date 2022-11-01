@@ -1,23 +1,24 @@
-package controller
+package test
 
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
+	"notification-service/internal/controller"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/test"
+	"notification-service/internal/util/testutils"
 	"testing"
 )
 
 func TestBasicTemplateV1Controller_GetBulk(t *testing.T) {
 	templateRepository := repository.NewMockTemplateRepository()
 	clientRepository := repository.NewMockClientRepository()
-	tac := NewTemplateV1Controller(templateRepository, clientRepository)
+	tac := controller.NewTemplateV1Controller(templateRepository, clientRepository)
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 
-	newTestCase := func(reqURL string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
+	newTestCase := func(reqURL string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
 		reqURL = "/v1/templates" + reqURL
-		return test.ControllerTestCase{
+		return testutils.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodGet,
 			ReqURL:          reqURL,
@@ -27,12 +28,12 @@ func TestBasicTemplateV1Controller_GetBulk(t *testing.T) {
 		}
 	}
 
-	testCases := []test.ControllerTestCase{
+	testCases := []testutils.ControllerTestCase{
 		newTestCase("", nil, http.StatusUnauthorized),
 		newTestCase("", map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase("", map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
 		newTestCase("?size=10&page=2", map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
 	}
 
-	test.RunControllerTestCases(&testCases, t)
+	testutils.RunControllerTestCases(&testCases, t)
 }

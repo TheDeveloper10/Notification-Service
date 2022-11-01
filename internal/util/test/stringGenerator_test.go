@@ -1,9 +1,12 @@
-package util
+package test
 
-import "testing"
+import (
+	"notification-service/internal/util"
+	"testing"
+)
 
 func TestStringGenerator_GenerateString(t *testing.T) {
-	sg := NewStringGenerator()
+	sg := util.NewStringGenerator()
 
 	const lengthOfStringToGenerate = 64
 

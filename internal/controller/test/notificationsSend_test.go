@@ -1,12 +1,13 @@
-package controller
+package test
 
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
+	"notification-service/internal/controller"
 	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/test"
+	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -14,12 +15,12 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 	templateRepository := repository.NewMockTemplateRepository()
 	notificationRepository := repository.NewMockNotificationRepository()
 	clientRepository := repository.NewMockClientRepository()
-	tac := NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
+	tac := controller.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 
-	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) test.ControllerTestCase {
-		return test.ControllerTestCase{
+	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
+		return testutils.ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodPost,
 			ReqURL:          "/v1/notifications",
@@ -31,15 +32,15 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 	s := func(str string) *string { return &str }
 
-	testCases := []test.ControllerTestCase{
+	testCases := []testutils.ControllerTestCase{
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "test",
+					AppID: "testutils",
 					TemplateID: 4,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
-						{ Email: s("test@example.com"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+						{ Email: s("testutils@example.com"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -53,7 +54,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "test",
+					AppID: "testutils",
 					TemplateID: 4,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -71,7 +72,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "test",
+					AppID: "testutils",
 					TemplateID: 3,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -89,7 +90,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "test",
+					AppID: "testutils",
 					TemplateID: 4,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -107,7 +108,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "test",
+					AppID: "testutils",
 					TemplateID: 2,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -125,7 +126,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "test",
+					AppID: "testutils",
 					TemplateID: 1,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -141,5 +142,5 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		),
 	}
 
-	test.RunControllerTestCases(&testCases, t)
+	testutils.RunControllerTestCases(&testCases, t)
 }

@@ -1,9 +1,10 @@
-package dto
+package test
 
 import (
+	"notification-service/internal/dto"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
-	"notification-service/internal/util/test"
+	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -14,7 +15,7 @@ type TemplatePlaceholderTest struct {
 
 func (tpt *TemplatePlaceholderTest) Validate() iface.IErrorList {
 	errs := util.NewErrorList()
-	tp := TemplatePlaceholder{
+	tp := dto.TemplatePlaceholder{
 		Key: tpt.Key,
 		Value: tpt.Val,
 	}
@@ -23,12 +24,12 @@ func (tpt *TemplatePlaceholderTest) Validate() iface.IErrorList {
 }
 
 func TestTemplatePlaceholder_Validate(t *testing.T) {
-	testCases := []test.RequestTestCase{
+	testCases := []testutils.RequestTestCase{
 		{ ExpectedErrors: 1, Data: &TemplatePlaceholderTest{} },
 		{ ExpectedErrors: 1, Data: &TemplatePlaceholderTest{"", ""} },
 		{ ExpectedErrors: 0, Data: &TemplatePlaceholderTest{"j", ""} },
 		{ ExpectedErrors: 0, Data: &TemplatePlaceholderTest{"j", "a"} },
 	}
 
-	test.RunRequestTestCases(&testCases, t)
+	testutils.RunRequestTestCases(&testCases, t)
 }

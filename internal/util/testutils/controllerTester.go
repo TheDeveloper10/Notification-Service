@@ -1,4 +1,4 @@
-package test
+package testutils
 
 import (
 	"github.com/TheDeveloper10/rem"
