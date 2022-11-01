@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  database:
+    image: "mysql:8.0.30"
+    container_name: "ns-database"
+    env_file:
+      - db.env
+    volumes:
+      - ./db-schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  rabbitmq:
+    image: "rabbitmq:3.10.7-management-alpine"
+    container_name: "ns-rabbitmq"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
+
+  backend:
+    build:
+      context: ./../
+      dockerfile: ./Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - database
