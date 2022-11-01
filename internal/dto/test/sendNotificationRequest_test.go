@@ -9,7 +9,7 @@ import (
 func TestSendNotificationRequest_Validate(t *testing.T) {
 	s := func(str string) *string { return &str }
 	targets := []dto.NotificationTarget{
-		{ Email: s("testutils@example.com") },
+		{ Email: s("test@example.com") },
 	}
 
 	testCases := []testutils.RequestTestCase{

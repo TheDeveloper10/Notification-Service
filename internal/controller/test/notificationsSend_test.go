@@ -36,11 +36,11 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "testutils",
+					AppID: "test",
 					TemplateID: 4,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
-						{ Email: s("testutils@example.com"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
+						{ Email: s("test@example.com"), Placeholders: []dto.TemplatePlaceholder{ { Key: "firstName", Value: "John" } } },
 					},
 				},
 			),
@@ -54,7 +54,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "testutils",
+					AppID: "test",
 					TemplateID: 4,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -72,7 +72,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "testutils",
+					AppID: "test",
 					TemplateID: 3,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -90,7 +90,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "testutils",
+					AppID: "test",
 					TemplateID: 4,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -108,7 +108,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "testutils",
+					AppID: "test",
 					TemplateID: 2,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{
@@ -126,7 +126,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
-					AppID: "testutils",
+					AppID: "test",
 					TemplateID: 1,
 					Title: "Welcome",
 					Targets: []dto.NotificationTarget{

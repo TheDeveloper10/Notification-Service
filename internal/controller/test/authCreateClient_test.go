@@ -34,7 +34,7 @@ func TestBasicAuthV1Controller_CreateClient(t *testing.T) {
 
 	testCases := []testutils.ControllerTestCase{
 		newTestCase(nil, nil, http.StatusUnauthorized),
-		newTestCase(nil, map[string]string{ "Authorization": "Basic testutils:13124" }, http.StatusUnauthorized),
+		newTestCase(nil, map[string]string{ "Authorization": "Basic test:13124" }, http.StatusUnauthorized),
 		newTestCase(nil, map[string]string{ "Authorization": "Bearer 1234" }, http.StatusForbidden),
 		newTestCase(
 			s("{}"),

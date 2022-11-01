@@ -24,7 +24,7 @@ jobs:
           name: "Run go vet"
           command: go vet -v ./...
       - run:
-          name: "Run go testutils (+ race detector)"
+          name: "Run go test (+ race detector)"
           command: |
             cp ./config/service_config_example.yaml ./config/service_config.yaml
             go test -v -race ./...
@@ -32,4 +32,4 @@ jobs:
 workflows:
   tests:
     jobs:
-      - testutils
+      - test

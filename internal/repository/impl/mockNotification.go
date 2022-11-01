@@ -28,8 +28,8 @@ func (m MockNotificationRepository) GetBulk(filter *entity.NotificationFilter) (
 		{
 			Id: 1,
 			TemplateID: 2,
-			AppID: "testutils-app",
-			ContactInfo: "testutils@example.com",
+			AppID: "test-app",
+			ContactInfo: "test@example.com",
 			Title: "Hi!",
 			Message: "Hello!",
 			SentTime: 123342352,
