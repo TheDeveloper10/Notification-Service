@@ -1,10 +1,10 @@
-package layer
+package test
 
 import (
 	"encoding/json"
 	"net/http"
+	"notification-service/internal/controller/layer"
 	"notification-service/internal/util/iface"
-	"notification-service/internal/util/testutils"
 	"reflect"
 	"strconv"
 	"testing"
@@ -22,7 +22,7 @@ func (td *testData) Validate() iface.IErrorList {
 }
 
 func TestJSONConverterMiddleware(t *testing.T) {
-	testCases := []testutils.LayerTestCase{
+	testCases := []LayerTestCase{
 		{ ExpectedStatus: http.StatusUnsupportedMediaType, SetHeader: false, Body: nil },
 		{ ExpectedStatus: http.StatusBadRequest, SetHeader: true, Body: nil },
 		{ ExpectedStatus: http.StatusUnsupportedMediaType, SetHeader: false, Body: &testData{Text: "H123I"} },
@@ -47,7 +47,7 @@ func TestJSONConverterMiddleware(t *testing.T) {
 	}
 }
 
-func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase testutils.LayerTestCase) {
+func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase LayerTestCase) {
 	req, res := testCase.PrepareTest(t)
 
 	before := ""
@@ -56,7 +56,7 @@ func performJSONConverterMiddlewareTest(t *testing.T, testId int, testCase testu
 		before = string(beforeBytes)
 	}
 
-	JSONConverterMiddleware(res, req, testCase.Body)
+	layer.JSONConverterMiddleware(res, req, testCase.Body)
 	statusCode := reflect.ValueOf(res).Elem().FieldByName("statusCode").Int()
 
 	if testCase.ExpectedStatus != int(statusCode) {

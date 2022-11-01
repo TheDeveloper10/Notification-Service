@@ -6,7 +6,6 @@ import (
 	"notification-service/internal/controller"
 	"notification-service/internal/helper"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -18,8 +17,8 @@ func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
 	router := rem.NewRouter()
 	bac.CreateRoutes(router)
 
-	newTestCase := func(reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
-		return testutils.ControllerTestCase{
+	newTestCase := func(reqHeaders map[string]string, expectedStatusCode int) ControllerTestCase {
+		return ControllerTestCase{
 			Router: router,
 			ReqMethod: http.MethodPost,
 			ReqURL: "/v1/oauth/token",
@@ -29,12 +28,12 @@ func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
 		}
 	}
 
-	testCases := []testutils.ControllerTestCase{
+	testCases := []ControllerTestCase{
 		newTestCase(nil, http.StatusUnauthorized),
 		newTestCase(map[string]string{ "Authorization": "Bearer 13124" }, http.StatusUnauthorized),
 		newTestCase(map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase(map[string]string{ "Authorization": "Basic aWQ6c2VjcmV0" }, http.StatusOK),
 	}
 
-	testutils.RunControllerTestCases(&testCases, t)
+	RunControllerTestCases(&testCases, t)
 }

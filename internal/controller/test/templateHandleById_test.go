@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"notification-service/internal/controller"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -16,8 +15,8 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 
-	newTestCase := func(reqMethod string, reqURLVariable string, reqBody *string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
-		return testutils.ControllerTestCase{
+	newTestCase := func(reqMethod string, reqURLVariable string, reqBody *string, reqHeaders map[string]string, expectedStatusCode int) ControllerTestCase {
+		return ControllerTestCase{
 			Router:          router,
 			ReqMethod:       reqMethod,
 			ReqURL:          "/v1/templates/" + reqURLVariable,
@@ -29,7 +28,7 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 
 	s := func(str string) *string { return &str }
 
-	testCases := []testutils.ControllerTestCase{
+	testCases := []ControllerTestCase{
 		newTestCase(http.MethodGet, "", nil, nil, http.StatusUnauthorized),
 
 		newTestCase(http.MethodGet, "1", nil, nil, http.StatusUnauthorized),
@@ -55,5 +54,5 @@ func TestBasicTemplateV1Controller_HandleById(t *testing.T) {
 		),
 	}
 
-	testutils.RunControllerTestCases(&testCases, t)
+	RunControllerTestCases(&testCases, t)
 }

@@ -1,4 +1,4 @@
-package testutils
+package test
 
 import (
 	"notification-service/internal/util/iface"

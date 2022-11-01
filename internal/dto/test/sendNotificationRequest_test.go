@@ -2,7 +2,6 @@ package test
 
 import (
 	"notification-service/internal/dto"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -12,7 +11,7 @@ func TestSendNotificationRequest_Validate(t *testing.T) {
 		{ Email: s("test@example.com") },
 	}
 
-	testCases := []testutils.RequestTestCase{
+	testCases := []RequestTestCase{
 		{ ExpectedErrors: 4, Data: &dto.SendNotificationRequest{}},
 		{ ExpectedErrors: 3, Data: &dto.SendNotificationRequest{Targets: targets}},
 		{ ExpectedErrors: 3, Data: &dto.SendNotificationRequest{ AppID: "", TemplateID: 0, Title: "", Targets: targets } },
@@ -22,5 +21,5 @@ func TestSendNotificationRequest_Validate(t *testing.T) {
 		{ ExpectedErrors: 0, Data: &dto.SendNotificationRequest{ AppID: "w", TemplateID: 5, Title: "rt", Targets: targets } },
 	}
 
-	testutils.RunRequestTestCases(&testCases, t)
+	RunRequestTestCases(&testCases, t)
 }

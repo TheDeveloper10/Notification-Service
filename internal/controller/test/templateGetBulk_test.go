@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"notification-service/internal/controller"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -16,9 +15,9 @@ func TestBasicTemplateV1Controller_GetBulk(t *testing.T) {
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 
-	newTestCase := func(reqURL string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
+	newTestCase := func(reqURL string, reqHeaders map[string]string, expectedStatusCode int) ControllerTestCase {
 		reqURL = "/v1/templates" + reqURL
-		return testutils.ControllerTestCase{
+		return ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodGet,
 			ReqURL:          reqURL,
@@ -28,12 +27,12 @@ func TestBasicTemplateV1Controller_GetBulk(t *testing.T) {
 		}
 	}
 
-	testCases := []testutils.ControllerTestCase{
+	testCases := []ControllerTestCase{
 		newTestCase("", nil, http.StatusUnauthorized),
 		newTestCase("", map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
 		newTestCase("", map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
 		newTestCase("?size=10&page=2", map[string]string{ "Authorization": "Bearer 13124" }, http.StatusOK),
 	}
 
-	testutils.RunControllerTestCases(&testCases, t)
+	RunControllerTestCases(&testCases, t)
 }

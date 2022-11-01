@@ -2,13 +2,12 @@ package test
 
 import (
 	"notification-service/internal/dto"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
 func TestNotificationTarget_Validate(t *testing.T) {
 	s := func(str string) *string { return &str }
-	testCases := []testutils.RequestTestCase{
+	testCases := []RequestTestCase{
 		{ExpectedErrors: 1, Data: &dto.NotificationTarget{}},
 		{ExpectedErrors: 1, Data: &dto.NotificationTarget{Email: nil, PhoneNumber: nil, FCMRegistrationToken: nil}},
 		{ExpectedErrors: 1, Data: &dto.NotificationTarget{Email: s("john"), PhoneNumber: nil, FCMRegistrationToken: nil}},
@@ -21,5 +20,5 @@ func TestNotificationTarget_Validate(t *testing.T) {
 		{ExpectedErrors: 0, Data: &dto.NotificationTarget{Email: nil, PhoneNumber: nil, FCMRegistrationToken: s("PIAHgfousdghouewht")}},
 	}
 
-	testutils.RunRequestTestCases(&testCases, t)
+	RunRequestTestCases(&testCases, t)
 }

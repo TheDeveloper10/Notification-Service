@@ -7,7 +7,6 @@ import (
 	"notification-service/internal/controller/layer"
 	"notification-service/internal/dto"
 	"notification-service/internal/repository"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -19,8 +18,8 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 
-	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) testutils.ControllerTestCase {
-		return testutils.ControllerTestCase{
+	newTestCase := func(reqBody *string, reqHeaders map[string]string, expectedStatusCode int) ControllerTestCase {
+		return ControllerTestCase{
 			Router:          router,
 			ReqMethod:       http.MethodPost,
 			ReqURL:          "/v1/notifications",
@@ -32,7 +31,7 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 
 	s := func(str string) *string { return &str }
 
-	testCases := []testutils.ControllerTestCase{
+	testCases := []ControllerTestCase{
 		newTestCase(
 			layer.ToJSONString(
 				&dto.SendNotificationRequest{
@@ -142,5 +141,5 @@ func TestBasicNotificationV1Controller_Send(t *testing.T) {
 		),
 	}
 
-	testutils.RunControllerTestCases(&testCases, t)
+	RunControllerTestCases(&testCases, t)
 }

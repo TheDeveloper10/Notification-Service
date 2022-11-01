@@ -4,7 +4,6 @@ import (
 	"notification-service/internal/dto"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -24,12 +23,12 @@ func (tpt *TemplatePlaceholderTest) Validate() iface.IErrorList {
 }
 
 func TestTemplatePlaceholder_Validate(t *testing.T) {
-	testCases := []testutils.RequestTestCase{
+	testCases := []RequestTestCase{
 		{ ExpectedErrors: 1, Data: &TemplatePlaceholderTest{} },
 		{ ExpectedErrors: 1, Data: &TemplatePlaceholderTest{"", ""} },
 		{ ExpectedErrors: 0, Data: &TemplatePlaceholderTest{"j", ""} },
 		{ ExpectedErrors: 0, Data: &TemplatePlaceholderTest{"j", "a"} },
 	}
 
-	testutils.RunRequestTestCases(&testCases, t)
+	RunRequestTestCases(&testCases, t)
 }

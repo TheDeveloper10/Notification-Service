@@ -3,7 +3,6 @@ package test
 import (
 	"notification-service/internal/dto"
 	"notification-service/internal/helper"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
@@ -11,7 +10,7 @@ func TestCreateTemplateRequest_Validate(t *testing.T) {
 	helper.LoadConfig("../../../" + helper.ServiceConfigPath)
 
 	s := func(str string) *string { return &str }
-	testCases := []testutils.RequestTestCase{
+	testCases := []RequestTestCase{
 		{ ExpectedErrors: 3, Data: &dto.CreateTemplateRequest{} },
 		{ ExpectedErrors: 3, Data: &dto.CreateTemplateRequest{Body: dto.TemplateBodyRequest{}, Language: "", Type: "" } },
 		{ ExpectedErrors: 2, Data: &dto.CreateTemplateRequest{Body: dto.TemplateBodyRequest{Email: s("test template")}, Language: "", Type: "" } },
@@ -26,5 +25,5 @@ func TestCreateTemplateRequest_Validate(t *testing.T) {
 		{ ExpectedErrors: 0, Data: &dto.CreateTemplateRequest{Body: dto.TemplateBodyRequest{Email: s("test 2")}, Language: "BG", Type: "qwe" } },
 	}
 
-	testutils.RunRequestTestCases(&testCases, t)
+	RunRequestTestCases(&testCases, t)
 }

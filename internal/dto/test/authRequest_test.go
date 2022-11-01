@@ -2,12 +2,11 @@ package test
 
 import (
 	"notification-service/internal/dto"
-	"notification-service/internal/util/testutils"
 	"testing"
 )
 
 func TestAuthRequest_Validate(t *testing.T) {
-	testCases := []testutils.RequestTestCase{
+	testCases := []RequestTestCase{
 		{ ExpectedErrors: 2, Data: &dto.AuthRequest{}},
 		{ ExpectedErrors: 2, Data: &dto.AuthRequest{ ClientId: "", ClientSecret: "" }},
 		{ ExpectedErrors: 2, Data: &dto.AuthRequest{ ClientId: "1", ClientSecret: "" }},
@@ -17,5 +16,5 @@ func TestAuthRequest_Validate(t *testing.T) {
 		{ ExpectedErrors: 0, Data: &dto.AuthRequest{ ClientId: "1234567890123456", ClientSecret: "L0NYtEwFNmZS28eSeTLK37CLWPckRrCcsbTFUPI3dw2rdlwK4rhxj4epRCh969qFIao0W6OXrKngmTHPH0A5CqPhztijul05qMe22ErSGYcy6pcXzk8wN9JgKe8WwlwD" }},
 	}
 
-	testutils.RunRequestTestCases(&testCases, t)
+	RunRequestTestCases(&testCases, t)
 }
