@@ -3,11 +3,11 @@ package client
 import (
 	"fmt"
 	"net/smtp"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"strconv"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var MailClient iface.IMailClient = nil
@@ -17,9 +17,9 @@ func InitializeMailClient() {
 		return
 	}
 
-	if helper.Config.Service.Clients.Has("smtp") {
+	if util.Config.Service.Clients.Has("smtp") {
 		client := &mailClient{}
-		client.init(helper.Config.SMTP.Host, helper.Config.SMTP.Port, helper.Config.SMTP.FromEmail, helper.Config.SMTP.FromPassword)
+		client.init(util.Config.SMTP.Host, util.Config.SMTP.Port, util.Config.SMTP.FromEmail, util.Config.SMTP.FromPassword)
 
 		MailClient = client
 	} else {
@@ -36,7 +36,7 @@ type mailClient struct {
 
 func (mw *mailClient) init(host string, port int, fromEmail string, password string) {
 	if mw.auth != nil {
-		log.Fatal("Cannot initialize a MailClient more than once")
+		logrus.Fatal("Cannot initialize a MailClient more than once")
 		return
 	}
 	mw.address = host + ":" + strconv.Itoa(port)

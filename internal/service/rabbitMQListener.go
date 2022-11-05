@@ -2,9 +2,9 @@ package service
 
 import (
 	amqp "github.com/rabbitmq/amqp091-go"
-	log "github.com/sirupsen/logrus"
-	"notification-service/internal/controller"
-	"notification-service/internal/helper"
+	"github.com/sirupsen/logrus"
+	"notification-service/internal/util"
+	"notification-service/internal/util/iface"
 	"time"
 )
 
@@ -14,84 +14,75 @@ type RabbitMQListener struct {
 	connection *amqp.Connection
 	channel    *amqp.Channel
 
-	templateController     *controller.TemplateV1Controller
-	notificationController *controller.NotificationV1Controller
+	controllers []iface.IRabbitMQController
 }
 
-func (l *RabbitMQListener) Init(templateController *controller.TemplateV1Controller,
-								notificationController *controller.NotificationV1Controller) {
-	conn, err := amqp.Dial(helper.Config.RabbitMQ.URL)
+func (l *RabbitMQListener) Init(controllers ...iface.IRabbitMQController) {
+	conn, err := amqp.Dial(util.Config.RabbitMQ.URL)
 	if err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 	l.connection = conn
 
 	l.channel, err = conn.Channel()
 	if err != nil {
-		helper.HandledClose(l.connection)
-		log.Fatal(err.Error())
+		util.HandledClose(l.connection)
+		logrus.Fatal(err.Error())
 	}
 
-	l.templateController = templateController
-	l.notificationController = notificationController
+	l.controllers = controllers
 }
 
 func (l *RabbitMQListener) Close() {
-	helper.HandledClose(l.channel)
-	helper.HandledClose(l.connection)
+	util.HandledClose(l.channel)
+	util.HandledClose(l.connection)
 }
 
 func (l *RabbitMQListener) Run() {
-	l.handleQueue(
-		helper.Config.RabbitMQ.TemplatesQueueName,
-		(*l.templateController).CreateTemplateFromBytes,
-		helper.Config.RabbitMQ.TemplatesQueueMax,
-	)
-	l.handleQueue(
-		helper.Config.RabbitMQ.NotificationsQueueName,
-		(*l.notificationController).CreateNotificationFromBytes,
-		helper.Config.RabbitMQ.NotificationsQueueMax,
-	)
-	log.Info("RabbitMQ listener is ON...")
+	for _, controller := range l.controllers {
+		l.handleQueue(controller)
+	}
+
+	logrus.Info("RabbitMQ listener is ON...")
 }
 
-func (l *RabbitMQListener) handleQueue(queue string, target func([]byte), maxRunningProcesses int) {
+func (l *RabbitMQListener) handleQueue(controller iface.IRabbitMQController) {
 	requests, err := l.channel.Consume(
-		queue,
+		controller.QueueName(),
 		"", false, false, false, false, nil,
 	)
 	if err != nil {
 		l.Close()
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 
-	go l.processChannel(&requests, target, maxRunningProcesses)
+	go l.processRequests(&requests, controller)
 }
 
-func (l *RabbitMQListener) processChannel(requests *<-chan amqp.Delivery, target func([]byte), maxRunningProcesses int) {
+func (l *RabbitMQListener) processRequests(requests *<-chan amqp.Delivery, controller iface.IRabbitMQController) {
 	runningProcesses := 0
 
 	for request := range *requests {
 		runningProcesses++
 
-		go l.processRequest(request, target, &runningProcesses)
+		go l.processRequest(request, controller, &runningProcesses)
 
 		// sync.WaitGroup can be used instead of doing this but it cannot
 		// Wait for a single process to finish - all of them have to finish
 		// in order to free up for the next requests
-		for runningProcesses >= maxRunningProcesses {
-			time.Sleep(2 * time.Millisecond)
+		for runningProcesses >= controller.QueueCapacity() {
+			time.Sleep(4 * time.Millisecond)
 		}
 	}
 }
 
-func (l *RabbitMQListener) processRequest(request amqp.Delivery,
-										  target func([]byte),
-										  runningProcesses *int) {
-	target(request.Body)
-	err := request.Ack(false)
-	if err != nil {
-		log.Error(err.Error())
+func (l *RabbitMQListener) processRequest(request amqp.Delivery, controller iface.IRabbitMQController, runningProcesses *int) {
+	res := controller.Handle(request.Body)
+	if !res {
+		err := request.Ack(false)
+		if err != nil {
+			logrus.Error(err.Error())
+		}
 	}
 	(*runningProcesses)--
 }

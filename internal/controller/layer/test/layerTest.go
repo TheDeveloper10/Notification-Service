@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"strings"
 	"testing"
@@ -28,7 +28,7 @@ func (ltc *LayerTestCase) PrepareTest(t *testing.T) (rem.IRequest, rem.IResponse
 
 	rec := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "", body)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		t.Fatal(err.Error())
 	}
 

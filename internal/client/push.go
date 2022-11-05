@@ -2,14 +2,14 @@ package client
 
 import (
 	"context"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var PushClient iface.IPushClient = nil
@@ -19,7 +19,7 @@ func InitializePushClient(credentialsFile string) {
 		return
 	}
 
-	if helper.Config.Service.Clients.Has("push") {
+	if util.Config.Service.Clients.Has("push") {
 		client := &pushClient{}
 		client.init(credentialsFile)
 		PushClient = client
@@ -35,7 +35,7 @@ type pushClient struct {
 
 func (pc *pushClient) init(credentialsFile string) {
 	if pc.client != nil {
-		log.Fatal("Cannot initialize a pushClient more than once")
+		logrus.Fatal("Cannot initialize a pushClient more than once")
 		return
 	}
 
@@ -44,13 +44,13 @@ func (pc *pushClient) init(credentialsFile string) {
 	opt := option.WithCredentialsFile(credentialsFile)
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 		return
 	}
 
 	pc.client, err = app.Messaging(ctx)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 		return
 	}
 }

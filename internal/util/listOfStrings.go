@@ -1,4 +1,4 @@
-package helper
+package util
 
 type ListOfStrings []string
 

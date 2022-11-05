@@ -1,7 +1,7 @@
-package helper
+package util
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type Closer interface {
@@ -10,12 +10,12 @@ type Closer interface {
 
 func HandledClose(toClose Closer) {
 	err := toClose.Close()
-	IsError(err)
+	ManageError(err)
 }
 
-func IsError(err error) bool {
+func ManageError(err error) bool {
 	if err != nil {
-		log.Error(err.Error())
+		logrus.Error(err.Error())
 		return true
 	}
 	return false

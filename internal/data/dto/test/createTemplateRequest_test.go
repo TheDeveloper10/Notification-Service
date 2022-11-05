@@ -2,12 +2,12 @@ package test
 
 import (
 	dto2 "notification-service/internal/data/dto"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"testing"
 )
 
 func TestCreateTemplateRequest_Validate(t *testing.T) {
-	helper.LoadConfig("../../../../" + helper.ServiceConfigPath)
+	util.LoadConfig("../../../../" + util.ServiceConfigPath)
 
 	s := func(str string) *string { return &str }
 	testCases := []RequestTestCase{

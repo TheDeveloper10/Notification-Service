@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"strconv"
 	"strings"
 	"testing"
@@ -31,7 +31,7 @@ func (ctc *ControllerTestCase) RunTest(testId int, t *testing.T) {
 	}
 
 	req, err := http.NewRequest(ctc.ReqMethod, ctc.ReqURL, body)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		t.Fatal(err.Error())
 	}
 

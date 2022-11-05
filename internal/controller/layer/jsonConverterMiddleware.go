@@ -2,7 +2,6 @@ package layer
 
 import (
 	"github.com/TheDeveloper10/rem"
-	"notification-service/internal/helper"
 	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 
@@ -12,7 +11,7 @@ import (
 
 func JSONBytesConverterMiddleware(bytes []byte, out iface.IRequest) bool {
 	err := json.Unmarshal(bytes, &out)
-	return !helper.IsError(err)
+	return !util.ManageError(err)
 }
 
 func JSONConverterMiddleware(res rem.IResponse, req rem.IRequest, out iface.IRequest) bool {
@@ -27,7 +26,7 @@ func JSONConverterMiddleware(res rem.IResponse, req rem.IRequest, out iface.IReq
 	}
 
 	err := json.NewDecoder(req.GetBody()).Decode(&out)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Invalid JSON"))
 		return false
 	}

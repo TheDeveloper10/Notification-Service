@@ -2,16 +2,17 @@ package main
 
 import (
 	"notification-service/internal/client"
-	"notification-service/internal/controller"
-	"notification-service/internal/helper"
+	"notification-service/internal/controller/httpctrl"
+	"notification-service/internal/controller/rabbitmq"
 	"notification-service/internal/repository"
 	"notification-service/internal/service"
+	"notification-service/internal/util"
 	"sync"
 )
 
 func main() {
 	// Configuration
-	helper.LoadConfig(helper.ServiceConfigPath)
+	util.LoadConfig(util.ServiceConfigPath)
 
 	client.InitializeSQLClient()
 	client.InitializeMailClient()
@@ -25,14 +26,15 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	// Controllers
-	testV1Controller := controller.NewTestV1Controller()
-	authV1Controller := controller.NewAuthV1Controller(clientRepository)
-	templateV1Controller := controller.NewTemplateV1Controller(templateRepository, clientRepository)
-	notificationV1Controller := controller.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
+	// HTTP Service
+	if util.Config.Service.Services.Has("http") {
+		// Controllers
+		testV1Controller := httpctrl.NewTestV1Controller()
+		authV1Controller := httpctrl.NewAuthV1Controller(clientRepository)
+		templateV1Controller := httpctrl.NewTemplateV1Controller(templateRepository, clientRepository)
+		notificationV1Controller := httpctrl.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 
-	// HTTP Server
-	if helper.Config.Service.Services.Has("http") {
+		// HTTP Server
 		httpServer := service.HTTPServer{}
 		httpServer.Init(
 			testV1Controller,
@@ -44,10 +46,16 @@ func main() {
 		go httpServer.Run()
 	}
 
-	// RabbitMQ Listener
-	if helper.Config.Service.Services.Has("rabbitmq") {
+	// RabbitMQ Service
+	if util.Config.Service.Services.Has("rabbitmq") {
+		// Controllers
+		createNotificationController := rabbitmq.NewCreateNotificationV1Controller()
+
+		// RabbitMQ Listener
 		rabbitMQListener := service.RabbitMQListener{}
-		rabbitMQListener.Init(&templateV1Controller, &notificationV1Controller)
+		rabbitMQListener.Init(
+			createNotificationController,
+		)
 		wg.Add(1)
 		go rabbitMQListener.Run()
 		defer rabbitMQListener.Close()

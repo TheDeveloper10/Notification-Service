@@ -2,13 +2,13 @@ package impl
 
 import (
 	entity2 "notification-service/internal/data/entity"
-	"notification-service/internal/util"
+	"notification-service/internal/util/code"
 )
 
 type MockNotificationRepository struct {}
 
-func (m MockNotificationRepository) Insert(entity *entity2.NotificationEntity) util.RepoStatusCode {
-	return util.RepoStatusSuccess
+func (m MockNotificationRepository) Insert(entity *entity2.NotificationEntity) code.StatusCode {
+	return code.StatusSuccess
 }
 
 func (m MockNotificationRepository) SendEmail(entity *entity2.NotificationEntity) bool {
@@ -23,7 +23,7 @@ func (m MockNotificationRepository) SendSMS(entity *entity2.NotificationEntity) 
 	return true
 }
 
-func (m MockNotificationRepository) GetBulk(filter *entity2.NotificationFilter) (*[]entity2.NotificationEntity, util.RepoStatusCode) {
+func (m MockNotificationRepository) GetBulk(filter *entity2.NotificationFilter) (*[]entity2.NotificationEntity, code.StatusCode) {
 	return &[]entity2.NotificationEntity{
 		{
 			Id: 1,
@@ -34,5 +34,5 @@ func (m MockNotificationRepository) GetBulk(filter *entity2.NotificationFilter) 
 			Message: "Hello!",
 			SentTime: 123342352,
 		},
-	},  util.RepoStatusSuccess
+	}, code.StatusSuccess
 }

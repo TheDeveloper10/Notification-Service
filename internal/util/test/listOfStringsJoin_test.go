@@ -1,13 +1,13 @@
 package test
 
 import (
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"strconv"
 	"testing"
 )
 
 type listOfStringsJoinTest struct {
-	data     helper.ListOfStrings
+	data     util.ListOfStrings
 	operator string
 	expectedResult string
 }

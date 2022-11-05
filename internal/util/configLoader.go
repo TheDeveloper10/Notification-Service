@@ -1,8 +1,8 @@
-package helper
+package util
 
 import (
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -53,18 +53,18 @@ var Config config
 func LoadConfig(fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 
 	Config = config{}
 	err = yaml.Unmarshal(data, &Config)
 	if err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 }
 

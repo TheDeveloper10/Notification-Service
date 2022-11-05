@@ -3,13 +3,13 @@ package client
 import (
 	"database/sql"
 	"fmt"
+	"notification-service/internal/util"
 	"time"
 
-	"notification-service/internal/helper"
 	"notification-service/internal/util/iface"
 
 	_ "github.com/go-sql-driver/mysql"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var SQLClient iface.ISQLClient = nil
@@ -19,7 +19,7 @@ func InitializeSQLClient() {
 		return
 	}
 
-	dbConfig := &helper.Config.Database
+	dbConfig := &util.Config.Database
 	conn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Name)
 
 	client := sqlClient{}
@@ -35,7 +35,7 @@ type sqlClient struct {
 func (c *sqlClient) Init(driver string, connection string, poolSize int) {
 	client, err := sql.Open(driver, connection)
 	if err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 
 	client.SetConnMaxIdleTime(5 * time.Second)
@@ -48,13 +48,13 @@ func (c *sqlClient) Init(driver string, connection string, poolSize int) {
 
 func (c *sqlClient) Exec(query string, args ...any) sql.Result {
 	stmt, err := c.client.Prepare(query)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		return nil
 	}
-	defer helper.HandledClose(stmt)
+	defer util.HandledClose(stmt)
 
 	res, err := stmt.Exec(args...)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		return nil
 	}
 
@@ -64,13 +64,13 @@ func (c *sqlClient) Exec(query string, args ...any) sql.Result {
 func (c *sqlClient) Query(query string, args ...any) *sql.Rows {
 
 	stmt, err := c.client.Prepare(query)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		return nil
 	}
-	defer helper.HandledClose(stmt)
+	defer util.HandledClose(stmt)
 
 	rows, err := stmt.Query(args...)
-	if helper.IsError(err) {
+	if util.ManageError(err) {
 		return nil
 	}
 

@@ -7,9 +7,9 @@ import (
 	"notification-service/internal/data/dto"
 	"notification-service/internal/data/entity"
 	"notification-service/internal/util"
+	"notification-service/internal/util/code"
 	"strings"
 
-	"notification-service/internal/helper"
 	"notification-service/internal/repository"
 )
 
@@ -37,11 +37,11 @@ func ClientInfoMiddleware(clientRepository repository.IClientRepository,
 	}
 
 	client, status := clientRepository.GetClient(reqObj.ToEntity())
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		return client
-	} else if status == util.RepoStatusNotFound {
+	} else if status == code.StatusNotFound {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Client not found!"))
-	} else if status == util.RepoStatusError {
+	} else if status == code.StatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
 	}
 
@@ -63,11 +63,11 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 	if clientEntity == nil {
 		res.Status(http.StatusUnauthorized)
 
-		if status == util.RepoStatusNotFound {
+		if status == code.StatusNotFound {
 			res.JSON(util.ErrorListFromTextError("Access Token not found! Probably expired."))
-		} else if status == util.RepoStatusError {
+		} else if status == code.StatusError {
 			res.JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
-		} else if status == util.RepoStatusExpired {
+		} else if status == code.StatusExpired {
 			res.JSON(util.ErrorListFromTextError("Access Token has expired!"))
 		}
 
@@ -90,7 +90,7 @@ func MasterTokenMiddleware(res rem.IResponse, req rem.IRequest) bool {
 	}
 	token := header[len("Bearer "):]
 
-	if token != helper.Config.HTTPServer.MasterAccessToken {
+	if token != util.Config.HTTPServer.MasterAccessToken {
 		res.Status(http.StatusForbidden).JSON(util.ErrorListFromTextError("You have no permission to access this resource!"))
 		return false
 	}

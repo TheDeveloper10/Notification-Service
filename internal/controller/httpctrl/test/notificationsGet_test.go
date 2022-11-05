@@ -3,7 +3,7 @@ package test
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
-	"notification-service/internal/controller"
+	"notification-service/internal/controller/httpctrl"
 	"notification-service/internal/repository"
 	"testing"
 )
@@ -12,7 +12,7 @@ func TestBasicNotificationV1Controller_Get(t *testing.T) {
 	templateRepository := repository.NewMockTemplateRepository()
 	notificationRepository := repository.NewMockNotificationRepository()
 	clientRepository := repository.NewMockClientRepository()
-	tac := controller.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
+	tac := httpctrl.NewNotificationV1Controller(templateRepository, notificationRepository, clientRepository)
 	router := rem.NewRouter()
 	tac.CreateRoutes(router)
 

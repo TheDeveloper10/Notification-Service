@@ -1,4 +1,4 @@
-package controller
+package httpctrl
 
 import (
 	"github.com/TheDeveloper10/rem"
@@ -6,7 +6,7 @@ import (
 	"notification-service/internal/util/iface"
 )
 
-func NewTestV1Controller() iface.IController {
+func NewTestV1Controller() iface.IHTTPController {
 	return &basicTestV1Controller{}
 }
 

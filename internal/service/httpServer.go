@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type HTTPServer struct {
@@ -14,9 +14,9 @@ type HTTPServer struct {
 	router *rem.Router
 }
 
-func (s *HTTPServer) Init(controllers ...iface.IController) {
+func (s *HTTPServer) Init(controllers ...iface.IHTTPController) {
 	if s.router != nil {
-		log.Fatal("Cannot initialize HTTP server again!")
+		logrus.Fatal("Cannot initialize HTTP server again!")
 		return
 	}
 
@@ -28,6 +28,6 @@ func (s *HTTPServer) Init(controllers ...iface.IController) {
 }
 
 func (s *HTTPServer) Run() {
-	log.Info("HTTP Server is ON...")
-	log.Fatal(http.ListenAndServe(helper.Config.HTTPServer.Addr, s.router))
+	logrus.Info("HTTP Server is ON...")
+	logrus.Fatal(http.ListenAndServe(util.Config.HTTPServer.Addr, s.router))
 }

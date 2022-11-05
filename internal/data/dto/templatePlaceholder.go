@@ -2,7 +2,7 @@ package dto
 
 import (
 	"errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 )
@@ -23,7 +23,7 @@ func (tp *TemplatePlaceholder) Validate() error {
 func GetPlaceholders(text *string) string {
 	regex, err := regexp.Compile("@{[^$]*?}")
 	if err != nil {
-		log.Error("Failed to compile regex")
+		logrus.Error("Failed to compile regex")
 		return ""
 	}
 

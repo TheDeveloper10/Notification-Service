@@ -2,7 +2,7 @@ package dto
 
 import (
 	"notification-service/internal/data/entity"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 )
 
@@ -18,8 +18,8 @@ func (ctr *CreateTemplateRequest) Validate() iface.IErrorList {
 
 	if ctr.Language == "" {
 		errs.AddErrorFromString("'language' must be given")
-	} else if !helper.Config.Service.AllowedLanguages.Has(ctr.Language) {
-		errs.AddErrorFromString("'language' must be one of " + helper.Config.Service.AllowedLanguages.Join(", "))
+	} else if !util.Config.Service.AllowedLanguages.Has(ctr.Language) {
+		errs.AddErrorFromString("'language' must be one of " + util.Config.Service.AllowedLanguages.Join(", "))
 	}
 
 	if ctr.Type == "" {

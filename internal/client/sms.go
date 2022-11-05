@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"notification-service/internal/helper"
+	"notification-service/internal/util"
 	"notification-service/internal/util/iface"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var SMSClient iface.ISMSClient = nil
@@ -18,9 +18,9 @@ func InitializeSMSClient() {
 		return
 	}
 
-	if helper.Config.Service.Clients.Has("sms") {
+	if util.Config.Service.Clients.Has("sms") {
 		client := &smsClient{}
-		client.init(helper.Config.Twillio.AccountSID, helper.Config.Twillio.MessagingServiceSID, helper.Config.Twillio.AuthToken)
+		client.init(util.Config.Twillio.AccountSID, util.Config.Twillio.MessagingServiceSID, util.Config.Twillio.AuthToken)
 
 		SMSClient = client
 	} else {
@@ -40,7 +40,7 @@ type smsClient struct {
 
 func (sc *smsClient) init(accountSID string, messagingServiceSID string, authToken string) {
 	if sc.httpClient != nil {
-		log.Fatal("Cannot initialize a SMSClient more than once")
+		logrus.Fatal("Cannot initialize a SMSClient more than once")
 		return
 	}
 

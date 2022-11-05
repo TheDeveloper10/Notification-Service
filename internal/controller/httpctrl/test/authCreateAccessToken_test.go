@@ -3,17 +3,17 @@ package test
 import (
 	"github.com/TheDeveloper10/rem"
 	"net/http"
-	"notification-service/internal/controller"
-	"notification-service/internal/helper"
+	"notification-service/internal/controller/httpctrl"
 	"notification-service/internal/repository"
+	"notification-service/internal/util"
 	"testing"
 )
 
 func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
-	helper.LoadConfig("../../../" + helper.ServiceConfigPath)
+	util.LoadConfig("../../../" + util.ServiceConfigPath)
 
 	clientRepository := repository.NewMockClientRepository()
-	bac := controller.NewAuthV1Controller(clientRepository)
+	bac := httpctrl.NewAuthV1Controller(clientRepository)
 	router := rem.NewRouter()
 	bac.CreateRoutes(router)
 

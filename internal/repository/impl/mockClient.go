@@ -2,50 +2,50 @@ package impl
 
 import (
 	"notification-service/internal/data/entity"
-	"notification-service/internal/util"
+	"notification-service/internal/util/code"
 )
 
 type MockClientRepository struct {}
 
-func (mcr *MockClientRepository) GetClient(credentials *entity.ClientCredentials) (*entity.ClientEntity, util.RepoStatusCode) {
+func (mcr *MockClientRepository) GetClient(credentials *entity.ClientCredentials) (*entity.ClientEntity, code.StatusCode) {
 	return &entity.ClientEntity{
 		Permissions: entity.PermissionAll,
-	}, util.RepoStatusSuccess
+	}, code.StatusSuccess
 }
 
-func (mcr *MockClientRepository) UpdateClient(clientID *string, client *entity.ClientEntity) util.RepoStatusCode {
+func (mcr *MockClientRepository) UpdateClient(clientID *string, client *entity.ClientEntity) code.StatusCode {
 	if *clientID == "aa" {
-		return util.RepoStatusSuccess
+		return code.StatusSuccess
 	} else if *clientID == "bb" {
-		return util.RepoStatusNotFound
+		return code.StatusNotFound
 	}
-	return util.RepoStatusError
+	return code.StatusError
 }
 
-func (mcr *MockClientRepository) DeleteClient(clientID *string) util.RepoStatusCode {
+func (mcr *MockClientRepository) DeleteClient(clientID *string) code.StatusCode {
 	if *clientID == "aa" {
-		return util.RepoStatusSuccess
+		return code.StatusSuccess
 	} else if *clientID == "bb" {
-		return util.RepoStatusNotFound
+		return code.StatusNotFound
 	}
-	return util.RepoStatusError
+	return code.StatusError
 }
 
-func (mcr *MockClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) (*entity.AccessToken, util.RepoStatusCode) {
+func (mcr *MockClientRepository) GenerateAccessToken(clientEntity *entity.ClientEntity) (*entity.AccessToken, code.StatusCode) {
 	return &entity.AccessToken{
 		AccessToken: "123",
-	}, util.RepoStatusSuccess
+	}, code.StatusSuccess
 }
 
-func (mcr *MockClientRepository) GetClientFromAccessToken(accessToken *entity.AccessToken) (*entity.ClientEntity, util.RepoStatusCode) {
+func (mcr *MockClientRepository) GetClientFromAccessToken(accessToken *entity.AccessToken) (*entity.ClientEntity, code.StatusCode) {
 	return &entity.ClientEntity{
 		Permissions: entity.PermissionAll,
-	}, util.RepoStatusSuccess
+	}, code.StatusSuccess
 }
 
-func (mcr *MockClientRepository) CreateClient(clientEntity *entity.ClientEntity) (*entity.ClientCredentials, util.RepoStatusCode) {
+func (mcr *MockClientRepository) CreateClient(clientEntity *entity.ClientEntity) (*entity.ClientCredentials, code.StatusCode) {
 	return &entity.ClientCredentials{
 		Id: "1234",
 		Secret: "Real Secret",
-	}, util.RepoStatusSuccess
+	}, code.StatusSuccess
 }

@@ -1,4 +1,4 @@
-package controller
+package httpctrl
 
 import (
 	"github.com/TheDeveloper10/rem"
@@ -7,10 +7,11 @@ import (
 	"notification-service/internal/data/dto"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
+	"notification-service/internal/util/code"
 	"notification-service/internal/util/iface"
 )
 
-func NewAuthV1Controller(repository repository.IClientRepository) iface.IController {
+func NewAuthV1Controller(repository repository.IClientRepository) iface.IHTTPController {
 	return &basicAuthV1Controller{
 		repository,
 	}
@@ -48,9 +49,9 @@ func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequ
 	clientEntity := reqObj.ToEntity()
 	credentials, status := boac.repository.CreateClient(clientEntity)
 
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		res.Status(http.StatusCreated).JSON(credentials)
-	} else if status == util.RepoStatusError {
+	} else if status == code.StatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to create user. Try again!"))
 	}
 
@@ -75,11 +76,11 @@ func (boac *basicAuthV1Controller) updateClient(res rem.IResponse, req rem.IRequ
 
 	clientEntity := reqObj.ToEntity()
 	status := boac.repository.UpdateClient(&clientID, clientEntity)
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		res.Status(http.StatusOK)
-	} else if status == util.RepoStatusNotFound {
+	} else if status == code.StatusNotFound {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Client not found!"))
-	} else if status == util.RepoStatusError {
+	} else if status == code.StatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Something went wrong. Try again!"))
 	}
 
@@ -116,9 +117,9 @@ func (boac *basicAuthV1Controller) createAccessToken(res rem.IResponse, req rem.
 	}
 
 	accessToken, status := boac.repository.GenerateAccessToken(client)
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		res.Status(http.StatusOK).JSON(*accessToken)
-	} else if status == util.RepoStatusError {
+	} else if status == code.StatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to generate a token!"))
 	}
 

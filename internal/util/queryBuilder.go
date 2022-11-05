@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func NewQueryBuilder(queryCore string) iface.IQueryBuilder {
@@ -26,7 +26,7 @@ func (qb *queryBuilder) init(queryCore *string) {
 	loweredQuery := strings.ToLower(*queryCore)
 
 	if strings.Contains(loweredQuery, " where ") || strings.Contains(loweredQuery, " limit ") || strings.Contains(loweredQuery, " offset ") {
-		log.Error("Core of query cannot contain 'where', 'limit' or 'offset'!")
+		logrus.Error("Core of query cannot contain 'where', 'limit' or 'offset'!")
 		return
 	}
 

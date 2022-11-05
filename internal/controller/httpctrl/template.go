@@ -1,4 +1,4 @@
-package controller
+package httpctrl
 
 import (
 	"github.com/TheDeveloper10/rem"
@@ -8,12 +8,13 @@ import (
 	entity2 "notification-service/internal/data/entity"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
+	"notification-service/internal/util/code"
 	"notification-service/internal/util/iface"
 	"strconv"
 )
 
 type TemplateV1Controller interface {
-	iface.IController
+	iface.IHTTPController
 	CreateTemplateFromBytes(bytes []byte)
 }
 
@@ -70,7 +71,7 @@ func (btc *basicTemplateV1Controller) getBulk(res rem.IResponse, req rem.IReques
 	}
 
 	templates, status := btc.templateRepository.GetBulk(filter)
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		res.Status(http.StatusOK).JSON(*templates)
 	} else {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get anything. Try again!"))
@@ -90,7 +91,7 @@ func (btc *basicTemplateV1Controller) create(res rem.IResponse, req rem.IRequest
 
 	templateEntity := reqObj.ToEntity()
 	id, status := btc.templateRepository.Insert(templateEntity)
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		metadata := dto2.TemplateMetadata{
 			Id: id,
 		}
@@ -134,9 +135,9 @@ func (btc *basicTemplateV1Controller) getById(res rem.IResponse, req rem.IReques
 	}
 
 	record, status := btc.templateRepository.Get(templateId)
-	if status == util.RepoStatusError {
+	if status == code.StatusError {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to get the requested template. Try again!"))
-	} else if status == util.RepoStatusNotFound {
+	} else if status == code.StatusNotFound {
 		res.Status(http.StatusNotFound).JSON(util.ErrorListFromTextError("Couldn't find the template you were looking for!"))
 	} else {
 		res.Status(http.StatusOK).JSON(record)
@@ -183,7 +184,7 @@ func (btc *basicTemplateV1Controller) deleteById(res rem.IResponse, req rem.IReq
 	}
 
 	status := btc.templateRepository.Delete(templateId)
-	if status == util.RepoStatusSuccess {
+	if status == code.StatusSuccess {
 		res.Status(http.StatusOK)
 	} else {
 		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to delete it. Try again!"))

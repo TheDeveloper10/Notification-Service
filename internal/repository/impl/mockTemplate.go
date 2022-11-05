@@ -2,16 +2,16 @@ package impl
 
 import (
 	entity2 "notification-service/internal/data/entity"
-	"notification-service/internal/util"
+	"notification-service/internal/util/code"
 )
 
 type MockTemplateRepository struct {}
 
-func (mtr *MockTemplateRepository) Insert(entity *entity2.TemplateEntity) (int, util.RepoStatusCode) {
-	return 0, util.RepoStatusSuccess
+func (mtr *MockTemplateRepository) Insert(entity *entity2.TemplateEntity) (int, code.StatusCode) {
+	return 0, code.StatusSuccess
 }
 
-func (mtr *MockTemplateRepository) Get(id int) (*entity2.TemplateEntity, util.RepoStatusCode) {
+func (mtr *MockTemplateRepository) Get(id int) (*entity2.TemplateEntity, code.StatusCode) {
 	if id == 4 {
 		template := "Hi, @{firstName}!"
 		return &entity2.TemplateEntity{
@@ -21,7 +21,7 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity2.TemplateEntity, util.Re
 			},
 			Language: "EN",
 			Type:     "test",
-		}, util.RepoStatusSuccess
+		}, code.StatusSuccess
 	} else if id == 3 {
 		template := "Hi, @{firstName}!"
 		return &entity2.TemplateEntity{
@@ -31,7 +31,7 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity2.TemplateEntity, util.Re
 			},
 			Language: "EN",
 			Type:     "test",
-		}, util.RepoStatusSuccess
+		}, code.StatusSuccess
 	} else if id == 2 {
 		template := "Hi, @{firstName}!"
 		return &entity2.TemplateEntity{
@@ -41,15 +41,15 @@ func (mtr *MockTemplateRepository) Get(id int) (*entity2.TemplateEntity, util.Re
 			},
 			Language: "EN",
 			Type:     "test",
-		}, util.RepoStatusSuccess
+		}, code.StatusSuccess
 	} else if id == 1 {
-		return nil, util.RepoStatusNotFound
+		return nil, code.StatusNotFound
 	}
 
-	return nil, util.RepoStatusError
+	return nil, code.StatusError
 }
 
-func (mtr *MockTemplateRepository) GetBulk(filter *entity2.TemplateFilter) (*[]entity2.TemplateEntity, util.RepoStatusCode) {
+func (mtr *MockTemplateRepository) GetBulk(filter *entity2.TemplateFilter) (*[]entity2.TemplateEntity, code.StatusCode) {
 	template := "Hi, @{firstName}!"
 	return &[]entity2.TemplateEntity{
 		{
@@ -60,13 +60,13 @@ func (mtr *MockTemplateRepository) GetBulk(filter *entity2.TemplateFilter) (*[]e
 			Language: "EN",
 			Type: "test",
 		},
-	}, util.RepoStatusSuccess
+	}, code.StatusSuccess
 }
 
-func (mtr *MockTemplateRepository) Update(templateEntity *entity2.TemplateEntity) util.RepoStatusCode {
-	return util.RepoStatusSuccess
+func (mtr *MockTemplateRepository) Update(templateEntity *entity2.TemplateEntity) code.StatusCode {
+	return code.StatusSuccess
 }
 
-func (mtr *MockTemplateRepository) Delete(id int) util.RepoStatusCode {
-	return util.RepoStatusSuccess
+func (mtr *MockTemplateRepository) Delete(id int) code.StatusCode {
+	return code.StatusSuccess
 }
