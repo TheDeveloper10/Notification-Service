@@ -49,7 +49,7 @@ func main() {
 	// RabbitMQ Service
 	if util.Config.Service.Services.Has("rabbitmq") {
 		// Controllers
-		createNotificationController := rabbitmq.NewCreateNotificationV1Controller()
+		createNotificationController := rabbitmq.NewCreateNotificationV1Controller(templateRepository)
 
 		// RabbitMQ Listener
 		rabbitMQListener := service.RabbitMQListener{}

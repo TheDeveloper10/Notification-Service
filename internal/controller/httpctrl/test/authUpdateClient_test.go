@@ -11,7 +11,7 @@ import (
 
 func TestBasicAuthV1Controller_UpdateClient(t *testing.T) {
 	// TODO: fix this path*
-	util.LoadConfig("../../../" + util.ServiceConfigPath)
+	util.LoadConfig("../../../../" + util.ServiceConfigPath)
 
 	clientRepository := repository.NewMockClientRepository()
 	bac := httpctrl.NewAuthV1Controller(clientRepository)
