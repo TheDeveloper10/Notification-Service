@@ -10,7 +10,6 @@ import (
 	"notification-service/internal/util"
 	"notification-service/internal/util/code"
 	"notification-service/internal/util/iface"
-	"strconv"
 	"sync"
 )
 
@@ -146,7 +145,7 @@ func (bnc *basicNotificationV1Controller) internalSend(reqObj *dto.SendNotificat
 			FailedNotifications:           failedCount,
 		})
 	} else {
-		res.Status(http.StatusCreated).Text(strconv.Itoa(targetCount) + " notification(s) have been sent successfully!")
+		res.Status(http.StatusCreated)
 	}
 }
 
@@ -210,7 +209,7 @@ func (bnc *basicNotificationV1Controller) fillPlaceholders(
 											template *entity.TemplateEntity,
 											placeholders *[]dto.TemplatePlaceholder,
 											res rem.IResponse) bool {
-	if(template.Body.Email != nil) {
+	if template.Body.Email != nil {
 		edited, err := dto.FillPlaceholders(*template.Body.Email, placeholders)
 		if err != nil {
 			res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
@@ -219,7 +218,7 @@ func (bnc *basicNotificationV1Controller) fillPlaceholders(
 		template.Body.Email = edited
 	}
 
-	if(template.Body.SMS != nil) {
+	if template.Body.SMS != nil {
 		edited, err := dto.FillPlaceholders(*template.Body.SMS, placeholders)
 		if err != nil {
 			res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
@@ -228,7 +227,7 @@ func (bnc *basicNotificationV1Controller) fillPlaceholders(
 		template.Body.SMS = edited
 	}
 
-	if(template.Body.Push != nil) {
+	if template.Body.Push != nil {
 		edited, err := dto.FillPlaceholders(*template.Body.Push, placeholders)
 		if err != nil {
 			res.Status(http.StatusUnprocessableEntity).JSON(util.ErrorListFromTextError(err.Error()))
