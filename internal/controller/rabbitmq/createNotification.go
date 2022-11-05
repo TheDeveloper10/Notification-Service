@@ -1,7 +1,6 @@
 package rabbitmq
 
 import (
-	"github.com/sirupsen/logrus"
 	"notification-service/internal/controller/layer"
 	"notification-service/internal/data/dto"
 	"notification-service/internal/data/entity"
@@ -26,31 +25,29 @@ type basicCreateNotificationV1Controller struct {
 }
 
 func (bcnc *basicCreateNotificationV1Controller) QueueName() string {
-	return util.Config.RabbitMQ.TemplatesQueueName
+	return util.Config.RabbitMQ.NotificationsQueueName
 }
 
 func (bcnc *basicCreateNotificationV1Controller) QueueCapacity() int {
-	return util.Config.RabbitMQ.TemplatesQueueMax
+	return util.Config.RabbitMQ.NotificationsQueueMax
 }
 
-func (bcnc *basicCreateNotificationV1Controller) Handle(bytes []byte) bool {
-	// TODO: send feedback to rabbitmq via some key
-
+func (bcnc *basicCreateNotificationV1Controller) Handle(bytes []byte) (any, bool) {
 	reqObj := dto.SendNotificationRequest{}
 	if !layer.JSONBytesConverterMiddleware(bytes, &reqObj) {
-		return true
+		return util.ErrorListFromTextError("Failed to parse JSON"), true
 	}
 
 	templateEntity, status := bcnc.templateRepository.Get(reqObj.TemplateID)
 	if status == code.StatusError {
-		return false
+		return nil, false
 	} else if status == code.StatusNotFound {
-		return true
+		return util.ErrorListFromTextError("Template not found"), true
 	}
 
 	filledResult := bcnc.fillPlaceholders(templateEntity, &reqObj.UniversalPlaceholders)
 	if !filledResult {
-		return false
+		return nil, false
 	}
 
 	var wg sync.WaitGroup
@@ -100,10 +97,14 @@ func (bcnc *basicCreateNotificationV1Controller) Handle(bytes []byte) bool {
 	wg.Wait()
 
 	if failedCount > 0 || len(errs) > 0 {
-		logrus.Errorf("Failed To Send Notifications: %d\tSucceeded Notifications: %d\tErrors:\n%s", failedCount, successCount, errs)
+		return &dto.SendNotificationsError{
+			Errors:                        errs,
+			SuccessfullySentNotifications: successCount,
+			FailedNotifications:           failedCount,
+		}, true
 	}
 
-	return true
+	return nil, true
 }
 
 

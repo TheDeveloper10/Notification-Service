@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
 	"notification-service/internal/util"
@@ -62,6 +64,7 @@ func (l *RabbitMQListener) handleQueue(controller iface.IRabbitMQController) {
 func (l *RabbitMQListener) processRequests(requests *<-chan amqp.Delivery, controller iface.IRabbitMQController) {
 	runningProcesses := 0
 
+	logrus.Infof("Listening RabbitMQ queue %s...", controller.QueueName())
 	for request := range *requests {
 		runningProcesses++
 
@@ -77,12 +80,55 @@ func (l *RabbitMQListener) processRequests(requests *<-chan amqp.Delivery, contr
 }
 
 func (l *RabbitMQListener) processRequest(request amqp.Delivery, controller iface.IRabbitMQController, runningProcesses *int) {
-	res := controller.Handle(request.Body)
-	if !res {
+	response, acknowledge := controller.Handle(request.Body)
+	(*runningProcesses)--
+
+	if acknowledge {
 		err := request.Ack(false)
-		if err != nil {
-			logrus.Error(err.Error())
+		if util.ManageError(err) {
+			return
+		}
+
+		if request.ReplyTo != "" && request.CorrelationId != "" {
+			// publish response to
+			l.publishMessage(response, request.ReplyTo, request.CorrelationId)
 		}
 	}
-	(*runningProcesses)--
+}
+
+func (l *RabbitMQListener) publishMessage(message any, queueName string, correlationId string) {
+	// TODO: make resending
+	contentType := ""
+	var body []byte
+
+	if _, ok := message.(string); ok {
+		body = []byte(message.(string))
+		contentType = "application/text"
+	} else {
+		temp, err := json.Marshal(message)
+		if util.ManageError(err) {
+			return
+		} else {
+			contentType = "application/json"
+			body = temp
+		}
+	}
+
+	logrus.Info(queueName + "   " + correlationId)
+	err := l.channel.PublishWithContext(
+		context.Background(),
+		"",
+		queueName,
+		false,
+		false,
+		amqp.Publishing{
+			DeliveryMode:  amqp.Persistent,
+			Timestamp:     time.Now(),
+			ContentType:   contentType,
+			CorrelationId: correlationId,
+			Body: 		   body,
+		},
+	)
+
+	util.ManageError(err)
 }

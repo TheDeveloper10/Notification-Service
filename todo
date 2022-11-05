@@ -1,7 +1,6 @@
 1. Make two types of controllers: http and rabbitmq
-2. Send feedback to rabbitmq via key
-3. Make tokens JWT instead of database stored
-4. Improve logs
-5. Add a Makefile
-6. Improve docs
-7. Use Firebase Cloud Messaging bulk sending
+2. Make tokens JWT instead of database stored
+3. Improve logs
+4. Add a Makefile
+5. Improve docs
+6. Use Firebase Cloud Messaging bulk sending

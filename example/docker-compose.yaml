@@ -3,6 +3,8 @@ services:
   database:
     image: "mysql:8.0.30"
     container_name: "ns-database"
+    ports:
+      - "3306:3306"
     env_file:
       - db.env
     volumes:
@@ -22,6 +24,7 @@ services:
     build:
       context: ./../
       dockerfile: ./Dockerfile
+    container_name: "ns-backend"
     ports:
       - "80:80"
     depends_on:
