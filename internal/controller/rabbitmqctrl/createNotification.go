@@ -1,4 +1,4 @@
-package rabbitmq
+package rabbitmqctrl
 
 import (
 	"notification-service/internal/controller/layer"

@@ -114,7 +114,6 @@ func (l *RabbitMQListener) publishMessage(message any, queueName string, correla
 		}
 	}
 
-	logrus.Info(queueName + "   " + correlationId)
 	err := l.channel.PublishWithContext(
 		context.Background(),
 		"",

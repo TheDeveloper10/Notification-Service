@@ -3,7 +3,7 @@ package main
 import (
 	"notification-service/internal/client"
 	"notification-service/internal/controller/httpctrl"
-	"notification-service/internal/controller/rabbitmq"
+	"notification-service/internal/controller/rabbitmqctrl"
 	"notification-service/internal/repository"
 	"notification-service/internal/service"
 	"notification-service/internal/util"
@@ -49,12 +49,14 @@ func main() {
 	// RabbitMQ Service
 	if util.Config.Service.Services.Has("rabbitmq") {
 		// Controllers
-		createNotificationController := rabbitmq.NewCreateNotificationV1Controller(templateRepository, notificationRepository)
+		createNotificationController := rabbitmqctrl.NewCreateNotificationV1Controller(templateRepository, notificationRepository)
+		createTemplateController := rabbitmqctrl.NewCreateTemplateV1Controller(templateRepository)
 
 		// RabbitMQ Listener
 		rabbitMQListener := service.RabbitMQListener{}
 		rabbitMQListener.Init(
 			createNotificationController,
+			createTemplateController,
 		)
 		wg.Add(1)
 		go rabbitMQListener.Run()
