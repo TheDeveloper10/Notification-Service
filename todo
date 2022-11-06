@@ -1,6 +1,5 @@
-1. Make tokens JWT instead of database stored
-2. Add auth to rabbitmq controllers
-3. Improve logs
-4. Add a Makefile
-5. Improve docs
-6. Use Firebase Cloud Messaging bulk sending
+1. Add auth to rabbitmq controllers
+2. Improve logs
+3. Add a Makefile
+4. Improve docs
+5. Use Firebase Cloud Messaging bulk sending
