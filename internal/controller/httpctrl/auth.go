@@ -23,6 +23,7 @@ type basicAuthV1Controller struct {
 }
 
 func (boac *basicAuthV1Controller) CreateRoutes(router *rem.Router) {
+	// TODO: send refresher token**
 	router.
 		NewRoute("/v1/oauth/client").
 		Post(boac.createClient)
@@ -110,6 +111,8 @@ func (boac *basicAuthV1Controller) deleteClient(res rem.IResponse, req rem.IRequ
 
 	return true
 }
+
+
 
 func (boac *basicAuthV1Controller) createAuthTokens(res rem.IResponse, req rem.IRequest) bool {
 	client := layer.ClientInfoMiddleware(boac.repository, res, req)

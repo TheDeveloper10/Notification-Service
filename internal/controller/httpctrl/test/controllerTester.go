@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"notification-service/internal/util"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -48,7 +47,7 @@ func (ctc *ControllerTestCase) RunTest(testId int, t *testing.T) {
 	res := rec.Result()
 
 	if res.StatusCode != ctc.ExpectedStatus {
-		t.Error(strconv.Itoa(testId) + ": Status Code of Response is " + strconv.Itoa(res.StatusCode) + " and not " + strconv.Itoa(ctc.ExpectedStatus))
+		t.Errorf("Test %d\tExpected: %d\tReceived: %d", testId, ctc.ExpectedStatus, res.StatusCode)
 	}
 }
 

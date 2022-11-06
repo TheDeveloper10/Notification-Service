@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
+func TestBasicAuthV1Controller_CreateAuthToken(t *testing.T) {
 	util.LoadConfig("../../../../" + util.ServiceConfigPath)
 
 	clientRepository := repository.NewMockClientRepository()
@@ -32,7 +32,9 @@ func TestBasicAuthV1Controller_CreateAccessToken(t *testing.T) {
 		newTestCase(nil, http.StatusUnauthorized),
 		newTestCase(map[string]string{ "Authorization": "Bearer 13124" }, http.StatusUnauthorized),
 		newTestCase(map[string]string{ "Authorization": "Basic 13124" }, http.StatusUnauthorized),
-		newTestCase(map[string]string{ "Authorization": "Basic aWQ6c2VjcmV0" }, http.StatusOK),
+		newTestCase(map[string]string{ "Authorization": "Basic YWFhOjEyMzQ1" }, http.StatusBadRequest),
+		newTestCase(map[string]string{ "Authorization": "Basic YmJiOjEyMzQ1" }, http.StatusCreated),
+		newTestCase(map[string]string{ "Authorization": "Basic Y2NiOjEyMzQ1" }, http.StatusCreated),
 	}
 
 	RunControllerTestCases(&testCases, t)

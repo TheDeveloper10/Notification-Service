@@ -40,13 +40,37 @@ func (mcr *MockClientRepository) CreateClient(clientEntity *entity.ClientEntity)
 }
 
 func (mcr *MockClientRepository) VerifyToken(token *string, secret *string) code.StatusCode {
+	if *token == "aaa" {
+		return code.StatusError
+	} else if *token == "bbb" {
+		return code.StatusExpired
+	}
 	return code.StatusSuccess
 }
 
 func (mcr *MockClientRepository) GenerateToken(clientEntity *entity.ClientEntity, secret *string, expiry int) (*string, code.StatusCode) {
-	return nil, code.StatusSuccess
+	if clientEntity.ClientId == "aaa" {
+		return nil, code.StatusError
+	}
+
+	k := "magic"
+	return &k, code.StatusSuccess
 }
 
 func (mcr *MockClientRepository) ExtractClientFromToken(token *string, secret *string) (*entity.ClientEntity, code.StatusCode) {
-	return nil, code.StatusSuccess
+	if *token == "aaa" {
+		return nil, code.StatusError
+	} else if *token == "bbb" {
+		return nil, code.StatusExpired
+	} else if *token == "ccc" {
+		return &entity.ClientEntity{
+			ClientId: "12345",
+			Permissions: 0,
+		}, code.StatusSuccess
+	}
+
+	return &entity.ClientEntity{
+		ClientId: "1234",
+		Permissions: entity.PermissionAll,
+	}, code.StatusSuccess
 }

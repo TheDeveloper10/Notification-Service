@@ -30,7 +30,6 @@ func ClientInfoMiddleware(clientRepository repository.IClientRepository,
 	}
 
 	keys := strings.Split(string(decodedData), ":")
-
 	reqObj := dto.AuthRequest{
 		ClientId:     keys[0],
 		ClientSecret: keys[1],
@@ -60,7 +59,7 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 	token := header[len("Bearer "):]
 	clientEntity, status := clientRepository.ExtractClientFromToken(&token, &util.Config.Service.AccessTokenSecret)
 
-	if status != code.StatusSuccess {
+	if clientEntity == nil || status != code.StatusSuccess {
 		res.Status(http.StatusUnauthorized)
 
 		if status == code.StatusNotFound {
