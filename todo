@@ -1,5 +1,5 @@
-1. Make two types of controllers: http and rabbitmq
-2. Make tokens JWT instead of database stored
+1. Make tokens JWT instead of database stored
+2. Add auth to rabbitmq controllers
 3. Improve logs
 4. Add a Makefile
 5. Improve docs
