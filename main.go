@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	//logrus.SetReportCaller(true)
+
 	// Configuration
 	util.LoadConfig(util.ServiceConfigPath)
 

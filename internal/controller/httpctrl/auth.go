@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"notification-service/internal/controller/layer"
 	"notification-service/internal/data/dto"
+	"notification-service/internal/data/entity"
 	"notification-service/internal/repository"
 	"notification-service/internal/util"
 	"notification-service/internal/util/code"
@@ -33,7 +34,7 @@ func (boac *basicAuthV1Controller) CreateRoutes(router *rem.Router) {
 
 	router.
 		NewRoute("/v1/oauth/token").
-		Post(boac.createAccessToken)
+		Post(boac.createAuthTokens)
 }
 
 func (boac *basicAuthV1Controller) createClient(res rem.IResponse, req rem.IRequest) bool {
@@ -110,18 +111,28 @@ func (boac *basicAuthV1Controller) deleteClient(res rem.IResponse, req rem.IRequ
 	return true
 }
 
-func (boac *basicAuthV1Controller) createAccessToken(res rem.IResponse, req rem.IRequest) bool {
+func (boac *basicAuthV1Controller) createAuthTokens(res rem.IResponse, req rem.IRequest) bool {
 	client := layer.ClientInfoMiddleware(boac.repository, res, req)
 	if client == nil {
 		return true
 	}
 
-	accessToken, status := boac.repository.GenerateAccessToken(client)
-	if status == code.StatusSuccess {
-		res.Status(http.StatusOK).JSON(*accessToken)
-	} else if status == code.StatusError {
-		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to generate a token!"))
+	at, status := boac.repository.GenerateToken(client, &util.Config.Service.AccessTokenSecret, util.Config.Service.AccessTokenExpiry)
+	if status != code.StatusSuccess {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to generate an access token!"))
+		return true
 	}
+
+	rt, status := boac.repository.GenerateToken(client, &util.Config.Service.RefresherTokenSecret, util.Config.Service.RefresherTokenExpiry)
+	if status != code.StatusSuccess {
+		res.Status(http.StatusBadRequest).JSON(util.ErrorListFromTextError("Failed to generate a refresher token!"))
+		return true
+	}
+
+	res.Status(http.StatusCreated).JSON(entity.AuthTokens{
+		AccessToken: *at,
+		RefresherToken: *rt,
+	})
 
 	return true
 }

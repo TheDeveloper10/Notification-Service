@@ -27,15 +27,3 @@ CREATE TABLE IF NOT EXISTS `Clients`(
     `Permissions`  INTEGER      NOT NULL,
     `CreationTime` INTEGER      NOT NULL DEFAULT(UNIX_TIMESTAMP())
 );
-
-CREATE TABLE IF NOT EXISTS `AccessTokens`(
-    `AccessToken` VARCHAR(128) PRIMARY KEY,
-    `Permissions` INTEGER      NOT NULL,
-    `ExpiryTime`  INTEGER      NOT NULL
-) ENGINE = MEMORY;
-
-CREATE EVENT IF NOT EXISTS `access_token_cleanup`
-ON SCHEDULE
-EVERY 10 MINUTE DO
-DELETE FROM `AccessTokens`
-WHERE `ExpiryTime` <= UNIX_TIMESTAMP();

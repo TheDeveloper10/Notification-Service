@@ -12,8 +12,9 @@ type IClientRepository interface {
 	UpdateClient(*string, *entity.ClientEntity) code.StatusCode
 	DeleteClient(*string) code.StatusCode
 
-	GenerateAccessToken(*entity.ClientEntity) (*entity.AccessToken, code.StatusCode)
-	GetClientFromAccessToken(*entity.AccessToken) (*entity.ClientEntity, code.StatusCode)
+	VerifyToken(token *string, secret *string) code.StatusCode
+	GenerateToken(clientEntity *entity.ClientEntity, secret *string, expiry int) (*string, code.StatusCode)
+	ExtractClientFromToken(token *string, secret *string) (*entity.ClientEntity, code.StatusCode)
 }
 
 // ----------------------------------

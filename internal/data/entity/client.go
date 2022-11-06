@@ -1,16 +1,25 @@
 package entity
 
+import "github.com/golang-jwt/jwt"
+
+type AuthTokens struct {
+	AccessToken    string
+	RefresherToken string
+}
+
 type ClientCredentials struct {
 	Id     string
 	Secret string
 }
 
-type AccessToken struct {
-	AccessToken string `json:"access_token"`
+type ClientEntity struct {
+	ClientId    string `json:"cid"`
+	Permissions int64  `json:"pm"`
 }
 
-type ClientEntity struct {
-	Permissions int64
+type ClientEntityClaims struct {
+	ClientEntity
+	jwt.StandardClaims
 }
 
 func (ce *ClientEntity) CheckPermission(permission int64) bool {

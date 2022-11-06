@@ -10,10 +10,15 @@ import (
 
 type config struct {
 	Service struct {
-		Services          ListOfStrings `yaml:"services"`
-		Clients           ListOfStrings `yaml:"clients"`
-		AllowedLanguages  ListOfStrings `yaml:"allowed_languages"`
-		TemplateCacheSize int           `yaml:"template_cache_size"`
+		Services          	 ListOfStrings `yaml:"services"`
+		Clients           	 ListOfStrings `yaml:"clients"`
+		AllowedLanguages  	 ListOfStrings `yaml:"allowed_languages"`
+		TemplateCacheSize 	 int           `yaml:"template_cache_size"`
+
+		AccessTokenSecret 	 string        `yaml:"access_token_secret"`
+		AccessTokenExpiry 	 int           `yaml:"access_token_expiry"`
+		RefresherTokenSecret string        `yaml:"refresher_token_secret"`
+		RefresherTokenExpiry int           `yaml:"refresher_token_expiry"`
 	}
 	HTTPServer struct {
 		Addr                  string

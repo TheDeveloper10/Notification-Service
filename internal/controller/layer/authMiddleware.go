@@ -58,9 +58,9 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 		return false
 	}
 	token := header[len("Bearer "):]
-	clientEntity, status := clientRepository.GetClientFromAccessToken(&entity.AccessToken{AccessToken: token})
+	clientEntity, status := clientRepository.ExtractClientFromToken(&token, &util.Config.Service.AccessTokenSecret)
 
-	if clientEntity == nil {
+	if status != code.StatusSuccess {
 		res.Status(http.StatusUnauthorized)
 
 		if status == code.StatusNotFound {
@@ -80,8 +80,6 @@ func AccessTokenMiddleware(clientRepository repository.IClientRepository,
 	return true
 }
 
-// TODO: Perhaps move "Master Token" to be an Access Token with no Expiry Time (null or MAX_INT) 
-//       and add a new permission to create clients
 func MasterTokenMiddleware(res rem.IResponse, req rem.IRequest) bool {
 	header := req.GetHeaders().Get("Authorization")
 	if header == "" || !strings.HasPrefix(header, "Bearer ") {

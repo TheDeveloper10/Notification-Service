@@ -18,6 +18,11 @@ service:
 
   template_cache_size: 1000
 
+  access_token_secret: 1JDNtn6AKXnUzEra58osOJsl4N4UOydB
+  access_token_expiry: 3600 # 1 hour
+  refresher_token_secret: aZm48TqR2tiLMpzKrfWVLu7mG20HFkpRimw415pjWyXKcE7zxYEcKz6z6H5FZMk5
+  refresher_token_expiry: 604800 # 7 days
+
 # needed only if 'http' is included in `service.services`
 http_server:
   addr: :80
