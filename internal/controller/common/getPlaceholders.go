@@ -1,4 +1,4 @@
-package processor
+package common
 
 import (
 	"github.com/sirupsen/logrus"

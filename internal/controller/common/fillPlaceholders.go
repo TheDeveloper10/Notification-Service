@@ -1,4 +1,4 @@
-package processor
+package common
 
 import (
 	"notification-service/internal/data/dto"
