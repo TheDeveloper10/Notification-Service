@@ -6,12 +6,12 @@ import (
 )
 
 func ToNotificationEntity(
-	targetId int,
-	template *entity.TemplateEntity,
-	message *string,
-	request *dto.SendNotificationRequest,
-	errs *[]dto.SendNotificationErrorData) *entity.NotificationEntity {
-	replaced, err := FillPlaceholders(*message, &request.Targets[targetId].Placeholders)
+						targetId int,
+						template *entity.TemplateEntity,
+						message *string,
+						request *dto.SendNotificationRequest,
+						errs *[]dto.SendNotificationErrorData) *entity.NotificationEntity {
+	replaced, err := FillPlaceholders(*message, request.Targets[targetId].Placeholders)
 	if err != nil {
 		*errs = append(*errs, dto.SendNotificationErrorData{
 			TargetId: targetId,

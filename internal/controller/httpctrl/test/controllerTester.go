@@ -47,7 +47,7 @@ func (ctc *ControllerTestCase) RunTest(testId int, t *testing.T) {
 	res := rec.Result()
 
 	if res.StatusCode != ctc.ExpectedStatus {
-		t.Errorf("Test %d\tExpected: %d\tReceived: %d", testId, ctc.ExpectedStatus, res.StatusCode)
+		t.Errorf("Test: %d\tExpected: %d\tReceived: %d", testId, ctc.ExpectedStatus, res.StatusCode)
 	}
 }
 

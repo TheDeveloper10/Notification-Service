@@ -33,7 +33,6 @@ func GetPlaceholders(text *string) string {
 			} else {
 				res += ", " + placeholder
 			}
-		} else {
 			set[placeholder] = empty
 		}
 	}

@@ -34,7 +34,7 @@ func (bctc *basicCreateTemplateV1Controller) Handle(bytes []byte) (any, bool) {
 
 	templateEntity := reqObj.ToEntity()
 	id, status := bctc.templateRepository.Insert(templateEntity)
-	if status == code.StatusError {
+	if status != code.StatusSuccess {
 		return nil, false
 	}
 

@@ -22,7 +22,7 @@ func (ns *NotificationSender) Send(request *dto.SendNotificationRequest) (any, b
 		return errors.New("Template not found"), true, http.StatusNotFound
 	}
 
-	err := FillPlaceholdersOnTemplate(templateEntity, &request.UniversalPlaceholders)
+	err := FillPlaceholdersOnTemplate(templateEntity, request.UniversalPlaceholders)
 	if err != nil {
 		return err, true, http.StatusUnprocessableEntity
 	}
@@ -50,7 +50,7 @@ func (ns *NotificationSender) Send(request *dto.SendNotificationRequest) (any, b
 		if target.Email != nil {
 			notification := ToNotificationEntity(currentTarget, templateEntity, templateEntity.Body.Email, request, &errs)
 			if notification != nil {
-				go SendNotification(*notification, target.Email, ns.NotificationRepository.SendEmail, &successCount, &failedCount, ns.NotificationRepository, &wg)
+				go SendNotification(notification, target.Email, ns.NotificationRepository.SendEmail, &successCount, &failedCount, ns.NotificationRepository, &wg)
 			}
 		}
 
@@ -58,7 +58,7 @@ func (ns *NotificationSender) Send(request *dto.SendNotificationRequest) (any, b
 		if target.PhoneNumber != nil {
 			notification := ToNotificationEntity(currentTarget, templateEntity, templateEntity.Body.SMS, request, &errs)
 			if notification != nil {
-				go SendNotification(*notification, target.PhoneNumber, ns.NotificationRepository.SendSMS, &successCount, &failedCount, ns.NotificationRepository, &wg)
+				go SendNotification(notification, target.PhoneNumber, ns.NotificationRepository.SendSMS, &successCount, &failedCount, ns.NotificationRepository, &wg)
 			}
 		}
 
@@ -66,7 +66,7 @@ func (ns *NotificationSender) Send(request *dto.SendNotificationRequest) (any, b
 		if target.FCMRegistrationToken != nil {
 			notification := ToNotificationEntity(currentTarget, templateEntity, templateEntity.Body.Push, request, &errs)
 			if notification != nil {
-				go SendNotification(*notification, target.FCMRegistrationToken, ns.NotificationRepository.SendPush, &successCount, &failedCount, ns.NotificationRepository, &wg)
+				go SendNotification(notification, target.FCMRegistrationToken, ns.NotificationRepository.SendPush, &successCount, &failedCount, ns.NotificationRepository, &wg)
 			}
 		}
 	}

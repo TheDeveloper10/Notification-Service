@@ -8,7 +8,7 @@ import (
 )
 
 func SendNotification(
-					notification entity.NotificationEntity,
+					notification *entity.NotificationEntity,
 					contactInfo *string,
 					outsourceNotification func(notificationEntity *entity.NotificationEntity)bool,
 					successCount *int,
@@ -19,8 +19,8 @@ func SendNotification(
 
 	wg.Add(1)
 	defer wg.Done()
-	if outsourceNotification(&notification) {
-		status := notificationRepository.Insert(&notification)
+	if outsourceNotification(notification) {
+		status := notificationRepository.Insert(notification)
 		if status == code.StatusSuccess {
 			(*successCount)++
 			return

@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-func FillPlaceholders(text string, placeholders *[]dto.TemplatePlaceholder) (*string, error) {
-	for i := 0; i < len(*placeholders); i++ {
-		placeholder := &((*placeholders)[i])
+func FillPlaceholders(text string, placeholders []dto.TemplatePlaceholder) (*string, error) {
+	for i := 0; i < len(placeholders); i++ {
+		placeholder := &(placeholders[i])
 		if err := placeholder.Validate(); err != nil {
 			return nil, err
 		}
@@ -21,7 +21,7 @@ func FillPlaceholders(text string, placeholders *[]dto.TemplatePlaceholder) (*st
 	return &text, nil
 }
 
-func FillPlaceholdersOnTemplate(template *entity.TemplateEntity, placeholders *[]dto.TemplatePlaceholder) error {
+func FillPlaceholdersOnTemplate(template *entity.TemplateEntity, placeholders []dto.TemplatePlaceholder) error {
 	if template.Body.Email != nil {
 		edited, err := FillPlaceholders(*template.Body.Email, placeholders)
 		if util.ManageError(err) {
