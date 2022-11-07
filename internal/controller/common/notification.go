@@ -81,5 +81,5 @@ func (ns *NotificationSender) Send(request *dto.SendNotificationRequest) (any, b
 		}, true, http.StatusBadRequest
 	}
 
-	return nil, true, http.StatusOK
+	return nil, true, http.StatusCreated
 }
