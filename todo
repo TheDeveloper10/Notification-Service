@@ -1,6 +1,7 @@
-0. Add unit tests to rabbitmq controllers
-1. Add auth to rabbitmq controllers
-2. Improve logs
-3. Add a Makefile
-4. Improve docs
-5. Use Firebase Cloud Messaging bulk sending
+0. Add examples of sending notifications in README
+1. Add unit tests to rabbitmq controllers
+2. Add auth to rabbitmq controllers
+3. Improve logs
+4. Add a Makefile
+5. Improve docs
+6. Use Firebase Cloud Messaging bulk sending

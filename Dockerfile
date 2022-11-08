@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN go build -o notification-service . && chmod +x notification-service
+RUN go get . && go build -o notification-service . && chmod +x notification-service
 
 FROM alpine:latest
 
